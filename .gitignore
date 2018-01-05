@@ -9,6 +9,7 @@ console.log
 
 # Engine local configurations
 AssetsPathConfig.json
+CMakeLists.txt
 
 # Build results
 [Dd]ebug/
