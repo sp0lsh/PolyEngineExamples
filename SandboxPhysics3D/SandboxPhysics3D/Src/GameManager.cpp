@@ -34,7 +34,14 @@ void BT::GameManagerSystem::Update(World* world)
 		TransformComponent* cmp = std::get<TransformComponent*>(tuple);
 	
 		if (cmp->GetGlobalTranslation().Length() > 100 && cmp->GetOwnerID() != gameManager->Camera)
+		{
 			DeferredTaskSystem::DestroyEntity(world, cmp->GetOwnerID());
+
+			if (gameManager->Bricks.Contains(cmp->GetOwnerID()))
+				gameManager->Bricks.Remove(cmp->GetOwnerID());
+			if (gameManager->Bullets.Contains(cmp->GetOwnerID()))
+				gameManager->Bullets.Remove(cmp->GetOwnerID());
+		}
 	}
 
 	// initialize physics values
