@@ -1,41 +1,17 @@
-<h1> <img src="Media/PolyEngine_logo_black.png" width="128"> PolyEngine </h1>
+<h1> <img src="Media/PolyEngine_logo_black.png" width="128"> PolyEngineExamples </h1>
 
-[![license](https://img.shields.io/github/license/KNTGPolygon/PolyEngine.svg)](LICENSE)
+[![license](https://img.shields.io/github/license/KNTGPolygon/PolyEngineExamples.svg)](LICENSE)
 
-Stable (master):
-[![build status](https://travis-ci.org/KNTGPolygon/PolyEngine.svg?branch=master)](https://travis-ci.org/KNTGPolygon/PolyEngine)
-[![build status](https://ci.appveyor.com/api/projects/status/wa9par5pe99sow82/branch/master?svg=true)](https://ci.appveyor.com/project/MuniuDev/polyengine)
+Game examples for [**PolyEngine**](https://github.com/KNTGPolygon/PolyEngine) - study project developed by [**KNTG Polygon**](http://polygon.pw.edu.pl/), licensed under a permissive MIT license.  
 
-Testing (dev):
-[![build status](https://travis-ci.org/KNTGPolygon/PolyEngine.svg?branch=dev)](https://travis-ci.org/KNTGPolygon/PolyEngine)
-[![build status](https://ci.appveyor.com/api/projects/status/wa9par5pe99sow82/branch/dev?svg=true)](https://ci.appveyor.com/project/MuniuDev/polyengine)
-
-Game engine study project developed by [**KNTG Polygon**](http://polygon.pw.edu.pl/), licensed under a permissive MIT license.  
-Currently it is in an early stage of development, thus backwards compatibility is not guaranteed.
-
-## Supported platforms
-* Windows 7+ with MSVC compiler (Visual Studio 2015, toolset v140 with SDK 8.1)
-* Linux with both GCC and Clang compilers (X11 with GLX 1.4 extension additionally required)
-* macOS with Clang compiler and Cocoa as backend (provided with Xcode, tested on macOS High Sierra)
-
-PolyEngine currently uses OpenGL 3.3+ only, but might gain support for other graphic  
-APIs (DirectX, Vulkan, Metal) in the future.
-
-## Dependencies
-* OpenGL 3.3, libepoxy 1.1 - rendering
-* Freetype 2 - font loading and rendering
-* Assimp 3 - model loading
-* SOIL - texture loading
-* Catch 1.8.2 - unit tests
-* OpenAL 1.1 - audio playback
-* OGG Vorbis 1.3 - audio files loading
-* Box2D 2.3 - physics engine
-* RapidJSON 1.0 - JSON parsing
-
-Precompiled Windows libraries are available in the repository to ease the compilation process.
-
-## Documentation
-Documentation in Doxygen HTML format is available [here](https://kntgpolygon.github.io/PolyEngine/Docs/html/index.html "PolyEngine docs").
+## Running the examples
+1. Clone PolyEngine repository and this repository to your computer
+2. Make sure you have Python 3.6 installed
+3. On *nix platforms insall all missing dependancies
+4. Go to `<EngineRepository>/PolyEngine/Scripts/`
+5. Run `py ProjectTool.py -u <ExamplesRepository>/<GameName>`. This will create make/sln file in `<ExamplesRepository>/<GameName>/Build`.
+6. Windows: Open `<GameName>.sln` and set project `<GameName>` as startup project. Compile and Run!
+6. *nix: Go to make file location and run make. Go to `./<GameName>` folder and run `PolyStandalone`.
 
 ## Branches:
 * master - main branch of the project, intended for stable, tested versions of the engine. Releases will be additionally tagged. Guaranteed to be rebase/force-push free.
