@@ -22,19 +22,19 @@ using namespace Poly;
 
 void BT::GameManagerSystem::Update(World* world)
 {
-	//GameManagerWorldComponent* gameManager = Poly::gEngine->GetWorld()->GetWorldComponent<GameManagerWorldComponent>();
-	//InputWorldComponent* input = world->GetWorldComponent<InputWorldComponent>();
-	//
-	//if (input->IsClicked(eMouseButton::RIGHT))
-	//	SpawnBullet(world);
-	//
-	//for(auto tuple : world->IterateComponents<TransformComponent>())
-	//{
-	//	TransformComponent* cmp = std::get<TransformComponent*>(tuple);
-	//
-	//	if (cmp->GetGlobalTranslation().Length() > 100 && cmp->GetOwnerID() != gameManager->Camera)
-	//		DeferredTaskSystem::DestroyEntity(world, cmp->GetOwnerID());
-	//}
+	GameManagerWorldComponent* gameManager = Poly::gEngine->GetWorld()->GetWorldComponent<GameManagerWorldComponent>();
+	InputWorldComponent* input = world->GetWorldComponent<InputWorldComponent>();
+	
+	if (input->IsClicked(eMouseButton::RIGHT))
+		SpawnBullet(world);
+	
+	for(auto tuple : world->IterateComponents<TransformComponent>())
+	{
+		TransformComponent* cmp = std::get<TransformComponent*>(tuple);
+	
+		if (cmp->GetGlobalTranslation().Length() > 100 && cmp->GetOwnerID() != gameManager->Camera)
+			DeferredTaskSystem::DestroyEntity(world, cmp->GetOwnerID());
+	}
 }
 
 void BT::GameManagerSystem::InitializeDemoWorld(World* world)
