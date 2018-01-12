@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ComponentBase.hpp"
+#include <Dynarray.hpp>
 
 namespace BT
 {
@@ -10,7 +11,10 @@ namespace BT
 		GameManagerWorldComponent() = default;
 
 		Poly::UniqueID Camera;
+		Poly::UniqueID DirectionalLight;
+
 		Poly::UniqueID Ground;
-		Poly::UniqueID Stone;
+		Poly::Dynarray<Poly::UniqueID> Bricks;
+		Poly::Dynarray<Poly::UniqueID> Bullets;
 	};
 }
