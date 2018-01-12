@@ -22,19 +22,19 @@ using namespace Poly;
 
 void BT::GameManagerSystem::Update(World* world)
 {
-	GameManagerWorldComponent* gameManager = Poly::gEngine->GetWorld()->GetWorldComponent<GameManagerWorldComponent>();
-	InputWorldComponent* input = world->GetWorldComponent<InputWorldComponent>();
-
-	if (input->IsClicked(eMouseButton::RIGHT))
-		SpawnBullet(world);
-
-	for(auto tuple : world->IterateComponents<TransformComponent>())
-	{
-		TransformComponent* cmp = std::get<TransformComponent*>(tuple);
-
-		if (cmp->GetGlobalTranslation().Length() > 100 && cmp->GetOwnerID() != gameManager->Camera)
-			DeferredTaskSystem::DestroyEntity(world, cmp->GetOwnerID());
-	}
+	//GameManagerWorldComponent* gameManager = Poly::gEngine->GetWorld()->GetWorldComponent<GameManagerWorldComponent>();
+	//InputWorldComponent* input = world->GetWorldComponent<InputWorldComponent>();
+	//
+	//if (input->IsClicked(eMouseButton::RIGHT))
+	//	SpawnBullet(world);
+	//
+	//for(auto tuple : world->IterateComponents<TransformComponent>())
+	//{
+	//	TransformComponent* cmp = std::get<TransformComponent*>(tuple);
+	//
+	//	if (cmp->GetGlobalTranslation().Length() > 100 && cmp->GetOwnerID() != gameManager->Camera)
+	//		DeferredTaskSystem::DestroyEntity(world, cmp->GetOwnerID());
+	//}
 }
 
 void BT::GameManagerSystem::InitializeDemoWorld(World* world)
@@ -67,15 +67,15 @@ void BT::GameManagerSystem::InitializeDemoWorld(World* world)
 
 	// create ground
 	gameManager->Ground = DeferredTaskSystem::SpawnEntityImmediate(gEngine->GetWorld());
-
+	
 	DeferredTaskSystem::AddComponentImmediate<TransformComponent>(gEngine->GetWorld(), gameManager->Ground);
 	DeferredTaskSystem::AddComponentImmediate<Trigger3DComponent>(gEngine->GetWorld(), gameManager->Ground, gEngine->GetWorld(), reinterpret_cast<Physics3DShape*>(new Physics3DBoxShape(Vector(20, 20, 0))));
 	DeferredTaskSystem::AddComponentImmediate<Rigidbody3DComponent>(gEngine->GetWorld(), gameManager->Ground, gEngine->GetWorld(), eRigidBody3DType::STATIC, 0);
 	DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, gameManager->Ground, "Models/Ground.fbx", eResourceSource::GAME);
-
+	
 	world->GetComponent<MeshRenderingComponent>(gameManager->Ground)->SetMaterial(0, PhongMaterial(Color(1, 0.5, 0.2), Color(1, 0.5, 0.2), Color(1, 0.5, 0.2), 8.0f));
 	world->GetComponent<MeshRenderingComponent>(gameManager->Ground)->SetShadingModel(eShadingModel::LIT);
-
+	
 	TransformComponent* groundTransform = gEngine->GetWorld()->GetComponent<TransformComponent>(gameManager->Ground);
 	Rigidbody3DComponent* groundRigidbody = gEngine->GetWorld()->GetComponent<Rigidbody3DComponent>(gameManager->Ground);
 	groundTransform->SetLocalTranslation(Vector(0, 0, 0));
@@ -91,15 +91,15 @@ void BT::GameManagerSystem::InitializeDemoWorld(World* world)
 		for (int j = 0; j < 5; j++)
 		{
 			gameManager->Stone = DeferredTaskSystem::SpawnEntityImmediate(gEngine->GetWorld());
-
+	
 			DeferredTaskSystem::AddComponentImmediate<TransformComponent>(gEngine->GetWorld(), gameManager->Stone);
 			DeferredTaskSystem::AddComponentImmediate<Trigger3DComponent>(gEngine->GetWorld(), gameManager->Stone, gEngine->GetWorld(), reinterpret_cast<Physics3DShape*>(new Physics3DBoxShape(Vector(1, 1, 1))));
 			DeferredTaskSystem::AddComponentImmediate<Rigidbody3DComponent>(gEngine->GetWorld(), gameManager->Stone, gEngine->GetWorld(), eRigidBody3DType::DYNAMIC, 10);
 			DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, gameManager->Stone, "Models/Cube.fbx", eResourceSource::GAME);
-
+	
 			world->GetComponent<MeshRenderingComponent>(gameManager->Stone)->SetMaterial(0, PhongMaterial(Color(1, 0, 0.2), Color(1, 0, 0.2), Color(1, 0, 0.2), 8.0f));
 			world->GetComponent<MeshRenderingComponent>(gameManager->Stone)->SetShadingModel(eShadingModel::LIT);
-
+	
 			TransformComponent* stoneTransform = gEngine->GetWorld()->GetComponent<TransformComponent>(gameManager->Stone);
 			Rigidbody3DComponent* stoneRigidbody = gEngine->GetWorld()->GetComponent<Rigidbody3DComponent>(gameManager->Stone);
 			stoneTransform->SetLocalTranslation(Vector(-5 + i*2, 5 + j*2, 0));
