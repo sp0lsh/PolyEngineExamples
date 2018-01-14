@@ -14,7 +14,7 @@ Game examples for [**PolyEngine**](https://github.com/KNTGPolygon/PolyEngine) - 
 6. *nix: Go to make file location and run make. Go to `./<GameName>` folder and run `PolyStandalone`.
 
 ## Branches:
-* master - main branch of the project, intended for stable, tested versions of the engine. Releases will be additionally tagged. Guaranteed to be rebase/force-push free.
+* master - main branch of the project, intended for stable, tested versions of the examples. Releases will be additionally tagged. Guaranteed to be rebase/force-push free.
 * dev - branch intended for pull request integration and stability testing. Guaranteed to be rebase/force-push free.
 
 Other branches can be removed, renamed or rebased anytime.
