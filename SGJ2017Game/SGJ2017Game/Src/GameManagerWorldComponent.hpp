@@ -10,13 +10,13 @@ namespace SGJ
 	class GAME_DLLEXPORT GameManagerWorldComponent : public Poly::ComponentBase
 	{
 	public:
-		Poly::UniqueID Player;
-		Poly::UniqueID Camera;
+		Poly::SafePtr<Poly::Entity> Player;
+		Poly::SafePtr<Poly::Entity> Camera;
 
-		Poly::Dynarray<Poly::UniqueID> LevelEntities;
-		Poly::Dynarray<Poly::UniqueID> OtherEntities;
+		Poly::Dynarray<Poly::SafePtr<Poly::Entity>> LevelEntities;
+		Poly::Dynarray<Poly::SafePtr<Poly::Entity>> OtherEntities;
 
-		Poly::Dynarray<Poly::UniqueID> SoundSampleEntities;
+		Poly::Dynarray<Poly::SafePtr<Poly::Entity>> SoundSampleEntities;
 
 		Poly::Dynarray<Level*> Levels;
 		size_t CurrentLevelID = 0;

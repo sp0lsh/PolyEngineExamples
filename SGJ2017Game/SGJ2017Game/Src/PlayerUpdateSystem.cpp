@@ -20,7 +20,7 @@ namespace SGJ
 		double deltaTime = TimeSystem::GetTimerDeltaTime(world, Poly::eEngineTimer::GAMEPLAY);
 
 		GameManagerWorldComponent* mgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
-		PlayerControllerComponent* playerCmp = world->GetComponent<PlayerControllerComponent>(mgrCmp->Player);
+		PlayerControllerComponent* playerCmp = world->GetComponent<PlayerControllerComponent>(mgrCmp->Player.Get());
 
 		if (playerCmp->DeathCoolDowntime > 0)
 			UpdateDeathAction(world);
@@ -43,7 +43,7 @@ namespace SGJ
 
 
 			if (world->GetWorldComponent<InputWorldComponent>()->IsPressed(eKey::ESCAPE))
-				ResetPlayer(world, world->GetComponent<PlayerControllerComponent>(mgrCmp->Player)->SpawnPoint);
+				ResetPlayer(world, world->GetComponent<PlayerControllerComponent>(mgrCmp->Player.Get())->SpawnPoint);
 
 			if (world->GetWorldComponent<InputWorldComponent>()->IsPressed(eKey::KEY_N))
 			{
@@ -56,8 +56,8 @@ namespace SGJ
 	void PlayerUpdateSystem::KillPlayer(Poly::World * world)
 	{
 		GameManagerWorldComponent* manager = world->GetWorldComponent<GameManagerWorldComponent>();
-		TransformComponent* transCmp = world->GetComponent<TransformComponent>(manager->Player);
-		PlayerControllerComponent* playerCmp = world->GetComponent<PlayerControllerComponent>(manager->Player);
+		TransformComponent* transCmp = world->GetComponent<TransformComponent>(manager->Player.Get());
+		PlayerControllerComponent* playerCmp = world->GetComponent<PlayerControllerComponent>(manager->Player.Get());
 		GameManagerSystem::PlaySample(world, "Audio/death-sound.ogg", transCmp->GetGlobalTranslation(), 1.0f, 1.8f);
 		playerCmp->DeathCoolDowntime = playerCmp->DeathCoolDowntimeMax;
 	}
@@ -65,9 +65,9 @@ namespace SGJ
 	void PlayerUpdateSystem::ResetPlayer(Poly::World* world, const Vector& spawnLocation)
 	{
 		GameManagerWorldComponent* manager = world->GetWorldComponent<GameManagerWorldComponent>();
-		TransformComponent* transCmp = world->GetComponent<TransformComponent>(manager->Player);
-		PlayerControllerComponent* playerCmp = world->GetComponent<PlayerControllerComponent>(manager->Player);
-		RigidBody2DComponent* rbCmp = world->GetComponent<RigidBody2DComponent>(manager->Player);
+		TransformComponent* transCmp = world->GetComponent<TransformComponent>(manager->Player.Get());
+		PlayerControllerComponent* playerCmp = world->GetComponent<PlayerControllerComponent>(manager->Player.Get());
+		RigidBody2DComponent* rbCmp = world->GetComponent<RigidBody2DComponent>(manager->Player.Get());
 
 		transCmp->SetLocalTranslation(spawnLocation);
 		playerCmp->SpawnPoint = spawnLocation;
@@ -86,11 +86,11 @@ namespace SGJ
 
 	void PlayerUpdateSystem::TryPlayerJump(Poly::World* world)
 	{
-		UniqueID playerID = world->GetWorldComponent<GameManagerWorldComponent>()->Player;
+		Entity* player = world->GetWorldComponent<GameManagerWorldComponent>()->Player.Get();
 
-		RigidBody2DComponent* rigidbodyCmp = world->GetComponent<RigidBody2DComponent>(playerID);
-		TransformComponent* transCmp = world->GetComponent<TransformComponent>(playerID);
-		PlayerControllerComponent* playerCmp = world->GetComponent<PlayerControllerComponent>(playerID);
+		RigidBody2DComponent* rigidbodyCmp = world->GetComponent<RigidBody2DComponent>(player);
+		TransformComponent* transCmp = world->GetComponent<TransformComponent>(player);
+		PlayerControllerComponent* playerCmp = world->GetComponent<PlayerControllerComponent>(player);
 
 		if (playerCmp->JumpCooldownTimer >= 0 || playerCmp->InAir)
 			return;
@@ -114,8 +114,8 @@ namespace SGJ
 	void PlayerUpdateSystem::UpdateInAir(Poly::World* world)
 	{
 		GameManagerWorldComponent* mgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
-		PlayerControllerComponent* playerCmp = world->GetComponent<PlayerControllerComponent>(mgrCmp->Player);
-		RigidBody2DComponent* rigidbodyCmp = world->GetComponent<RigidBody2DComponent>(mgrCmp->Player);
+		PlayerControllerComponent* playerCmp = world->GetComponent<PlayerControllerComponent>(mgrCmp->Player.Get());
+		RigidBody2DComponent* rigidbodyCmp = world->GetComponent<RigidBody2DComponent>(mgrCmp->Player.Get());
 		auto deltaTime = float(TimeSystem::GetTimerDeltaTime(world, Poly::eEngineTimer::GAMEPLAY));
 
 		if(playerCmp->JumpCooldownTimer >= 0)
@@ -152,7 +152,7 @@ namespace SGJ
 	void PlayerUpdateSystem::ProcessJumpStrech(Poly::World * world)
 	{
 		GameManagerWorldComponent* mgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
-		PlayerControllerComponent* playerCmp = world->GetComponent<PlayerControllerComponent>(mgrCmp->Player);
+		PlayerControllerComponent* playerCmp = world->GetComponent<PlayerControllerComponent>(mgrCmp->Player.Get());
 		double time = TimeSystem::GetTimerElapsedTime(world, Poly::eEngineTimer::GAMEPLAY);
 		TransformComponent* playerTrans = playerCmp->GetSibling<TransformComponent>();
 		auto timeSinceLastJump = float(time - playerCmp->LastJumpTimeStart);
@@ -183,7 +183,7 @@ namespace SGJ
 	void PlayerUpdateSystem::PickupPowerup(Poly::World * world, ePowerup powerup)
 	{
 		GameManagerWorldComponent* mgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
-		PlayerControllerComponent* playerCmp = world->GetComponent<PlayerControllerComponent>(mgrCmp->Player);
+		PlayerControllerComponent* playerCmp = world->GetComponent<PlayerControllerComponent>(mgrCmp->Player.Get());
 		TransformComponent* playerTrans = playerCmp->GetSibling<TransformComponent>();
 		if (playerCmp->GetActivePowerup() != powerup)
 		{
@@ -195,9 +195,9 @@ namespace SGJ
 	void PlayerUpdateSystem::UpdateDeathAction(Poly::World * world)
 	{
 		GameManagerWorldComponent* mgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
-		PlayerControllerComponent* playerCmp = world->GetComponent<PlayerControllerComponent>(mgrCmp->Player);
+		PlayerControllerComponent* playerCmp = world->GetComponent<PlayerControllerComponent>(mgrCmp->Player.Get());
 		//RigidBody2DComponent* rigidbodyCmp = world->GetComponent<RigidBody2DComponent>(mgrCmp->Player);
-		PostprocessSettingsComponent* postCmp = world->GetComponent<PostprocessSettingsComponent>(mgrCmp->Camera);
+		PostprocessSettingsComponent* postCmp = world->GetComponent<PostprocessSettingsComponent>(mgrCmp->Camera.Get());
 		auto deltaTime = float(TimeSystem::GetTimerDeltaTime(world, Poly::eEngineTimer::GAMEPLAY));
 
 		if (playerCmp->DeathCoolDowntime >= 0)
@@ -232,7 +232,7 @@ namespace SGJ
 	void PlayerUpdateSystem::PushPlayer(Poly::World* world, const Poly::Vector& normal, float force)
 	{
 		GameManagerWorldComponent* manager = world->GetWorldComponent<GameManagerWorldComponent>();
-		RigidBody2DComponent* rbCmp = world->GetComponent<RigidBody2DComponent>(manager->Player);
+		RigidBody2DComponent* rbCmp = world->GetComponent<RigidBody2DComponent>(manager->Player.Get());
 		rbCmp->ApplyImpulseToCenter(normal * force);
 	}
 }
