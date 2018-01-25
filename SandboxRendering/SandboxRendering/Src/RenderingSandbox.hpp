@@ -1,7 +1,6 @@
 #pragma once
 
 #include <CameraComponent.hpp>
-#include <TransformComponent.hpp>
 #include <MeshRenderingComponent.hpp>
 #include <FreeFloatMovementComponent.hpp>
 #include <Core.hpp>

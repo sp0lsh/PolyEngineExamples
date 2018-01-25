@@ -2,7 +2,6 @@
 
 #include <TimeWorldComponent.hpp>
 #include <CameraComponent.hpp>
-#include <TransformComponent.hpp>
 #include <MeshRenderingComponent.hpp>
 #include <FreeFloatMovementComponent.hpp>
 #include <Physics2DColliders.hpp>

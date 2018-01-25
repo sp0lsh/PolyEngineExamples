@@ -11,14 +11,14 @@ using namespace Poly;
 class GAME_DLLEXPORT GameManagerWorldComponent : public ComponentBase
 {
 public:
-	UniqueID Camera;
-	UniqueID KeyDirLight;
-	Dynarray<UniqueID> DirLights;
+	SafePtr<Entity> Camera;
+	SafePtr<Entity> KeyDirLight;
+	Dynarray<SafePtr<Entity>> DirLights;
 	Dynarray<PointLightComponent*> PointLights;
 	Dynarray<Vector> PointLightPositions;
-	Dynarray<UniqueID> SpotLights;
+	Dynarray<SafePtr<Entity>> SpotLights;
 	Dynarray<MeshRenderingComponent*> DebugMeshes;
 	bool IsDrawingDebugMeshes = true;
 
-	Dynarray<UniqueID> GameEntities;
+	Dynarray<SafePtr<Entity>> GameEntities;
 };

@@ -7,7 +7,6 @@
 #include <Core.hpp>
 #include <DeferredTaskSystem.hpp>
 #include <CameraComponent.hpp>
-#include <TransformComponent.hpp>
 #include <MeshRenderingComponent.hpp>
 #include <FreeFloatMovementComponent.hpp>
 #include <ScreenSpaceTextComponent.hpp>

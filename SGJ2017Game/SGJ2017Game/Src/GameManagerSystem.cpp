@@ -5,7 +5,6 @@
 #include "Level.hpp"
 
 #include <DeferredTaskSystem.hpp>
-#include <TransformComponent.hpp>
 #include <Physics2DColliders.hpp>
 #include <Rigidbody2DComponent.hpp>
 #include <MeshRenderingComponent.hpp>
@@ -126,7 +125,7 @@ Entity* GameManagerSystem::CreateTileObject(Poly::World* world, const Poly::Vect
 		DeferredTaskSystem::AddComponentImmediate<RigidBody2DComponent>(world, tile, world, physicsProperties, RigidBody2DSensorTag());
 	}
 
-	TransformComponent* tileTrans = world->GetComponent<TransformComponent>(tile);
+	EntityTransform& tileTrans = tile->GetTransform();
 
 	Entity* mesh = DeferredTaskSystem::SpawnEntityImmediate(world);
 	DeferredTaskSystem::AddComponentImmediate<DebugDrawableComponent>(world, mesh, ddrawPreset);
@@ -134,15 +133,15 @@ Entity* GameManagerSystem::CreateTileObject(Poly::World* world, const Poly::Vect
 	world->GetComponent<MeshRenderingComponent>(mesh)->SetMaterial(0, PhongMaterial(color, color, color, 8.0f));
 	world->GetComponent<MeshRenderingComponent>(mesh)->SetShadingModel(eShadingModel::LIT);
 	
-	TransformComponent* meshTrans = world->GetComponent<TransformComponent>(mesh);
+	EntityTransform& meshTrans = mesh->GetTransform();
 	mesh->SetParent(tile);
 
 	Entity* tileFakeGlow = DeferredTaskSystem::SpawnEntityImmediate(world);
 	DeferredTaskSystem::AddComponentImmediate<DebugDrawableComponent>(world, tileFakeGlow, DebugDrawPreset::GFX);
-	Poly::TransformComponent* glowTrans = world->GetComponent<Poly::TransformComponent>(tileFakeGlow);
+	EntityTransform& glowTrans = tileFakeGlow->GetTransform();
 	tileFakeGlow->SetParent(mesh);
-	glowTrans->SetLocalTranslation(Vector(0.0f, 0.0f, 0.2f));
-	glowTrans->SetLocalScale(Vector(3.0f, 3.0f, 3.0f));
+	glowTrans.SetLocalTranslation(Vector(0.0f, 0.0f, 0.2f));
+	glowTrans.SetLocalScale(Vector(3.0f, 3.0f, 3.0f));
 	Color c = Color(color);
 	c.A = 0.5;
 	DeferredTaskSystem::AddComponentImmediate<Poly::MeshRenderingComponent>(world, tileFakeGlow, "Quad.obj", eResourceSource::GAME);
@@ -151,22 +150,22 @@ Entity* GameManagerSystem::CreateTileObject(Poly::World* world, const Poly::Vect
 	switch (tileType)
 	{
 	case eTileType::SPIKESBOTTOM:
-		meshTrans->SetLocalRotation(Quaternion(Vector::UNIT_X, 90_deg));
+		meshTrans.SetLocalRotation(Quaternion(Vector::UNIT_X, 90_deg));
 		break;
 	case eTileType::SPIKESTOP:
-		meshTrans->SetLocalRotation(Quaternion(Vector::UNIT_Z, 180_deg) * Quaternion(Vector::UNIT_X, 90_deg));
+		meshTrans.SetLocalRotation(Quaternion(Vector::UNIT_Z, 180_deg) * Quaternion(Vector::UNIT_X, 90_deg));
 		break;
 	case eTileType::SPIKESLEFT:
-		meshTrans->SetLocalRotation(Quaternion(Vector::UNIT_Z, -90_deg) * Quaternion(Vector::UNIT_X, 90_deg));
+		meshTrans.SetLocalRotation(Quaternion(Vector::UNIT_Z, -90_deg) * Quaternion(Vector::UNIT_X, 90_deg));
 		break;
 	case eTileType::SPIKESRIGHT:
-		meshTrans->SetLocalRotation(Quaternion(Vector::UNIT_Z, 90_deg) * Quaternion(Vector::UNIT_X, 90_deg));
+		meshTrans.SetLocalRotation(Quaternion(Vector::UNIT_Z, 90_deg) * Quaternion(Vector::UNIT_X, 90_deg));
 		break;
 	default:;
 	}
-	meshTrans->SetLocalScale(size);
+	meshTrans.SetLocalScale(size);
 
-	tileTrans->SetLocalTranslation(position);
+	tileTrans.SetLocalTranslation(position);
 	return tile;
 }
 
@@ -177,7 +176,7 @@ Entity* GameManagerSystem::SpawnPlayer(Poly::World* world, const Poly::Vector& p
 	DeferredTaskSystem::AddComponentImmediate<PlayerControllerComponent>(world, player);
 	PlayerControllerComponent* p = world->GetComponent<PlayerControllerComponent>(player);
 	p->SpawnPoint = position;
-	TransformComponent* playerTrans = world->GetComponent<Poly::TransformComponent>(player);
+	EntityTransform& playerTrans = player->GetTransform();
 
 	DeferredTaskSystem::AddComponentImmediate<Poly::Circle2DColliderComponent>(world, player, 0.4f);
 	DeferredTaskSystem::AddComponentImmediate<Poly::RigidBody2DComponent>(world, player, world, eRigidBody2DType::DYNAMIC, 1.0f, 0.5f);
@@ -187,11 +186,11 @@ Entity* GameManagerSystem::SpawnPlayer(Poly::World* world, const Poly::Vector& p
 
 	Entity* body = DeferredTaskSystem::SpawnEntityImmediate(world);
 	DeferredTaskSystem::AddComponentImmediate<DebugDrawableComponent>(world, body, DebugDrawPreset::STATIC);
-	Poly::TransformComponent* bodyTrans = world->GetComponent<Poly::TransformComponent>(body);
+	EntityTransform& bodyTrans = body->GetTransform();
 	body->SetParent(player);
 	//bodyTrans->SetLocalRotation(Quaternion(Vector::UNIT_X, 90_deg));
 	Vector correctedSize = Vector(0.4f, 0.4f, 0.1f);
-	bodyTrans->SetLocalScale(correctedSize);
+	bodyTrans.SetLocalScale(correctedSize);
 	Color bodyColor = Color(0.0f, 1.0f, 0.0f, 1.0f);
 	DeferredTaskSystem::AddComponentImmediate<Poly::MeshRenderingComponent>(world, body, "Models/player.fbx", eResourceSource::GAME);
 	world->GetComponent<MeshRenderingComponent>(body)->SetShadingModel(eShadingModel::LIT);
@@ -199,14 +198,14 @@ Entity* GameManagerSystem::SpawnPlayer(Poly::World* world, const Poly::Vector& p
 
 	Entity* playerFakeGlow = DeferredTaskSystem::SpawnEntityImmediate(world);
 	DeferredTaskSystem::AddComponentImmediate<DebugDrawableComponent>(world, playerFakeGlow, DebugDrawPreset::GFX);
-	Poly::TransformComponent* glowTrans = world->GetComponent<Poly::TransformComponent>(playerFakeGlow);
+	EntityTransform& glowTrans = playerFakeGlow->GetTransform();
 	playerFakeGlow->SetParent(player);
 	Color playerLightColor = Color(0.0f, 1.0f, 0.0f, 0.5f);
 	DeferredTaskSystem::AddComponentImmediate<Poly::MeshRenderingComponent>(world, playerFakeGlow, "Quad.obj", eResourceSource::GAME);
 	world->GetComponent<MeshRenderingComponent>(playerFakeGlow)->SetShadingModel(eShadingModel::LIT);
 	world->GetComponent<MeshRenderingComponent>(playerFakeGlow)->SetMaterial(0, PhongMaterial(playerLightColor, playerLightColor, playerLightColor, 8.0f));
 
-	playerTrans->SetLocalTranslation(position);
+	playerTrans.SetLocalTranslation(position);
 	return player;
 }
 
@@ -306,15 +305,15 @@ void SGJ::GameManagerSystem::PlaySample(Poly::World* world, const String& file, 
 {
 	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
-	Entity* id = DeferredTaskSystem::SpawnEntityImmediate(world);
-	Poly::TransformComponent* trans = world->GetComponent<Poly::TransformComponent>(id);
-	trans->SetLocalTranslation(position);
-	DeferredTaskSystem::AddComponentImmediate<Poly::SoundEmitterComponent>(world, id, file, eResourceSource::GAME);
+	Entity* ent = DeferredTaskSystem::SpawnEntityImmediate(world);
+	EntityTransform& trans = ent->GetTransform();
+	trans.SetLocalTranslation(position);
+	DeferredTaskSystem::AddComponentImmediate<Poly::SoundEmitterComponent>(world, ent, file, eResourceSource::GAME);
 
-	SoundSystem::SetEmitterFrequency(world, id, pitch);
-	SoundSystem::SetEmitterGain(world, id, gain);
-	SoundSystem::PlayEmitter(world, id);
-	gameMgrCmp->SoundSampleEntities.PushBack(id);
+	SoundSystem::SetEmitterFrequency(world, ent, pitch);
+	SoundSystem::SetEmitterGain(world, ent, gain);
+	SoundSystem::PlayEmitter(world, ent);
+	gameMgrCmp->SoundSampleEntities.PushBack(ent);
 }
 
 void SGJ::GameManagerSystem::PrepareNonlevelObjects(Poly::World * world)
@@ -325,8 +324,8 @@ void SGJ::GameManagerSystem::PrepareNonlevelObjects(Poly::World * world)
 	DeferredTaskSystem::AddComponentImmediate<Poly::CameraComponent>(gEngine->GetWorld(), gameMgrCmp->Camera.Get(), 60_deg, 1.0f, 1000.f);
 	DeferredTaskSystem::AddComponentImmediate<SGJ::CameraMovementComponent>(gEngine->GetWorld(), gameMgrCmp->Camera.Get());
 	// Set some camera position
-	Poly::TransformComponent* cameraTrans = gEngine->GetWorld()->GetComponent<Poly::TransformComponent>(gameMgrCmp->Camera.Get());
-	cameraTrans->SetLocalTranslation(Vector(0, 0, 50.f));
+	EntityTransform& cameraTrans = gameMgrCmp->Camera->GetTransform();
+	cameraTrans.SetLocalTranslation(Vector(0, 0, 50.f));
 
 	// Set background
 	//double Time = gEngine->GetWorld()->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime();
@@ -350,8 +349,8 @@ void SGJ::GameManagerSystem::PrepareNonlevelObjects(Poly::World * world)
 	Entity* KeyDirLight = DeferredTaskSystem::SpawnEntityImmediate(world);
 	DeferredTaskSystem::AddComponentImmediate<DebugDrawableComponent>(world, KeyDirLight, DebugDrawPreset::GFX);
 	DeferredTaskSystem::AddComponentImmediate<Poly::DirectionalLightComponent>(world, KeyDirLight, Color(1.0f, 0.9f, 0.8f), 0.8f);
-	Poly::TransformComponent* dirLightTrans = world->GetComponent<Poly::TransformComponent>(KeyDirLight);
-	dirLightTrans->SetLocalRotation(DirLightRot);
+	EntityTransform& dirLightTrans = KeyDirLight->GetTransform();
+	dirLightTrans.SetLocalRotation(DirLightRot);
 	gameMgrCmp->OtherEntities.PushBack(KeyDirLight);
 }
 
