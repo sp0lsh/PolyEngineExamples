@@ -41,13 +41,13 @@ void GameManagerSystem::CreateScene(World* world)
 
 	EntityTransform& cameraTrans = Camera->GetTransform();
 	cameraTrans.SetLocalTranslation(Vector(0.0f, 5.0f, 15.0f));
-	GameMgrCmp->Camera;
+	// GameMgrCmp->Camera;
 
 	world->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, world->GetComponent<CameraComponent>(Camera));
 	EnumArray<String, eCubemapSide> miramar {
 		{eCubemapSide::RIGHT, "Cubemaps/miramar/miramar_rt.jpg"},
 		{eCubemapSide::LEFT , "Cubemaps/miramar/miramar_lt.jpg"},
-		{eCubemapSide::TOP   , "Cubemaps/miramar/miramar_up.jpg"},
+		{eCubemapSide::TOP  , "Cubemaps/miramar/miramar_up.jpg"},
 		{eCubemapSide::DOWN , "Cubemaps/miramar/miramar_dn.jpg"},
 		{eCubemapSide::BACK , "Cubemaps/miramar/miramar_bk.jpg"},
 		{eCubemapSide::FRONT, "Cubemaps/miramar/miramar_ft.jpg"}
@@ -58,17 +58,17 @@ void GameManagerSystem::CreateScene(World* world)
 	world->GetWorldComponent<AmbientLightWorldComponent>()->SetColor(Color(0.0f, 0.0f, 0.0f));
 	world->GetWorldComponent<AmbientLightWorldComponent>()->SetIntensity(0.0f);
 
-	Entity* Shaderball = DeferredTaskSystem::SpawnEntityImmediate(world);
-	EntityTransform& shaderballTrans = Shaderball->GetTransform();
-	shaderballTrans.SetLocalTranslation(Vector(0.0f, 5.0f, 0.0f));
-	DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, Shaderball, "Models/shaderball/PolyEngine_shaderball.fbx", eResourceSource::GAME);
-	MeshRenderingComponent* ballMesh = world->GetComponent<MeshRenderingComponent>(Shaderball);
-	ballMesh->SetMaterial(0, PhongMaterial(Color(1.0f, 1.0f, 1.0f), Color(1.0f, 1.0f, 0.0f), Color(1.0f, 1.0f, 0.5f), 8.0f));
-	ballMesh->SetMaterial(1, PhongMaterial(Color(1.0f, 1.0f, 1.0f), Color(0.4f, 0.4f, 0.4f), Color(1.0f, 1.0f, 0.5f), 16.0f));
-	shaderballTrans.SetLocalScale(0.1f);
-	GameMgrCmp->GameEntities.PushBack(Shaderball);
+	// Entity* Shaderball = DeferredTaskSystem::SpawnEntityImmediate(world);
+	// EntityTransform& shaderballTrans = Shaderball->GetTransform();
+	// shaderballTrans.SetLocalTranslation(Vector(0.0f, 5.0f, 0.0f));
+	// DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, Shaderball, "Models/shaderball/PolyEngine_shaderball.fbx", eResourceSource::GAME);
+	// MeshRenderingComponent* ballMesh = world->GetComponent<MeshRenderingComponent>(Shaderball);
+	// ballMesh->SetMaterial(0, PhongMaterial(Color(1.0f, 1.0f, 1.0f), Color(1.0f, 1.0f, 0.0f), Color(1.0f, 1.0f, 0.5f), 8.0f));
+	// ballMesh->SetMaterial(1, PhongMaterial(Color(1.0f, 1.0f, 1.0f), Color(0.4f, 0.4f, 0.4f), Color(1.0f, 1.0f, 0.5f), 16.0f));
+	// shaderballTrans.SetLocalScale(0.1f);
+	// GameMgrCmp->GameEntities.PushBack(Shaderball);
 
-	// CreateSponzaScene(world, GameMgrCmp);
+	CreateSponzaScene(world);
 }
 
 void GameManagerSystem::CreateSponzaScene(World* world)
