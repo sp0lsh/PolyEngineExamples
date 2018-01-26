@@ -7,6 +7,6 @@ namespace SGJ
 	class GAME_DLLEXPORT GameDebugWorldComponent : public Poly::ComponentBase
 	{
 	public:
-		Poly::UniqueID TextID;
+		Poly::SafePtr<Poly::Entity> TextID;
 	};
 }

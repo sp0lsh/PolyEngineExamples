@@ -6,7 +6,6 @@
 #include "Powerups.hpp"
 #include "Rigidbody2DComponent.hpp"
 #include "TimeSystem.hpp"
-#include "TransformComponent.hpp"
 #include "Physics2DWorldComponent.hpp"
 
 using namespace Poly;
@@ -69,7 +68,6 @@ namespace SGJ
 		//check if size changed in this frame
 		if ((!changedSize && playerCmp->GetHasChangedSize() ) || (changedSize && !playerCmp->GetHasChangedSize()))
 		{
-			TransformComponent* transformCmp = playerCmp->GetSibling<TransformComponent>();
 			Circle2DColliderComponent* colliderCmp = playerCmp->GetSibling<Circle2DColliderComponent>();
 
 			Poly::Vector size;
@@ -97,7 +95,7 @@ namespace SGJ
 				size = playerCmp->GetDefaultScale();
 				colliderRange = playerCmp->GetDefaultScale().X * 0.5f;;
 			}
-			transformCmp->SetLocalScale(size);
+			playerCmp->GetTransform().SetLocalScale(size);
 			colliderCmp->SetSize(colliderRange);
 			rbCmp->SetDensity(playerCmp->GetDensityMultiplier());
 
