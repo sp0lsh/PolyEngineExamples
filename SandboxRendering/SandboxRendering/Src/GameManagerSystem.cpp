@@ -59,15 +59,17 @@ void GameManagerSystem::CreateScene(World* world)
 	world->GetWorldComponent<AmbientLightWorldComponent>()->SetColor(Color(0.0f, 0.0f, 0.0f));
 	world->GetWorldComponent<AmbientLightWorldComponent>()->SetIntensity(0.0f);
 	
-	Entity* ParticlesEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
-	EntityTransform& shaderballTrans = ParticlesEnt->GetTransform();
-	// shaderballTrans.SetLocalTranslation(Vector(0.0f, 5.0f, 0.0f));
-	DeferredTaskSystem::AddComponentImmediate<ParticlesComponent>(world, ParticlesEnt);
-	// MeshRenderingComponent* ballMesh = world->GetComponent<MeshRenderingComponent>(Shaderball);
-	// ballMesh->SetMaterial(0, PhongMaterial(Color(1.0f, 1.0f, 1.0f), Color(1.0f, 1.0f, 0.0f), Color(1.0f, 1.0f, 0.5f), 8.0f));
-	// ballMesh->SetMaterial(1, PhongMaterial(Color(1.0f, 1.0f, 1.0f), Color(0.4f, 0.4f, 0.4f), Color(1.0f, 1.0f, 0.5f), 16.0f));
-	// shaderballTrans.SetLocalScale(0.1f);
-	GameMgrCmp->GameEntities.PushBack(ParticlesEnt);
+	Entity* ParticlesEnt0 = DeferredTaskSystem::SpawnEntityImmediate(world);
+	EntityTransform& ParticlesEnt0Trans = ParticlesEnt0->GetTransform();
+	ParticlesEnt0Trans.SetLocalTranslation(Vector(10.0f, 0.0f, 0.0f));
+	DeferredTaskSystem::AddComponentImmediate<ParticlesComponent>(world, ParticlesEnt0);
+	GameMgrCmp->GameEntities.PushBack(ParticlesEnt0);
+
+	Entity* ParticlesEnt1 = DeferredTaskSystem::SpawnEntityImmediate(world);
+	EntityTransform& ParticlesEnt1Trans = ParticlesEnt1->GetTransform();
+	ParticlesEnt1Trans.SetLocalTranslation(Vector(-10.0f, 0.0f, 0.0f));
+	DeferredTaskSystem::AddComponentImmediate<ParticlesComponent>(world, ParticlesEnt1);
+	GameMgrCmp->GameEntities.PushBack(ParticlesEnt1);
 
 
 	// Entity* Shaderball = DeferredTaskSystem::SpawnEntityImmediate(world);
