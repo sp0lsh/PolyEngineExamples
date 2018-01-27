@@ -3,6 +3,7 @@
 #include <LightSourceComponent.hpp>
 #include <MeshRenderingComponent.hpp>
 #include <ComponentBase.hpp>
+#include <ParticleComponent.hpp>
 #include <Dynarray.hpp>
 #include <UniqueID.hpp>
 
@@ -21,4 +22,10 @@ public:
 	bool IsDrawingDebugMeshes = true;
 
 	Dynarray<SafePtr<Entity>> GameEntities;
+
+	float NextBurstTime = 0.0f;
+
+	ParticleComponent* particle0;
+	ParticleComponent* particle1;
+	ParticleComponent* particle2;
 };

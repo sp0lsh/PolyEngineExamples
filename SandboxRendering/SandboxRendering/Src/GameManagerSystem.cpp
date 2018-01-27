@@ -3,6 +3,7 @@
 #include "GameManagerWorldComponent.hpp"
 
 #include <Core.hpp>
+#include <ParticleEmitter.hpp>
 #include <ResourceManager.hpp>
 #include <DeferredTaskSystem.hpp>
 #include <MeshRenderingComponent.hpp>
@@ -42,10 +43,9 @@ void GameManagerSystem::CreateScene(World* world)
 
 	EntityTransform& cameraTrans = Camera->GetTransform();
 	cameraTrans.SetLocalTranslation(Vector(0.0f, 5.0f, 15.0f));
-	// GameMgrCmp->Camera;
 
 	world->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, world->GetComponent<CameraComponent>(Camera));
-	EnumArray<String, eCubemapSide> miramar {
+	EnumArray<String, eCubemapSide> miramar{
 		{eCubemapSide::RIGHT, "Cubemaps/miramar/miramar_rt.jpg"},
 		{eCubemapSide::LEFT , "Cubemaps/miramar/miramar_lt.jpg"},
 		{eCubemapSide::TOP  , "Cubemaps/miramar/miramar_up.jpg"},
@@ -58,35 +58,97 @@ void GameManagerSystem::CreateScene(World* world)
 
 	world->GetWorldComponent<AmbientLightWorldComponent>()->SetColor(Color(0.0f, 0.0f, 0.0f));
 	world->GetWorldComponent<AmbientLightWorldComponent>()->SetIntensity(0.0f);
-	
-	Entity* ParticlesEnt0 = DeferredTaskSystem::SpawnEntityImmediate(world);
-	EntityTransform& ParticlesEnt0Trans = ParticlesEnt0->GetTransform();
-	ParticlesEnt0Trans.SetLocalTranslation(Vector(20.0f, 0.0f, 0.0f));
-	DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, ParticlesEnt0, 10);
-	ParticleComponent* ParticlesComp0 = world->GetComponent<ParticleComponent>(ParticlesEnt0);
-	// ParticlesComp0->Emitter->Burst(10);
-	GameMgrCmp->GameEntities.PushBack(ParticlesEnt0);
 
-	Entity* ParticlesEnt1 = DeferredTaskSystem::SpawnEntityImmediate(world);
-	EntityTransform& ParticlesEnt1Trans = ParticlesEnt1->GetTransform();
-	ParticlesEnt1Trans.SetLocalTranslation(Vector(-20.0f, 0.0f, 0.0f));
-	DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, ParticlesEnt1, 2);
-	ParticleComponent* ParticlesComp1 = world->GetComponent<ParticleComponent>(ParticlesEnt1);
-	// ParticlesComp1->Emitter->Burst(100);
-	GameMgrCmp->GameEntities.PushBack(ParticlesEnt1);
-
-	Entity* ParticlesEnt2 = DeferredTaskSystem::SpawnEntityImmediate(world);
-	EntityTransform& ParticlesEnt2Trans = ParticlesEnt2->GetTransform();
-	ParticlesEnt2Trans.SetLocalTranslation(Vector(0.0f, 0.0f, -20.0f));
-	DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, ParticlesEnt2, 100);
-	ParticleComponent* ParticlesComp2 = world->GetComponent<ParticleComponent>(ParticlesEnt2);
-	// ParticlesComp1->Emitter->Burst(100);
-	GameMgrCmp->GameEntities.PushBack(ParticlesEnt2);
-
+	GameMgrCmp->particle0 = SpawnEmitter0(world);
+	GameMgrCmp->particle1 = SpawnEmitter1(world);
+	GameMgrCmp->particle2 = SpawnEmitter2(world);
 
 	// CreateShaderball(world, GameMgrCmp);
 
 	CreateSponzaScene(world);
+}
+
+ParticleComponent* GameManagerSystem::SpawnEmitter2(Poly::World * world)
+{
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
+	Entity* ParticlesEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
+	EntityTransform& ParticlesEnt2Trans = ParticlesEnt->GetTransform();
+	ParticlesEnt2Trans.SetLocalTranslation(Vector(0.0f, 0.0f, -20.0f));
+	ParticleEmitter::Settings settings;
+	settings.InitialSize = 10;
+	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
+		p->Position = Vector(0.0f, 0.0f, -20.0f) + GameManagerSystem::RandomVector(-2.0f, 2.0f);
+		p->Acceleration = GameManagerSystem::RandomVector(0.01f, 0.1f);
+		p->LifeTime = Random(10.0f, 12.0f);
+		p->Scale = Vector(1.0f, 1.0f, 1.0f);
+	};
+	settings.ParticleUpdateFunc = [](ParticleEmitter::Particle* p) {
+		p->Position += p->Acceleration;
+	};
+	DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, ParticlesEnt, settings);
+	ParticleComponent* ParticleComp = world->GetComponent<ParticleComponent>(ParticlesEnt);
+	GameMgrCmp->GameEntities.PushBack(ParticlesEnt);
+	return ParticleComp;
+}
+
+ParticleComponent* GameManagerSystem::SpawnEmitter1(Poly::World * world)
+{
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
+	Entity* ParticlesEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
+	EntityTransform& ParticlesEnt1Trans = ParticlesEnt->GetTransform();
+	ParticlesEnt1Trans.SetLocalTranslation(Vector(-20.0f, 0.0f, 0.0f));
+	ParticleEmitter::Settings settings;
+	settings.InitialSize = 10; 
+	settings.BurstSizeMin = 5;
+	settings.BurstSizeMax = 10;
+	settings.BurstTimeMin = 0.1f;
+	settings.BurstTimeMax = 0.2f;
+	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
+		p->Position = Vector(-20.0f, 0.0f, 0.0f) + GameManagerSystem::RandomVector(0.1f, 0.1f);
+		Vector accel = GameManagerSystem::RandomVector(0.1f, 1.0f);
+		p->Acceleration = Vector(1.0f * accel.X, 0.01f * accel.Y, 0.01f * accel.Z);
+		p->LifeTime = Random(4.0f, 6.0f);
+		p->Scale = Vector(1.0f, 1.0f, 1.0f);
+	};
+	settings.ParticleUpdateFunc = [](ParticleEmitter::Particle* p) {
+		p->Position += p->Acceleration;
+		p->Scale = Vector(1.0f, 1.0f, 1.0f) * Lerp(p->Age/p->LifeTime, 0.1f, 1.0f);
+	};
+	DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, ParticlesEnt, settings);
+	ParticleComponent* ParticleComp = world->GetComponent<ParticleComponent>(ParticlesEnt);
+	GameMgrCmp->GameEntities.PushBack(ParticlesEnt);
+	return ParticleComp;
+}
+
+ParticleComponent* GameManagerSystem::SpawnEmitter0(Poly::World * world)
+{
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
+	Entity* ParticlesEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
+	EntityTransform& ParticlesEnt0Trans = ParticlesEnt->GetTransform();
+	ParticlesEnt0Trans.SetLocalTranslation(Vector(20.0f, 0.0f, 0.0f));
+	ParticleEmitter::Settings settings;
+	settings.InitialSize = 1000;
+	settings.BurstSizeMin = 1;
+	settings.BurstSizeMax = 10;
+	settings.BurstTimeMin = 1.0f;
+	settings.BurstTimeMax = 2.0f;
+	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
+		p->Position = Vector(20.0f, 0.0f, 0.0f) + (GameManagerSystem::RandomVector(-1.0f, 1.0f) * 10.0f);
+		p->Acceleration = GameManagerSystem::RandomVector(-1.0f, 1.0f) * 0.01f;
+		p->LifeTime = Random(50.0f, 100.0f);
+		p->Scale = Vector(0.1f, 0.1f, 0.1f);
+	};
+	settings.ParticleUpdateFunc = [](ParticleEmitter::Particle* p) {
+		p->Position += p->Acceleration;
+	};
+
+	DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, ParticlesEnt, settings);
+	ParticleComponent* ParticleComp = world->GetComponent<ParticleComponent>(ParticlesEnt);
+	GameMgrCmp->GameEntities.PushBack(ParticlesEnt);
+	return ParticleComp;
 }
 
 void GameManagerSystem::CreateShaderball(World* world)
@@ -140,7 +202,9 @@ void GameManagerSystem::CreateSponzaScene(World* world)
 
 void GameManagerSystem::Update(World* world)
 {
-	float Time = (float)(world->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
+	float time = (float)(world->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
+	float deltaTime = (float)(TimeSystem::GetTimerDeltaTime(world, Poly::eEngineTimer::GAMEPLAY));
+
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
 	for (int i = 0; i < GameMgrCmp->PointLights.GetSize(); ++i)
@@ -148,7 +212,7 @@ void GameManagerSystem::Update(World* world)
 		PointLightComponent* PointLightCmp = GameMgrCmp->PointLights[i];
 		EntityTransform& TransCmp = PointLightCmp->GetTransform();
 		Vector Position = GameMgrCmp->PointLightPositions[i];
-		Vector Bounce = Vector(0.0f, 100.0f*Abs(Sin(1.0_rad * (Time + 0.1f*(Position.X + Position.Y)))), 0.0f);
+		Vector Bounce = Vector(0.0f, 100.0f*Abs(Sin(1.0_rad * (time + 0.1f*(Position.X + Position.Y)))), 0.0f);
 		TransCmp.SetLocalTranslation(Position + Bounce);
 	}
 
@@ -240,6 +304,7 @@ void GameManagerSystem::CreateSpotLight(World* world, float Range)
 	SpotLightDebugSourceTrans.SetLocalTranslation(Vector(0.0f, 0.0f, 0.0f));
 }
 
+
 float GameManagerSystem::Random()
 {
 	return static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
@@ -249,4 +314,12 @@ float GameManagerSystem::Random(float min, float max)
 {
 	float rnd = Random();
 	return Lerp(min, max, rnd);
+}
+
+Vector GameManagerSystem::RandomVector(float min, float max)
+{
+	float rndX = GameManagerSystem::Random();
+	float rndY = GameManagerSystem::Random();
+	float rndZ = GameManagerSystem::Random();
+	return Vector(Lerp(min, max, rndX), Lerp(min, max, rndY), Lerp(min, max, rndZ));
 }
