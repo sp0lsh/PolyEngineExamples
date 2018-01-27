@@ -78,8 +78,9 @@ void GameManagerSystem::SpawnSpritesheet(World* world)
 
 	Entity* SpriteSheetEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
 	EntityTransform& ParticlesEnt1Trans = SpriteSheetEnt->GetTransform();
-	// ParticlesEnt1Trans.SetLocalTranslation(Vector(0.0f, 0.0f, 0.0f));
+	ParticlesEnt1Trans.SetLocalTranslation(Vector(0.0f, 4.0f, 0.0f));
 	DeferredTaskSystem::AddComponentImmediate<SpritesheetComponent>(world, SpriteSheetEnt, "Textures/puff_512.png", eResourceSource::GAME);
+	// DeferredTaskSystem::AddComponentImmediate<SpritesheetComponent>(world, SpriteSheetEnt, "Textures/test_44.png", eResourceSource::GAME);
 	SpritesheetComponent* SpritesheetComp = world->GetComponent<SpritesheetComponent>(SpriteSheetEnt);
 	GameMgrCmp->GameEntities.PushBack(SpriteSheetEnt);
 }
