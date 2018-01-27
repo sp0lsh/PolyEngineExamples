@@ -23,9 +23,8 @@ public:
 
 	Dynarray<SafePtr<Entity>> GameEntities;
 
-	float NextBurstTime = 0.0f;
-
 	ParticleComponent* particle0;
 	ParticleComponent* particle1;
 	ParticleComponent* particle2;
+	ParticleComponent* particle3;
 };

@@ -15,6 +15,7 @@
 #include <ViewportWorldComponent.hpp>
 #include <TimeWorldComponent.hpp>
 #include <SkyboxWorldComponent.hpp>
+#include <SpritesheetComponent.hpp>
 #include <InputWorldComponent.hpp>
 
 using namespace Poly;
@@ -62,13 +63,59 @@ void GameManagerSystem::CreateScene(World* world)
 	GameMgrCmp->particle0 = SpawnEmitter0(world);
 	GameMgrCmp->particle1 = SpawnEmitter1(world);
 	GameMgrCmp->particle2 = SpawnEmitter2(world);
+	GameMgrCmp->particle3 = SpawnEmitter3(world);
 
 	// CreateShaderball(world, GameMgrCmp);
 
-	CreateSponzaScene(world);
+	SpawnSpritesheet(world);
+
+	SpawnSponzaScene(world);
 }
 
-ParticleComponent* GameManagerSystem::SpawnEmitter2(Poly::World * world)
+void GameManagerSystem::SpawnSpritesheet(World* world)
+{
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
+	Entity* SpriteSheetEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
+	EntityTransform& ParticlesEnt1Trans = SpriteSheetEnt->GetTransform();
+	// ParticlesEnt1Trans.SetLocalTranslation(Vector(0.0f, 0.0f, 0.0f));
+	DeferredTaskSystem::AddComponentImmediate<SpritesheetComponent>(world, SpriteSheetEnt, "Textures/puff_512.png", eResourceSource::GAME);
+	SpritesheetComponent* SpritesheetComp = world->GetComponent<SpritesheetComponent>(SpriteSheetEnt);
+	GameMgrCmp->GameEntities.PushBack(SpriteSheetEnt);
+}
+
+ParticleComponent* GameManagerSystem::SpawnEmitter3(World* world)
+{
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
+	Entity* ParticlesEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
+	EntityTransform& ParticlesEnt1Trans = ParticlesEnt->GetTransform();
+	ParticlesEnt1Trans.SetLocalTranslation(Vector(-20.0f, 0.0f, 0.0f));
+	ParticleEmitter::Settings settings;
+	settings.InitialSize = 10;
+	settings.BurstSizeMin = 5;
+	settings.BurstSizeMax = 10;
+	settings.BurstTimeMin = 0.1f;
+	settings.BurstTimeMax = 0.2f;
+	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
+		p->Position = Vector(0.0f, 0.0f, 0.0f) + GameManagerSystem::RandomVector(0.2f, 0.2f);
+		Vector accel = GameManagerSystem::RandomVector(0.1f, 1.0f);
+		p->Acceleration = Vector(0.05f * accel.X, 1.0f * accel.Y, 0.05f * accel.Z);
+		p->LifeTime = Random(0.25f, 0.5f);
+		p->Scale = Vector(1.0f, 1.0f, 1.0f);
+	};
+	settings.ParticleUpdateFunc = [](ParticleEmitter::Particle* p) {
+		p->Position += p->Acceleration;
+		float life = Lerp(p->Age / p->LifeTime, 0.1f, 1.0f);
+		p->Scale = Vector(1.0f, 1.0f, 1.0f) * (1.0f - life * life);
+	};
+	DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, ParticlesEnt, settings);
+	ParticleComponent* ParticleComp = world->GetComponent<ParticleComponent>(ParticlesEnt);
+	GameMgrCmp->GameEntities.PushBack(ParticlesEnt);
+	return ParticleComp;
+}
+
+ParticleComponent* GameManagerSystem::SpawnEmitter2(World* world)
 {
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
@@ -92,7 +139,7 @@ ParticleComponent* GameManagerSystem::SpawnEmitter2(Poly::World * world)
 	return ParticleComp;
 }
 
-ParticleComponent* GameManagerSystem::SpawnEmitter1(Poly::World * world)
+ParticleComponent* GameManagerSystem::SpawnEmitter1(World* world)
 {
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
@@ -108,13 +155,13 @@ ParticleComponent* GameManagerSystem::SpawnEmitter1(Poly::World * world)
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
 		p->Position = Vector(-20.0f, 0.0f, 0.0f) + GameManagerSystem::RandomVector(0.1f, 0.1f);
 		Vector accel = GameManagerSystem::RandomVector(0.1f, 1.0f);
-		p->Acceleration = Vector(1.0f * accel.X, 0.01f * accel.Y, 0.01f * accel.Z);
-		p->LifeTime = Random(4.0f, 6.0f);
+		p->Acceleration = Vector(1.0f * accel.X, 0.05f * accel.Y, 0.05f * accel.Z);
+		p->LifeTime = Random(0.25f, 0.5f);
 		p->Scale = Vector(1.0f, 1.0f, 1.0f);
 	};
 	settings.ParticleUpdateFunc = [](ParticleEmitter::Particle* p) {
 		p->Position += p->Acceleration;
-		p->Scale = Vector(1.0f, 1.0f, 1.0f) * Lerp(p->Age/p->LifeTime, 0.1f, 1.0f);
+		p->Scale = Vector(1.0f, 1.0f, 1.0f) * (1.0f - Lerp(p->Age/p->LifeTime, 0.1f, 1.0f));
 	};
 	DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, ParticlesEnt, settings);
 	ParticleComponent* ParticleComp = world->GetComponent<ParticleComponent>(ParticlesEnt);
@@ -122,7 +169,7 @@ ParticleComponent* GameManagerSystem::SpawnEmitter1(Poly::World * world)
 	return ParticleComp;
 }
 
-ParticleComponent* GameManagerSystem::SpawnEmitter0(Poly::World * world)
+ParticleComponent* GameManagerSystem::SpawnEmitter0(World* world)
 {
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
@@ -139,7 +186,7 @@ ParticleComponent* GameManagerSystem::SpawnEmitter0(Poly::World * world)
 		p->Position = Vector(20.0f, 0.0f, 0.0f) + (GameManagerSystem::RandomVector(-1.0f, 1.0f) * 10.0f);
 		p->Acceleration = GameManagerSystem::RandomVector(-1.0f, 1.0f) * 0.01f;
 		p->LifeTime = Random(50.0f, 100.0f);
-		p->Scale = Vector(0.1f, 0.1f, 0.1f);
+		p->Scale = Vector(0.5f, 0.5f, 0.5f);
 	};
 	settings.ParticleUpdateFunc = [](ParticleEmitter::Particle* p) {
 		p->Position += p->Acceleration;
@@ -151,7 +198,7 @@ ParticleComponent* GameManagerSystem::SpawnEmitter0(Poly::World * world)
 	return ParticleComp;
 }
 
-void GameManagerSystem::CreateShaderball(World* world)
+void GameManagerSystem::SpawnShaderball(World* world)
 {
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
@@ -166,7 +213,7 @@ void GameManagerSystem::CreateShaderball(World* world)
 	GameMgrCmp->GameEntities.PushBack(Shaderball);
 }
 
-void GameManagerSystem::CreateSponzaScene(World* world)
+void GameManagerSystem::SpawnSponzaScene(World* world)
 {
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
