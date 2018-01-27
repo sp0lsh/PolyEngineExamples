@@ -61,18 +61,18 @@ void GameManagerSystem::CreateScene(World* world)
 	
 	Entity* ParticlesEnt0 = DeferredTaskSystem::SpawnEntityImmediate(world);
 	EntityTransform& ParticlesEnt0Trans = ParticlesEnt0->GetTransform();
-	ParticlesEnt0Trans.SetLocalTranslation(Vector(10.0f, 0.0f, 0.0f));
+	ParticlesEnt0Trans.SetLocalTranslation(Vector(20.0f, 0.0f, 0.0f));
 	DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, ParticlesEnt0);
 	ParticleComponent* ParticlesComp0 = world->GetComponent<ParticleComponent>(ParticlesEnt0);
-	ParticlesComp0->emitter->Burst(10);
+	ParticlesComp0->Emitter->Burst(10);
 	GameMgrCmp->GameEntities.PushBack(ParticlesEnt0);
 
 	Entity* ParticlesEnt1 = DeferredTaskSystem::SpawnEntityImmediate(world);
 	EntityTransform& ParticlesEnt1Trans = ParticlesEnt1->GetTransform();
-	ParticlesEnt1Trans.SetLocalTranslation(Vector(-10.0f, 0.0f, 0.0f));
+	ParticlesEnt1Trans.SetLocalTranslation(Vector(-20.0f, 0.0f, 0.0f));
 	DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, ParticlesEnt1);
 	ParticleComponent* ParticlesComp1 = world->GetComponent<ParticleComponent>(ParticlesEnt0);
-	ParticlesComp1->emitter->Burst(100);
+	ParticlesComp1->Emitter->Burst(100);
 	GameMgrCmp->GameEntities.PushBack(ParticlesEnt1);
 
 
