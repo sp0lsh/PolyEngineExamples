@@ -29,23 +29,23 @@ void GameManagerSystem::CreateScene(World* world)
 	srand(42);
 
 	Entity* Camera = DeferredTaskSystem::SpawnEntityImmediate(world);
-	DeferredTaskSystem::AddComponentImmediate<CameraComponent>(world, Camera, 120_deg, 1.0f, 3000.f);
-	DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(world, Camera, 10.0f, 0.003f);
+	DeferredTaskSystem::AddComponentImmediate<CameraComponent>(world, Camera, 90_deg, 1.0f, 3000.f);
+	DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(world, Camera, 1.0f, 0.003f);
 	DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(world, Camera);
 	PostprocessSettingsComponent* postCmp = world->GetComponent<PostprocessSettingsComponent>(Camera);
 	postCmp->UseBgShader = false;
 	postCmp->UseFgShader = false;
-	postCmp->Distortion = 0.0f;
+	postCmp->Distortion = 0.5f;
 	postCmp->ColorTempValue = 6500.0f;
 	postCmp->Saturation = 1.0f;
-	postCmp->Grain = 0.0f;
+	postCmp->Grain = 1.0f;
 	postCmp->Stripes = 0.0f;
-	postCmp->Vignette = 0.0f;
+	postCmp->Vignette = 1.0f;
 
 	EntityTransform& cameraTrans = Camera->GetTransform();
-	cameraTrans.SetLocalTranslation(Vector(0.0f, 5.0f, 15.0f));
-
+	cameraTrans.SetLocalTranslation(Vector(0.0f, 4.0f, 5.0f));
 	world->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, world->GetComponent<CameraComponent>(Camera));
+
 	EnumArray<String, eCubemapSide> miramar{
 		{eCubemapSide::RIGHT, "Cubemaps/miramar/miramar_rt.jpg"},
 		{eCubemapSide::LEFT , "Cubemaps/miramar/miramar_lt.jpg"},
@@ -60,30 +60,88 @@ void GameManagerSystem::CreateScene(World* world)
 	world->GetWorldComponent<AmbientLightWorldComponent>()->SetColor(Color(0.0f, 0.0f, 0.0f));
 	world->GetWorldComponent<AmbientLightWorldComponent>()->SetIntensity(0.0f);
 
-	GameMgrCmp->particle0 = SpawnEmitter0(world);
-	GameMgrCmp->particle1 = SpawnEmitter1(world);
-	GameMgrCmp->particle2 = SpawnEmitter2(world);
-	GameMgrCmp->particle3 = SpawnEmitter3(world);
+	// GameMgrCmp->particle0 = SpawnEmitter0(world);
+	// GameMgrCmp->particle1 = SpawnEmitter1(world);
+	// GameMgrCmp->particle2 = SpawnEmitter2(world);
+	// GameMgrCmp->particle3 = SpawnEmitter3(world);
+	// GameMgrCmp->particle4 = SpawnEmitter4(world);
 
 	// CreateShaderball(world, GameMgrCmp);
 
-	SpawnSpritesheet(world);
+	SpawnSpritesheet11(world);
+	SpawnSpritesheet22(world);
+	SpawnSpritesheet44(world);
+	SpawnSpritesheetGandalf(world);
 
 	SpawnSponzaScene(world);
 }
 
-void GameManagerSystem::SpawnSpritesheet(World* world)
+void GameManagerSystem::SpawnSpritesheet11(World* world)
+{
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
+	Entity* SpriteSheetEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
+	EntityTransform& ParticlesEnt1Trans = SpriteSheetEnt->GetTransform();
+	ParticlesEnt1Trans.SetLocalTranslation(Vector(-5.0f, 4.0f, 0.0f));
+	ParticlesEnt1Trans.SetLocalScale(Vector(1.0f, 1.0f, 1.0f));
+	SpritesheetComponent::Settings settings;
+	settings.SubImages = Vector2f(1.0f, 1.0f);
+	settings.SpritePath = "Textures/test_1_1.png";
+	DeferredTaskSystem::AddComponentImmediate<SpritesheetComponent>(world, SpriteSheetEnt, settings);
+	SpritesheetComponent* SpritesheetComp = world->GetComponent<SpritesheetComponent>(SpriteSheetEnt);
+	GameMgrCmp->GameEntities.PushBack(SpriteSheetEnt);
+}
+
+void GameManagerSystem::SpawnSpritesheet22(World* world)
 {
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
 	Entity* SpriteSheetEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
 	EntityTransform& ParticlesEnt1Trans = SpriteSheetEnt->GetTransform();
 	ParticlesEnt1Trans.SetLocalTranslation(Vector(0.0f, 4.0f, 0.0f));
-	DeferredTaskSystem::AddComponentImmediate<SpritesheetComponent>(world, SpriteSheetEnt, "Textures/puff_512.png", eResourceSource::GAME);
-	// DeferredTaskSystem::AddComponentImmediate<SpritesheetComponent>(world, SpriteSheetEnt, "Textures/test_44.png", eResourceSource::GAME);
+	ParticlesEnt1Trans.SetLocalScale(Vector(1.0f, 1.0f, 1.0f));
+	SpritesheetComponent::Settings settings;
+	settings.SubImages = Vector2f(2.0f, 2.0f);
+	settings.SpritePath = "Textures/test_2_2.png";
+	DeferredTaskSystem::AddComponentImmediate<SpritesheetComponent>(world, SpriteSheetEnt, settings);
 	SpritesheetComponent* SpritesheetComp = world->GetComponent<SpritesheetComponent>(SpriteSheetEnt);
 	GameMgrCmp->GameEntities.PushBack(SpriteSheetEnt);
 }
+
+void GameManagerSystem::SpawnSpritesheet44(World* world)
+{
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
+	Entity* SpriteSheetEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
+	EntityTransform& ParticlesEnt1Trans = SpriteSheetEnt->GetTransform();
+	ParticlesEnt1Trans.SetLocalTranslation(Vector(5.0f, 4.0f, 0.0f));
+	ParticlesEnt1Trans.SetLocalScale(Vector(1.0f, 1.0f, 1.0f));
+	SpritesheetComponent::Settings settings;
+	settings.SubImages = Vector2f(4.0f, 4.0f);
+	settings.SpritePath = "Textures/test_4_4.png";
+	settings.Source = eResourceSource::GAME;
+	DeferredTaskSystem::AddComponentImmediate<SpritesheetComponent>(world, SpriteSheetEnt, settings);
+	SpritesheetComponent* SpritesheetComp = world->GetComponent<SpritesheetComponent>(SpriteSheetEnt);
+	GameMgrCmp->GameEntities.PushBack(SpriteSheetEnt);
+}
+
+void GameManagerSystem::SpawnSpritesheetGandalf(World* world)
+{
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
+	Entity* SpriteSheetEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
+	EntityTransform& ParticlesEnt1Trans = SpriteSheetEnt->GetTransform();
+	ParticlesEnt1Trans.SetLocalTranslation(Vector(0.0f, 8.0f, 0.0f));
+	ParticlesEnt1Trans.SetLocalScale(Vector(1.0f, 1.0f, 1.0f));
+	SpritesheetComponent::Settings settings;
+	settings.SubImages = Vector2f(4.0f, 4.0f);
+	settings.SpritePath = "Textures/gandalf_anim.png";
+	settings.Speed = 0.2f;
+	DeferredTaskSystem::AddComponentImmediate<SpritesheetComponent>(world, SpriteSheetEnt, settings);
+	SpritesheetComponent* SpritesheetComp = world->GetComponent<SpritesheetComponent>(SpriteSheetEnt);
+	GameMgrCmp->GameEntities.PushBack(SpriteSheetEnt);
+}
+
 
 ParticleComponent* GameManagerSystem::SpawnEmitter0(World* world)
 {
@@ -92,6 +150,7 @@ ParticleComponent* GameManagerSystem::SpawnEmitter0(World* world)
 	Entity* ParticlesEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
 	EntityTransform& ParticlesEnt0Trans = ParticlesEnt->GetTransform();
 	ParticlesEnt0Trans.SetLocalTranslation(Vector(0.0f, 0.0f, 0.0f));
+
 	ParticleEmitter::Settings settings;
 	settings.InitialSize = 1000;
 	settings.BurstSizeMin = 1;
@@ -108,7 +167,7 @@ ParticleComponent* GameManagerSystem::SpawnEmitter0(World* world)
 		p->Position += p->Acceleration;
 	};
 
-	DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, ParticlesEnt, settings, "Textures/puff_512.png", eResourceSource::GAME);
+	DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, ParticlesEnt, settings);
 	ParticleComponent* ParticleComp = world->GetComponent<ParticleComponent>(ParticlesEnt);
 	GameMgrCmp->GameEntities.PushBack(ParticlesEnt);
 	return ParticleComp;
@@ -162,7 +221,7 @@ ParticleComponent* GameManagerSystem::SpawnEmitter2(World* world)
 	settings.ParticleUpdateFunc = [](ParticleEmitter::Particle* p) {
 		p->Position += p->Acceleration;
 	};
-	DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, ParticlesEnt, settings, "Textures/puff_512.png", eResourceSource::GAME);
+	DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, ParticlesEnt, settings);
 	ParticleComponent* ParticleComp = world->GetComponent<ParticleComponent>(ParticlesEnt);
 	GameMgrCmp->GameEntities.PushBack(ParticlesEnt);
 	return ParticleComp;
@@ -198,6 +257,38 @@ ParticleComponent* GameManagerSystem::SpawnEmitter3(World* world)
 	GameMgrCmp->GameEntities.PushBack(ParticlesEnt);
 	return ParticleComp;
 }
+
+ParticleComponent* GameManagerSystem::SpawnEmitter4(World* world)
+{
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
+	Entity* ParticlesEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
+	EntityTransform& ParticlesEnt1Trans = ParticlesEnt->GetTransform();
+	ParticlesEnt1Trans.SetLocalTranslation(Vector(-20.0f, 4.0f, 20.0f));
+	ParticleEmitter::Settings settings;
+	settings.InitialSize = 10;
+	settings.BurstSizeMin = 5;
+	settings.BurstSizeMax = 10;
+	settings.BurstTimeMin = 0.1f;
+	settings.BurstTimeMax = 0.2f;
+	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
+		p->Position = Vector(0.0f, 0.0f, 0.0f) + GameManagerSystem::RandomVector(0.2f, 0.2f);
+		Vector accel = GameManagerSystem::RandomVector(0.1f, 1.0f);
+		p->Acceleration = Vector(0.1f * accel.X, 1.0f * accel.Y, 0.1f * accel.Z);
+		p->LifeTime = Random(0.25f, 0.5f);
+		p->Scale = Vector(6.0f, 6.0f, 6.0f);
+	};
+	settings.ParticleUpdateFunc = [](ParticleEmitter::Particle* p) {
+		p->Position += p->Acceleration;
+		float life = Lerp(p->Age / p->LifeTime, 0.1f, 1.0f);
+		p->Scale = Vector(6.0f, 6.0f, 6.0f) * (1.0f - life * life);
+	};
+	DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, ParticlesEnt, settings, "Textures/puff_512.png", eResourceSource::GAME);
+	ParticleComponent* ParticleComp = world->GetComponent<ParticleComponent>(ParticlesEnt);
+	GameMgrCmp->GameEntities.PushBack(ParticlesEnt);
+	return ParticleComp;
+}
+
 
 void GameManagerSystem::SpawnShaderball(World* world)
 {

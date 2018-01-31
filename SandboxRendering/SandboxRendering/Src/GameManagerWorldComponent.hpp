@@ -27,4 +27,5 @@ public:
 	ParticleComponent* particle1;
 	ParticleComponent* particle2;
 	ParticleComponent* particle3;
+	ParticleComponent* particle4;
 };

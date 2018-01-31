@@ -18,7 +18,11 @@ namespace GameManagerSystem
 	ParticleComponent* SpawnEmitter1(World* world);
 	ParticleComponent* SpawnEmitter2(World* world);
 	ParticleComponent* SpawnEmitter3(World* world);
-	void SpawnSpritesheet(World* world);
+	ParticleComponent* SpawnEmitter4(World* world);
+	void SpawnSpritesheet11(World* world);
+	void SpawnSpritesheet22(World* world);
+	void SpawnSpritesheet44(World* world);
+	void SpawnSpritesheetGandalf(World* world);
 
 	void AddPointLights(World* world, int Quata);
 	void CreatePointLight(World* world, float Range);
@@ -27,4 +31,6 @@ namespace GameManagerSystem
 	float Random();
 	float Random(float min, float max);
 	Vector RandomVector(float min, float max);
+
+
 }
