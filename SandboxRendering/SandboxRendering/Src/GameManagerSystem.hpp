@@ -22,15 +22,12 @@ namespace GameManagerSystem
 	void SpawnSpritesheet11(World* world);
 	void SpawnSpritesheet22(World* world);
 	void SpawnSpritesheet44(World* world);
+	void SpawnSpritesheet42(World* world);
+	void SpawnSpritesheet41(World* world);
+	void SpawnSpritesheet44Random(World* world);
 	void SpawnSpritesheetGandalf(World* world);
 
 	void AddPointLights(World* world, int Quata);
 	void CreatePointLight(World* world, float Range);
 	void CreateSpotLight(World * world, float Range);
-
-	float Random();
-	float Random(float min, float max);
-	Vector RandomVector(float min, float max);
-
-
 }

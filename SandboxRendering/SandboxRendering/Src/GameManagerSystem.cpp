@@ -26,8 +26,6 @@ void GameManagerSystem::CreateScene(World* world)
 
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
-	srand(42);
-
 	Entity* Camera = DeferredTaskSystem::SpawnEntityImmediate(world);
 	DeferredTaskSystem::AddComponentImmediate<CameraComponent>(world, Camera, 90_deg, 1.0f, 3000.f);
 	DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(world, Camera, 1.0f, 0.003f);
@@ -71,10 +69,15 @@ void GameManagerSystem::CreateScene(World* world)
 	SpawnSpritesheet11(world);
 	SpawnSpritesheet22(world);
 	SpawnSpritesheet44(world);
+	SpawnSpritesheet42(world);
+	SpawnSpritesheet41(world);
+	SpawnSpritesheet44Random(world);
 	SpawnSpritesheetGandalf(world);
 
 	SpawnSponzaScene(world);
 }
+
+#pragma region Spritesheet examples
 
 void GameManagerSystem::SpawnSpritesheet11(World* world)
 {
@@ -87,6 +90,9 @@ void GameManagerSystem::SpawnSpritesheet11(World* world)
 	SpritesheetComponent::Settings settings;
 	settings.SubImages = Vector2f(1.0f, 1.0f);
 	settings.SpritePath = "Textures/test_1_1.png";
+	gConsole.LogError("GameManagerSystem::SpawnSpritesheet44 subImages: {}, uSpeed: {}, uStartFrame: {}, path: {}",
+		settings.SubImages, settings.Speed, settings.StartFrame, settings.SpritePath);
+
 	DeferredTaskSystem::AddComponentImmediate<SpritesheetComponent>(world, SpriteSheetEnt, settings);
 	SpritesheetComponent* SpritesheetComp = world->GetComponent<SpritesheetComponent>(SpriteSheetEnt);
 	GameMgrCmp->GameEntities.PushBack(SpriteSheetEnt);
@@ -103,6 +109,9 @@ void GameManagerSystem::SpawnSpritesheet22(World* world)
 	SpritesheetComponent::Settings settings;
 	settings.SubImages = Vector2f(2.0f, 2.0f);
 	settings.SpritePath = "Textures/test_2_2.png";
+	gConsole.LogError("GameManagerSystem::SpawnSpritesheet44 subImages: {}, uSpeed: {}, uStartFrame: {}, path: {}",
+		settings.SubImages, settings.Speed, settings.StartFrame, settings.SpritePath);
+
 	DeferredTaskSystem::AddComponentImmediate<SpritesheetComponent>(world, SpriteSheetEnt, settings);
 	SpritesheetComponent* SpritesheetComp = world->GetComponent<SpritesheetComponent>(SpriteSheetEnt);
 	GameMgrCmp->GameEntities.PushBack(SpriteSheetEnt);
@@ -119,7 +128,67 @@ void GameManagerSystem::SpawnSpritesheet44(World* world)
 	SpritesheetComponent::Settings settings;
 	settings.SubImages = Vector2f(4.0f, 4.0f);
 	settings.SpritePath = "Textures/test_4_4.png";
-	settings.Source = eResourceSource::GAME;
+	gConsole.LogError("GameManagerSystem::SpawnSpritesheet44 subImages: {}, uSpeed: {}, uStartFrame: {}, path: {}",
+		settings.SubImages, settings.Speed, settings.StartFrame, settings.SpritePath);
+
+	DeferredTaskSystem::AddComponentImmediate<SpritesheetComponent>(world, SpriteSheetEnt, settings);
+	SpritesheetComponent* SpritesheetComp = world->GetComponent<SpritesheetComponent>(SpriteSheetEnt);
+	GameMgrCmp->GameEntities.PushBack(SpriteSheetEnt);
+}
+
+void GameManagerSystem::SpawnSpritesheet42(World* world)
+{
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
+	Entity* SpriteSheetEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
+	EntityTransform& ParticlesEnt1Trans = SpriteSheetEnt->GetTransform();
+	ParticlesEnt1Trans.SetLocalTranslation(Vector(5.0f, 8.0f, 0.0f));
+	ParticlesEnt1Trans.SetLocalScale(Vector(1.0f, 1.0f, 1.0f));
+	SpritesheetComponent::Settings settings;
+	settings.SubImages = Vector2f(4.0f, 2.0f);
+	settings.SpritePath = "Textures/test_4_2.png";
+	gConsole.LogError("GameManagerSystem::SpawnSpritesheet44 subImages: {}, uSpeed: {}, uStartFrame: {}, path: {}",
+		settings.SubImages, settings.Speed, settings.StartFrame, settings.SpritePath);
+
+	DeferredTaskSystem::AddComponentImmediate<SpritesheetComponent>(world, SpriteSheetEnt, settings);
+	SpritesheetComponent* SpritesheetComp = world->GetComponent<SpritesheetComponent>(SpriteSheetEnt);
+	GameMgrCmp->GameEntities.PushBack(SpriteSheetEnt);
+}
+
+void GameManagerSystem::SpawnSpritesheet41(World* world)
+{
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
+	Entity* SpriteSheetEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
+	EntityTransform& ParticlesEnt1Trans = SpriteSheetEnt->GetTransform();
+	ParticlesEnt1Trans.SetLocalTranslation(Vector(-5.0f, 8.0f, 0.0f));
+	ParticlesEnt1Trans.SetLocalScale(Vector(1.0f, 1.0f, 1.0f));
+	SpritesheetComponent::Settings settings;
+	settings.SubImages = Vector2f(4.0f, 1.0f);
+	settings.SpritePath = "Textures/test_4_1.png";
+	gConsole.LogError("GameManagerSystem::SpawnSpritesheet44 subImages: {}, uSpeed: {}, uStartFrame: {}, path: {}",
+		settings.SubImages, settings.Speed, settings.StartFrame, settings.SpritePath);
+
+	DeferredTaskSystem::AddComponentImmediate<SpritesheetComponent>(world, SpriteSheetEnt, settings);
+	SpritesheetComponent* SpritesheetComp = world->GetComponent<SpritesheetComponent>(SpriteSheetEnt);
+	GameMgrCmp->GameEntities.PushBack(SpriteSheetEnt);
+}
+
+void GameManagerSystem::SpawnSpritesheet44Random(World* world)
+{
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
+	Entity* SpriteSheetEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
+	EntityTransform& ParticlesEnt1Trans = SpriteSheetEnt->GetTransform();
+	ParticlesEnt1Trans.SetLocalTranslation(Vector(-5.0f, 8.0f, 0.0f));
+	ParticlesEnt1Trans.SetLocalScale(Vector(1.0f, 1.0f, 1.0f));
+	SpritesheetComponent::Settings settings;
+	settings.SubImages = Vector2f(4.0f, 4.0f);
+	settings.SpritePath = "Textures/test_4_4.png";
+	settings.IsRandom = true;
+	gConsole.LogError("GameManagerSystem::SpawnSpritesheet44 subImages: {}, uSpeed: {}, uStartFrame: {}, path: {}",
+		settings.SubImages, settings.Speed, settings.StartFrame, settings.SpritePath);
+
 	DeferredTaskSystem::AddComponentImmediate<SpritesheetComponent>(world, SpriteSheetEnt, settings);
 	SpritesheetComponent* SpritesheetComp = world->GetComponent<SpritesheetComponent>(SpriteSheetEnt);
 	GameMgrCmp->GameEntities.PushBack(SpriteSheetEnt);
@@ -131,17 +200,19 @@ void GameManagerSystem::SpawnSpritesheetGandalf(World* world)
 
 	Entity* SpriteSheetEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
 	EntityTransform& ParticlesEnt1Trans = SpriteSheetEnt->GetTransform();
-	ParticlesEnt1Trans.SetLocalTranslation(Vector(0.0f, 8.0f, 0.0f));
+	ParticlesEnt1Trans.SetLocalTranslation(Vector(0.0f, 16.0f, 0.0f));
 	ParticlesEnt1Trans.SetLocalScale(Vector(1.0f, 1.0f, 1.0f));
 	SpritesheetComponent::Settings settings;
 	settings.SubImages = Vector2f(4.0f, 4.0f);
 	settings.SpritePath = "Textures/gandalf_anim.png";
 	settings.Speed = 0.2f;
+	settings.IsRandom = true;
 	DeferredTaskSystem::AddComponentImmediate<SpritesheetComponent>(world, SpriteSheetEnt, settings);
 	SpritesheetComponent* SpritesheetComp = world->GetComponent<SpritesheetComponent>(SpriteSheetEnt);
 	GameMgrCmp->GameEntities.PushBack(SpriteSheetEnt);
 }
 
+#pragma endregion
 
 ParticleComponent* GameManagerSystem::SpawnEmitter0(World* world)
 {
@@ -158,10 +229,10 @@ ParticleComponent* GameManagerSystem::SpawnEmitter0(World* world)
 	settings.BurstTimeMin = 1.0f;
 	settings.BurstTimeMax = 2.0f;
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
-		p->Position = Vector(0.0f, 0.0f, 0.0f) + (GameManagerSystem::RandomVector(-1.0f, 1.0f) * 20.0f);
-		p->Acceleration = GameManagerSystem::RandomVector(-1.0f, 1.0f) * 0.005f;
-		p->LifeTime = Random(100.0f, 200.0f);
-		p->Scale = Vector(1.0f, 1.0f, 1.0f) * (0.05f + Random(0.0f, 0.05f));
+		p->Position = Vector(0.0f, 0.0f, 0.0f) + (RandomVectorRange(-1.0f, 1.0f) * 20.0f);
+		p->Acceleration = RandomVectorRange(-1.0f, 1.0f) * 0.005f;
+		p->LifeTime = RandomRange(100.0f, 200.0f);
+		p->Scale = Vector(1.0f, 1.0f, 1.0f) * (0.05f + RandomRange(0.0f, 0.05f));
 	};
 	settings.ParticleUpdateFunc = [](ParticleEmitter::Particle* p) {
 		p->Position += p->Acceleration;
@@ -187,10 +258,10 @@ ParticleComponent* GameManagerSystem::SpawnEmitter1(World* world)
 	settings.BurstTimeMin = 0.1f;
 	settings.BurstTimeMax = 0.2f;
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
-		p->Position = Vector(-20.0f, 0.0f, 0.0f) + GameManagerSystem::RandomVector(0.1f, 0.1f);
-		Vector accel = GameManagerSystem::RandomVector(0.1f, 1.0f);
+		p->Position = Vector(-20.0f, 0.0f, 0.0f) + RandomVectorRange(0.1f, 0.1f);
+		Vector accel = RandomVectorRange(0.1f, 1.0f);
 		p->Acceleration = Vector(1.0f * accel.X, 0.05f * accel.Y, 0.05f * accel.Z);
-		p->LifeTime = Random(0.25f, 0.5f);
+		p->LifeTime = RandomRange(0.25f, 0.5f);
 		p->Scale = Vector(1.0f, 1.0f, 1.0f);
 	};
 	settings.ParticleUpdateFunc = [](ParticleEmitter::Particle* p) {
@@ -213,9 +284,9 @@ ParticleComponent* GameManagerSystem::SpawnEmitter2(World* world)
 	ParticleEmitter::Settings settings;
 	settings.InitialSize = 10;
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
-		p->Position = Vector(0.0f, 0.0f, -20.0f) + GameManagerSystem::RandomVector(-2.0f, 2.0f);
-		p->Acceleration = GameManagerSystem::RandomVector(0.01f, 0.1f);
-		p->LifeTime = Random(10.0f, 12.0f);
+		p->Position = Vector(0.0f, 0.0f, -20.0f) + RandomVectorRange(-2.0f, 2.0f);
+		p->Acceleration = RandomVectorRange(0.01f, 0.1f);
+		p->LifeTime = RandomRange(10.0f, 12.0f);
 		p->Scale = Vector(1.0f, 1.0f, 1.0f);
 	};
 	settings.ParticleUpdateFunc = [](ParticleEmitter::Particle* p) {
@@ -241,10 +312,10 @@ ParticleComponent* GameManagerSystem::SpawnEmitter3(World* world)
 	settings.BurstTimeMin = 0.1f;
 	settings.BurstTimeMax = 0.2f;
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
-		p->Position = Vector(0.0f, 0.0f, 0.0f) + GameManagerSystem::RandomVector(0.2f, 0.2f);
-		Vector accel = GameManagerSystem::RandomVector(0.1f, 1.0f);
+		p->Position = Vector(0.0f, 0.0f, 0.0f) + RandomVectorRange(0.2f, 0.2f);
+		Vector accel = RandomVectorRange(0.1f, 1.0f);
 		p->Acceleration = Vector(0.05f * accel.X, 1.0f * accel.Y, 0.05f * accel.Z);
-		p->LifeTime = Random(0.25f, 0.5f);
+		p->LifeTime = RandomRange(0.25f, 0.5f);
 		p->Scale = Vector(1.0f, 1.0f, 1.0f);
 	};
 	settings.ParticleUpdateFunc = [](ParticleEmitter::Particle* p) {
@@ -272,10 +343,10 @@ ParticleComponent* GameManagerSystem::SpawnEmitter4(World* world)
 	settings.BurstTimeMin = 0.1f;
 	settings.BurstTimeMax = 0.2f;
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
-		p->Position = Vector(0.0f, 0.0f, 0.0f) + GameManagerSystem::RandomVector(0.2f, 0.2f);
-		Vector accel = GameManagerSystem::RandomVector(0.1f, 1.0f);
+		p->Position = Vector(0.0f, 0.0f, 0.0f) + RandomVectorRange(0.2f, 0.2f);
+		Vector accel = RandomVectorRange(0.1f, 1.0f);
 		p->Acceleration = Vector(0.1f * accel.X, 1.0f * accel.Y, 0.1f * accel.Z);
-		p->LifeTime = Random(0.25f, 0.5f);
+		p->LifeTime = RandomRange(0.25f, 0.5f);
 		p->Scale = Vector(6.0f, 6.0f, 6.0f);
 	};
 	settings.ParticleUpdateFunc = [](ParticleEmitter::Particle* p) {
@@ -384,8 +455,8 @@ void GameManagerSystem::AddPointLights(World* world, int Quota)
 
 void GameManagerSystem::CreatePointLight(World* world, float Range)
 {
-	Vector PointLightPos = Vector(Random(-1.0f, 1.0f), Random(0.0f, 0.2f), Random(-0.5f, 0.5f)) * 1000.0f;
-	Color LightColor = Color(1.0f, 0.5f, 0.0f) + Color(Random(0.0f, 1.0f), Random(0.0, 0.5f), Random(0.0f, 0.2f));
+	Vector PointLightPos = Vector(RandomRange(-1.0f, 1.0f), RandomRange(0.0f, 0.2f), RandomRange(-0.5f, 0.5f)) * 1000.0f;
+	Color LightColor = Color(1.0f, 0.5f, 0.0f) + Color(RandomRange(0.0f, 1.0f), RandomRange(0.0, 0.5f), RandomRange(0.0f, 0.2f));
 
 	Entity* PointLight = DeferredTaskSystem::SpawnEntityImmediate(world);
 	DeferredTaskSystem::AddComponentImmediate<PointLightComponent>(world, PointLight, LightColor, 1.0f, Range);
@@ -423,7 +494,7 @@ void GameManagerSystem::CreatePointLight(World* world, float Range)
 void GameManagerSystem::CreateSpotLight(World* world, float Range)
 {
 	Vector SpotLightPos = Vector(50.0f, 50.0f, 0.0f);
-	Color LightColor = Color(1.0f, 0.5f, 0.0f) + Color(Random(0.0f, 1.0f), Random(0.0, 0.5f), Random(0.0f, 0.2f));
+	Color LightColor = Color(1.0f, 0.5f, 0.0f) + Color(RandomRange(0.0f, 1.0f), RandomRange(0.0, 0.5f), RandomRange(0.0f, 0.2f));
 	Quaternion SpotLightRot = Quaternion(Vector::UNIT_Y, -45_deg) * Quaternion(Vector::UNIT_X, -35_deg);
 	// float PointLightRange = 100.0f;
 	Entity* SpotLight = DeferredTaskSystem::SpawnEntityImmediate(world);
@@ -441,24 +512,4 @@ void GameManagerSystem::CreateSpotLight(World* world, float Range)
 	SpotLightDebugSource->SetParent(SpotLight);
 	SpotLightDebugSourceTrans.SetLocalScale(2.0f);
 	SpotLightDebugSourceTrans.SetLocalTranslation(Vector(0.0f, 0.0f, 0.0f));
-}
-
-
-float GameManagerSystem::Random()
-{
-	return static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-}
-
-float GameManagerSystem::Random(float min, float max)
-{
-	float rnd = Random();
-	return Lerp(min, max, rnd);
-}
-
-Vector GameManagerSystem::RandomVector(float min, float max)
-{
-	float rndX = GameManagerSystem::Random();
-	float rndY = GameManagerSystem::Random();
-	float rndZ = GameManagerSystem::Random();
-	return Vector(Lerp(min, max, rndX), Lerp(min, max, rndY), Lerp(min, max, rndZ));
 }
