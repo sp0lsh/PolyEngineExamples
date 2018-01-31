@@ -19,13 +19,14 @@ namespace GameManagerSystem
 	ParticleComponent* SpawnEmitter2(World* world);
 	ParticleComponent* SpawnEmitter3(World* world);
 	ParticleComponent* SpawnEmitter4(World* world);
-	void SpawnSpritesheet11(World* world);
-	void SpawnSpritesheet22(World* world);
-	void SpawnSpritesheet44(World* world);
-	void SpawnSpritesheet42(World* world);
-	void SpawnSpritesheet41(World* world);
-	void SpawnSpritesheet44Random(World* world);
-	void SpawnSpritesheetGandalf(World* world);
+	
+	void SpawnSpritesheet11(World* world, Vector pos);
+	void SpawnSpritesheet22(World* world, Vector pos);
+	void SpawnSpritesheet44(World* world, Vector pos);
+	void SpawnSpritesheet42(World* world, Vector pos);
+	void SpawnSpritesheet41(World* world, Vector pos);
+	void SpawnSpritesheet44Random(World* world, Vector pos);
+	void SpawnSpritesheetGandalf(World* world, Vector pos);
 
 	void AddPointLights(World* world, int Quata);
 	void CreatePointLight(World* world, float Range);

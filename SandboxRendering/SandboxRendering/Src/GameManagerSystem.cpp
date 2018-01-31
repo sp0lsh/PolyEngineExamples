@@ -66,147 +66,130 @@ void GameManagerSystem::CreateScene(World* world)
 
 	// CreateShaderball(world, GameMgrCmp);
 
-	SpawnSpritesheet11(world);
-	SpawnSpritesheet22(world);
-	SpawnSpritesheet44(world);
-	SpawnSpritesheet42(world);
-	SpawnSpritesheet41(world);
-	SpawnSpritesheet44Random(world);
-	SpawnSpritesheetGandalf(world);
+	SpawnSpritesheet11(world,		Vector(-5.0f, 4.0f, 0.f));
+	SpawnSpritesheet22(world,		Vector( 0.0f, 4.0f, 0.f));
+	SpawnSpritesheet44(world,		Vector( 5.0f, 4.0f, 0.f));
+	SpawnSpritesheet42(world,		Vector(-5.0f, 8.0f, 0.f));
+	SpawnSpritesheet41(world,		Vector( 0.0f, 8.0f, 0.f));
+	SpawnSpritesheet44Random(world, Vector( 5.0f, 8.0f, 0.f));
+	SpawnSpritesheetGandalf(world,	Vector( 0.0f, 12.0f, 0.f));
 
 	SpawnSponzaScene(world);
 }
 
 #pragma region Spritesheet examples
 
-void GameManagerSystem::SpawnSpritesheet11(World* world)
+void GameManagerSystem::SpawnSpritesheet11(World* world, Vector pos)
 {
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
 	Entity* SpriteSheetEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
-	EntityTransform& ParticlesEnt1Trans = SpriteSheetEnt->GetTransform();
-	ParticlesEnt1Trans.SetLocalTranslation(Vector(-5.0f, 4.0f, 0.0f));
-	ParticlesEnt1Trans.SetLocalScale(Vector(1.0f, 1.0f, 1.0f));
+	EntityTransform& SpriteSheetTrans = SpriteSheetEnt->GetTransform();
+	SpriteSheetTrans.SetLocalTranslation(pos);
+	SpriteSheetTrans.SetLocalScale(Vector(1.0f, 1.0f, 1.0f));
 	SpritesheetComponent::Settings settings;
 	settings.SubImages = Vector2f(1.0f, 1.0f);
 	settings.SpritePath = "Textures/test_1_1.png";
-	gConsole.LogError("GameManagerSystem::SpawnSpritesheet44 subImages: {}, uSpeed: {}, uStartFrame: {}, path: {}",
-		settings.SubImages, settings.Speed, settings.StartFrame, settings.SpritePath);
-
 	DeferredTaskSystem::AddComponentImmediate<SpritesheetComponent>(world, SpriteSheetEnt, settings);
 	SpritesheetComponent* SpritesheetComp = world->GetComponent<SpritesheetComponent>(SpriteSheetEnt);
 	GameMgrCmp->GameEntities.PushBack(SpriteSheetEnt);
 }
 
-void GameManagerSystem::SpawnSpritesheet22(World* world)
+void GameManagerSystem::SpawnSpritesheet22(World* world, Vector pos)
 {
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
 	Entity* SpriteSheetEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
-	EntityTransform& ParticlesEnt1Trans = SpriteSheetEnt->GetTransform();
-	ParticlesEnt1Trans.SetLocalTranslation(Vector(0.0f, 4.0f, 0.0f));
-	ParticlesEnt1Trans.SetLocalScale(Vector(1.0f, 1.0f, 1.0f));
+	EntityTransform& SpriteSheetTrans = SpriteSheetEnt->GetTransform();
+	SpriteSheetTrans.SetLocalTranslation(pos);
+	SpriteSheetTrans.SetLocalScale(Vector(1.0f, 1.0f, 1.0f));
 	SpritesheetComponent::Settings settings;
 	settings.SubImages = Vector2f(2.0f, 2.0f);
 	settings.SpritePath = "Textures/test_2_2.png";
-	gConsole.LogError("GameManagerSystem::SpawnSpritesheet44 subImages: {}, uSpeed: {}, uStartFrame: {}, path: {}",
-		settings.SubImages, settings.Speed, settings.StartFrame, settings.SpritePath);
-
 	DeferredTaskSystem::AddComponentImmediate<SpritesheetComponent>(world, SpriteSheetEnt, settings);
 	SpritesheetComponent* SpritesheetComp = world->GetComponent<SpritesheetComponent>(SpriteSheetEnt);
 	GameMgrCmp->GameEntities.PushBack(SpriteSheetEnt);
 }
 
-void GameManagerSystem::SpawnSpritesheet44(World* world)
+void GameManagerSystem::SpawnSpritesheet44(World* world, Vector pos)
 {
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
 	Entity* SpriteSheetEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
-	EntityTransform& ParticlesEnt1Trans = SpriteSheetEnt->GetTransform();
-	ParticlesEnt1Trans.SetLocalTranslation(Vector(5.0f, 4.0f, 0.0f));
-	ParticlesEnt1Trans.SetLocalScale(Vector(1.0f, 1.0f, 1.0f));
+	EntityTransform& SpriteSheetTrans = SpriteSheetEnt->GetTransform();
+	SpriteSheetTrans.SetLocalTranslation(pos);
+	SpriteSheetTrans.SetLocalScale(Vector(1.0f, 1.0f, 1.0f));
 	SpritesheetComponent::Settings settings;
 	settings.SubImages = Vector2f(4.0f, 4.0f);
 	settings.SpritePath = "Textures/test_4_4.png";
-	gConsole.LogError("GameManagerSystem::SpawnSpritesheet44 subImages: {}, uSpeed: {}, uStartFrame: {}, path: {}",
-		settings.SubImages, settings.Speed, settings.StartFrame, settings.SpritePath);
-
+	settings.Color = Color(0.0f, 1.0f, 0.0f, 0.5f);
 	DeferredTaskSystem::AddComponentImmediate<SpritesheetComponent>(world, SpriteSheetEnt, settings);
 	SpritesheetComponent* SpritesheetComp = world->GetComponent<SpritesheetComponent>(SpriteSheetEnt);
 	GameMgrCmp->GameEntities.PushBack(SpriteSheetEnt);
 }
 
-void GameManagerSystem::SpawnSpritesheet42(World* world)
+void GameManagerSystem::SpawnSpritesheet42(World* world, Vector pos)
 {
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
 	Entity* SpriteSheetEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
-	EntityTransform& ParticlesEnt1Trans = SpriteSheetEnt->GetTransform();
-	ParticlesEnt1Trans.SetLocalTranslation(Vector(5.0f, 8.0f, 0.0f));
-	ParticlesEnt1Trans.SetLocalScale(Vector(1.0f, 1.0f, 1.0f));
+	EntityTransform& SpriteSheetTrans = SpriteSheetEnt->GetTransform();
+	SpriteSheetTrans.SetLocalTranslation(pos);
+	SpriteSheetTrans.SetLocalScale(Vector(1.0f, 1.0f, 1.0f));
 	SpritesheetComponent::Settings settings;
 	settings.SubImages = Vector2f(4.0f, 2.0f);
 	settings.SpritePath = "Textures/test_4_2.png";
-	gConsole.LogError("GameManagerSystem::SpawnSpritesheet44 subImages: {}, uSpeed: {}, uStartFrame: {}, path: {}",
-		settings.SubImages, settings.Speed, settings.StartFrame, settings.SpritePath);
-
 	DeferredTaskSystem::AddComponentImmediate<SpritesheetComponent>(world, SpriteSheetEnt, settings);
 	SpritesheetComponent* SpritesheetComp = world->GetComponent<SpritesheetComponent>(SpriteSheetEnt);
 	GameMgrCmp->GameEntities.PushBack(SpriteSheetEnt);
 }
 
-void GameManagerSystem::SpawnSpritesheet41(World* world)
+void GameManagerSystem::SpawnSpritesheet41(World* world, Vector pos)
 {
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
 	Entity* SpriteSheetEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
-	EntityTransform& ParticlesEnt1Trans = SpriteSheetEnt->GetTransform();
-	ParticlesEnt1Trans.SetLocalTranslation(Vector(-5.0f, 8.0f, 0.0f));
-	ParticlesEnt1Trans.SetLocalScale(Vector(1.0f, 1.0f, 1.0f));
+	EntityTransform& SpriteSheetTrans = SpriteSheetEnt->GetTransform();
+	SpriteSheetTrans.SetLocalTranslation(pos);
+	SpriteSheetTrans.SetLocalScale(Vector(1.0f, 1.0f, 1.0f));
 	SpritesheetComponent::Settings settings;
 	settings.SubImages = Vector2f(4.0f, 1.0f);
 	settings.SpritePath = "Textures/test_4_1.png";
-	gConsole.LogError("GameManagerSystem::SpawnSpritesheet44 subImages: {}, uSpeed: {}, uStartFrame: {}, path: {}",
-		settings.SubImages, settings.Speed, settings.StartFrame, settings.SpritePath);
-
+	settings.Color = Color::RED;
 	DeferredTaskSystem::AddComponentImmediate<SpritesheetComponent>(world, SpriteSheetEnt, settings);
 	SpritesheetComponent* SpritesheetComp = world->GetComponent<SpritesheetComponent>(SpriteSheetEnt);
 	GameMgrCmp->GameEntities.PushBack(SpriteSheetEnt);
 }
 
-void GameManagerSystem::SpawnSpritesheet44Random(World* world)
+void GameManagerSystem::SpawnSpritesheet44Random(World* world, Vector pos)
 {
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
 	Entity* SpriteSheetEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
-	EntityTransform& ParticlesEnt1Trans = SpriteSheetEnt->GetTransform();
-	ParticlesEnt1Trans.SetLocalTranslation(Vector(-5.0f, 8.0f, 0.0f));
-	ParticlesEnt1Trans.SetLocalScale(Vector(1.0f, 1.0f, 1.0f));
+	EntityTransform& SpriteSheetTrans = SpriteSheetEnt->GetTransform();
+	SpriteSheetTrans.SetLocalTranslation(pos);
+	SpriteSheetTrans.SetLocalScale(Vector(1.0f, 1.0f, 1.0f));
 	SpritesheetComponent::Settings settings;
 	settings.SubImages = Vector2f(4.0f, 4.0f);
 	settings.SpritePath = "Textures/test_4_4.png";
 	settings.IsRandom = true;
-	gConsole.LogError("GameManagerSystem::SpawnSpritesheet44 subImages: {}, uSpeed: {}, uStartFrame: {}, path: {}",
-		settings.SubImages, settings.Speed, settings.StartFrame, settings.SpritePath);
-
 	DeferredTaskSystem::AddComponentImmediate<SpritesheetComponent>(world, SpriteSheetEnt, settings);
 	SpritesheetComponent* SpritesheetComp = world->GetComponent<SpritesheetComponent>(SpriteSheetEnt);
 	GameMgrCmp->GameEntities.PushBack(SpriteSheetEnt);
 }
 
-void GameManagerSystem::SpawnSpritesheetGandalf(World* world)
+void GameManagerSystem::SpawnSpritesheetGandalf(World* world, Vector pos)
 {
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
 	Entity* SpriteSheetEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
-	EntityTransform& ParticlesEnt1Trans = SpriteSheetEnt->GetTransform();
-	ParticlesEnt1Trans.SetLocalTranslation(Vector(0.0f, 16.0f, 0.0f));
-	ParticlesEnt1Trans.SetLocalScale(Vector(1.0f, 1.0f, 1.0f));
+	EntityTransform& SpriteSheetTrans = SpriteSheetEnt->GetTransform();
+	SpriteSheetTrans.SetLocalTranslation(pos);
+	SpriteSheetTrans.SetLocalScale(Vector(1.0f, 1.0f, 1.0f));
 	SpritesheetComponent::Settings settings;
 	settings.SubImages = Vector2f(4.0f, 4.0f);
 	settings.SpritePath = "Textures/gandalf_anim.png";
 	settings.Speed = 0.2f;
-	settings.IsRandom = true;
 	DeferredTaskSystem::AddComponentImmediate<SpritesheetComponent>(world, SpriteSheetEnt, settings);
 	SpritesheetComponent* SpritesheetComp = world->GetComponent<SpritesheetComponent>(SpriteSheetEnt);
 	GameMgrCmp->GameEntities.PushBack(SpriteSheetEnt);
