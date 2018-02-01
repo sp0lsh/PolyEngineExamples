@@ -14,12 +14,12 @@ namespace GameManagerSystem
 	void Update(World* world);
 	void Deinit(World* world);
 
-	ParticleComponent* SpawnEmitter0(World* world);
-	ParticleComponent* SpawnEmitter1(World* world);
-	ParticleComponent* SpawnEmitter2(World* world);
-	ParticleComponent* SpawnEmitter3(World* world);
-	ParticleComponent* SpawnEmitter4(World* world);
-	
+	void SpawnEmitterDefault(World* world, Vector pos);
+	void SpawnEmitterAmbientDust(World* world, Vector pos);
+	void SpawnEmitter1(World* world, Vector pos);
+	void SpawnEmitter2(World* world, Vector pos);
+	void SpawnEmitter3(World* world, Vector pos);
+
 	void SpawnSpritesheet11(World* world, Vector pos);
 	void SpawnSpritesheet22(World* world, Vector pos);
 	void SpawnSpritesheet44(World* world, Vector pos);
