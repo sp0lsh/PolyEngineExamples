@@ -23,9 +23,11 @@ public:
 
 	Dynarray<SafePtr<Entity>> GameEntities;
 
-	ParticleComponent* particle0;
-	ParticleComponent* particle1;
-	ParticleComponent* particle2;
-	ParticleComponent* particle3;
-	ParticleComponent* particle4;
+	ParticleComponent* particleDefault;
+	ParticleComponent* particleHeart;
+	ParticleComponent* particleHeartImpact0;
+	ParticleComponent* particleHeartImpact1;
+	ParticleComponent* particleHeartImpact2;
+	ParticleComponent* particleLocalSpace;
+	ParticleComponent* particleWorldSpace;
 };

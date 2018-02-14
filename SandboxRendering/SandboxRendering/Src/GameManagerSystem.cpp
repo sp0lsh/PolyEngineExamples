@@ -27,7 +27,7 @@ void GameManagerSystem::CreateScene(World* world)
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
 	Entity* Camera = DeferredTaskSystem::SpawnEntityImmediate(world);
-	DeferredTaskSystem::AddComponentImmediate<CameraComponent>(world, Camera, 90_deg, 1.0f, 3000.f);
+	DeferredTaskSystem::AddComponentImmediate<CameraComponent>(world, Camera, 50_deg, 0.1f, 3000.f);
 	DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(world, Camera, 1.0f, 0.003f);
 	DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(world, Camera);
 	PostprocessSettingsComponent* postCmp = world->GetComponent<PostprocessSettingsComponent>(Camera);
@@ -44,39 +44,292 @@ void GameManagerSystem::CreateScene(World* world)
 	cameraTrans.SetLocalTranslation(Vector(0.0f, 4.0f, 5.0f));
 	world->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, world->GetComponent<CameraComponent>(Camera));
 
-	EnumArray<String, eCubemapSide> miramar{
-		{eCubemapSide::RIGHT, "Cubemaps/miramar/miramar_rt.jpg"},
-		{eCubemapSide::LEFT , "Cubemaps/miramar/miramar_lt.jpg"},
-		{eCubemapSide::TOP  , "Cubemaps/miramar/miramar_up.jpg"},
-		{eCubemapSide::DOWN , "Cubemaps/miramar/miramar_dn.jpg"},
-		{eCubemapSide::BACK , "Cubemaps/miramar/miramar_bk.jpg"},
-		{eCubemapSide::FRONT, "Cubemaps/miramar/miramar_ft.jpg"}
+	EnumArray<String, eCubemapSide> stormydays{
+		{eCubemapSide::RIGHT, "Cubemaps/stormydays/stormydays_rt.jpg"},
+		{eCubemapSide::LEFT , "Cubemaps/stormydays/stormydays_lt.jpg"},
+		{eCubemapSide::TOP  , "Cubemaps/stormydays/stormydays_up.jpg"},
+		{eCubemapSide::DOWN , "Cubemaps/stormydays/stormydays_dn.jpg"},
+		{eCubemapSide::BACK , "Cubemaps/stormydays/stormydays_bk.jpg"},
+		{eCubemapSide::FRONT, "Cubemaps/stormydays/stormydays_ft.jpg"}
 	};
 
-	DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(world, miramar);
+	DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(world, stormydays);
 
 	world->GetWorldComponent<AmbientLightWorldComponent>()->SetColor(Color(0.0f, 0.0f, 0.0f));
 	world->GetWorldComponent<AmbientLightWorldComponent>()->SetIntensity(0.0f);
 
-	SpawnEmitterDefault(world,		Vector( 0.0f, 4.0f, -4.0f));
-	SpawnEmitterAmbientDust(world,	Vector( 0.0f, 0.0f,  0.0f));
+	// Vector spritesheetsPosition = Vector(-15.0f, 0.0f, 0.0f);
+	// SpawnSpritesheet11(world,		spritesheetsPosition + Vector(-5.0f,  4.0f, 0.0f));
+	// SpawnSpritesheet22(world,		spritesheetsPosition + Vector( 0.0f,  4.0f, 0.0f));
+	// SpawnSpritesheet44(world,		spritesheetsPosition + Vector( 5.0f,  4.0f, 0.0f));
+	// SpawnSpritesheet42(world,		spritesheetsPosition + Vector(-5.0f,  8.0f, 0.0f));
+	// SpawnSpritesheet41(world,		spritesheetsPosition + Vector( 0.0f,  8.0f, 0.0f));
+	// SpawnSpritesheet44Random(world, spritesheetsPosition + Vector( 5.0f,  8.0f, 0.0f));
+	// SpawnSpritesheetGandalf(world,	spritesheetsPosition + Vector( 0.0f, 12.0f, 0.0f));
+
+
+	GameMgrCmp->particleDefault		= SpawnEmitterDefault(world,	Vector( 0.0f, 0.0f, 0.0f));
+	GameMgrCmp->particleHeart		= SpawnEmitterHeart(world, Vector(0.0f, 4.0f, 0.0f));
+	GameMgrCmp->particleHeartImpact0 = SpawnEmitterHeartImpact(world, Vector(0.0f, 4.0f, 0.0f));
+	GameMgrCmp->particleHeartImpact1 = SpawnEmitterHeartImpact(world, Vector(0.0f, 4.0f, 0.0f));
+	GameMgrCmp->particleHeartImpact2 = SpawnEmitterHeartImpact2(world, Vector(0.0f, 4.0f, 0.0f));
+	GameMgrCmp->particleWorldSpace	= SpawnEmitterWorldSpace(world,	Vector( 0.0f, 0.0f, 0.0f));
+	GameMgrCmp->particleLocalSpace	= SpawnEmitterLocalSpace(world,	Vector( 0.0f, 0.0f, 0.0f));
+
+	// SpawnEmitterAmbientDust(world,	Vector( 0.0f, 0.0f,  0.0f));
 	// SpawnEmitter1(world,			Vector(-5.0f, 0.0f, -4.0f));
 	// SpawnEmitter2(world,			Vector( 0.0f, 0.0f, -4.0f));
 	// SpawnEmitter3(world,			Vector(-5.0f, 0.0f, -4.0f));
-
-	SpawnSpritesheet11(world,		Vector(-5.0f,  4.0f, 0.0f));
-	SpawnSpritesheet22(world,		Vector( 0.0f,  4.0f, 0.0f));
-	SpawnSpritesheet44(world,		Vector( 5.0f,  4.0f, 0.0f));
-	SpawnSpritesheet42(world,		Vector(-5.0f,  8.0f, 0.0f));
-	SpawnSpritesheet41(world,		Vector( 0.0f,  8.0f, 0.0f));
-	SpawnSpritesheet44Random(world, Vector( 5.0f,  8.0f, 0.0f));
-	SpawnSpritesheetGandalf(world,	Vector( 0.0f, 12.0f, 0.0f));
 
 
 	// CreateShaderball(world, GameMgrCmp);
 
 	SpawnSponzaScene(world);
 }
+
+
+#pragma region Particle Examples
+
+ParticleComponent* GameManagerSystem::SpawnEmitterDefault(World* world, Vector pos)
+{
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
+	Entity* ParticlesEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
+	EntityTransform& ParticlesTrans = ParticlesEnt->GetTransform();
+	ParticlesTrans.SetLocalTranslation(pos);
+
+	SpritesheetSettings spriteSettings;
+	spriteSettings.SubImages = Vector2f(4.0f, 4.0f);
+	spriteSettings.SpritePath = "Textures/test_4_4.png";
+
+	ParticleEmitter::Settings settings;
+	settings.MaxSize = 20;
+	settings.SpritesheetSettings = spriteSettings;
+	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::LOCAL_SPACE;
+	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
+		p->Position += RandomVectorRange(-1.0f, 1.0f);
+		p->Velocity = RandomVectorRange(0.5f, 1.0f) * 0.001f;
+		p->LifeTime = RandomRange(1.0f, 5.0f);
+		p->Scale = Vector::ONE * RandomRange(1.0f, 2.0f);
+	};
+	settings.ParticleUpdateFunc = [](ParticleEmitter::Particle* p) {
+		// p->Position += p->Velocity;
+	};
+
+	GameMgrCmp->GameEntities.PushBack(ParticlesEnt);
+
+	ParticleComponent* particleCmp = DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, ParticlesEnt, settings);
+	return particleCmp;
+}
+
+ParticleComponent* GameManagerSystem::SpawnEmitterHeart(World* world, Vector pos)
+{
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
+	Entity* ParticlesEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
+	EntityTransform& ParticlesTrans = ParticlesEnt->GetTransform();
+	// ParticlesTrans.SetLocalTranslation(pos);
+
+	SpritesheetSettings spriteSettings;
+	spriteSettings.SubImages = Vector2f(2.0f, 2.0f);
+	spriteSettings.SpritePath = "Textures/strokes_2_2.png";
+	spriteSettings.Speed = 0.0f;
+
+	ParticleEmitter::Settings settings;
+	settings.MaxSize = 1000;
+	settings.Color = Color(1.2f, 0.8f, 0.8f, 0.5f);
+	settings.BurstTimeMin = 0.01f;
+	settings.BurstTimeMax = 0.05f;
+	settings.BurstSizeMin = 10;
+	settings.BurstSizeMax = 30;
+	settings.SpritesheetSettings = spriteSettings;
+	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::LOCAL_SPACE;
+	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
+		Vector rnd = RandomVectorRange(-1.0f, 1.0f);
+		rnd.Normalize();
+		rnd.Z = rnd.Z * 0.5f;
+		rnd.Z = rnd.Z * (1.0f - rnd.Y * 1.0f);
+		rnd.Y = 0.9f*rnd.Y - Abs(rnd.X) * sqrt((20.0f - Abs(rnd.X))/15.0f);
+		rnd.Y *= -0.8f;
+		p->Position += rnd;
+		p->Velocity = RandomVectorRange(0.5f, 1.0f) * 0.001f;
+		p->LifeTime = RandomRange(3.0f, 5.0f);
+		p->Scale = Vector::ONE * RandomRange(0.02f, 0.2f);
+	};
+	settings.ParticleUpdateFunc = [](ParticleEmitter::Particle* p) {
+		// p->Position += p->Velocity;
+	};
+
+	GameMgrCmp->GameEntities.PushBack(ParticlesEnt);
+
+	ParticleComponent* particleCmp = DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, ParticlesEnt, settings);
+	return particleCmp;
+}
+
+ParticleComponent* GameManagerSystem::SpawnEmitterHeartImpact(World* world, Vector pos)
+{
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
+	Entity* ParticlesEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
+	EntityTransform& ParticlesTrans = ParticlesEnt->GetTransform();
+	// ParticlesTrans.SetLocalTranslation(pos);
+
+	SpritesheetSettings spriteSettings;
+	spriteSettings.SubImages = Vector2f(2.0f, 2.0f);
+	spriteSettings.SpritePath = "Textures/strokes_2_2.png";
+
+	ParticleEmitter::Settings settings;
+	settings.MaxSize = 1000;
+	settings.Color = Color(1.5f, 1.0f, 1.0f, 0.95f);
+	settings.BurstTimeMin = 0.1f;
+	settings.BurstTimeMax = 0.5f;
+	settings.BurstSizeMin = 10;
+	settings.BurstSizeMax = 30;
+	settings.SpritesheetSettings = spriteSettings;
+	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::LOCAL_SPACE;
+	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
+		Vector rndPos = RandomVectorRange(-1.0f, 1.0f);
+		rndPos.Normalize();
+		rndPos.Z = rndPos.Z * 0.5f;
+		rndPos.Z = rndPos.Z * (1.0f - rndPos.Y * 1.0f);
+		rndPos.Y = 0.9f*rndPos.Y - Abs(rndPos.X) * sqrt((20.0f - Abs(rndPos.X)) / 15.0f);
+		rndPos.Y *= -0.8f;
+		p->Position += rndPos;
+		Vector rndVel = RandomVectorRange(-1.0f, 1.0f);
+		rndVel.Normalize();
+		p->Velocity = rndVel * 0.01f;
+		p->Acceleration = rndVel * 0.0001f;
+		p->LifeTime = RandomRange(8.0f, 10.0f);
+		p->Scale = Vector::ONE * RandomRange(0.01f, 0.02f);
+	};
+	settings.ParticleUpdateFunc = [](ParticleEmitter::Particle* p) {
+		// p->Position += p->Velocity;
+		p->Scale = Vector::ONE * Lerp(0.04f, 0.01f, pow(p->Age / p->LifeTime, 16.0f));
+	};
+
+	GameMgrCmp->GameEntities.PushBack(ParticlesEnt);
+
+	ParticleComponent* particleCmp = DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, ParticlesEnt, settings);
+	return particleCmp;
+}
+
+ParticleComponent* GameManagerSystem::SpawnEmitterHeartImpact2(World* world, Vector pos)
+{
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
+	Entity* ParticlesEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
+	EntityTransform& ParticlesTrans = ParticlesEnt->GetTransform();
+	// ParticlesTrans.SetLocalTranslation(pos);
+
+	SpritesheetSettings spriteSettings;
+	spriteSettings.SubImages = Vector2f(2.0f, 2.0f);
+	spriteSettings.SpritePath = "Textures/strokes_2_2.png";
+
+	ParticleEmitter::Settings settings;
+	settings.MaxSize = 1000;
+	settings.Color = Color(2.0f, 0.5f, 0.5f, 0.2f);
+	settings.BurstTimeMin = 1.0f;
+	settings.BurstTimeMax = 1.0f;
+	settings.BurstSizeMin = 200;
+	settings.BurstSizeMax = 200;
+	settings.SpritesheetSettings = spriteSettings;
+	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::LOCAL_SPACE;
+	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
+		Vector rndPos = RandomVectorRange(-1.0f, 1.0f);
+		rndPos.Normalize();
+		rndPos.Z = rndPos.Z * 0.5f;
+		rndPos.Z = rndPos.Z * (1.0f - rndPos.Y * 1.0f);
+		rndPos.Y = 0.9f*rndPos.Y - Abs(rndPos.X) * sqrt((20.0f - Abs(rndPos.X)) / 15.0f);
+		rndPos.Y *= -0.8f;
+		rndPos.Y += 0.02f;
+		// rndPos *= 1.2f;
+		Vector rndVel = rndPos;
+		Vector rndAccel = RandomVectorRange(0.5f, 1.0f);
+		p->Position += rndPos;
+		p->Velocity = rndVel * 0.01f;
+		p->Acceleration = rndVel * 0.001f + Vector(-1.5f * rndAccel.X, 1.0f * rndAccel.Y, 0.5f * rndAccel.Z) * 0.001f;
+		p->LifeTime = RandomRange(0.2f, 0.75f);
+		p->Scale = Vector::ONE * RandomRange(0.04f, 0.05f);
+	};
+	settings.ParticleUpdateFunc = [](ParticleEmitter::Particle* p) {
+		// p->Position += p->Velocity;
+		p->Scale = Vector::ONE * Lerp(0.4f, 0.001f, pow(p->Age / p->LifeTime, 8.0f));
+	};
+
+	GameMgrCmp->GameEntities.PushBack(ParticlesEnt);
+
+	ParticleComponent* particleCmp = DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, ParticlesEnt, settings);
+	return particleCmp;
+}
+
+ParticleComponent* GameManagerSystem::SpawnEmitterWorldSpace(World* world, Vector pos)
+{
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
+	Entity* ParticlesEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
+	EntityTransform& ParticlesTrans = ParticlesEnt->GetTransform();
+	ParticlesTrans.SetLocalTranslation(pos);
+
+	SpritesheetSettings spriteSettings;
+	spriteSettings.SubImages = Vector2f(4.0f, 4.0f);
+	spriteSettings.SpritePath = "Textures/test_4_4.png";
+
+	ParticleEmitter::Settings settings;
+	settings.MaxSize = 50;
+	settings.SpritesheetSettings = spriteSettings;
+	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::WORLD_SPACE;
+	settings.BurstTimeMin = 0.05f;
+	settings.BurstTimeMax = 0.20f;
+	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
+		p->Position += RandomVectorRange(-1.0f, 1.0f);
+		p->Velocity = RandomVectorRange(0.5f, 1.0f) * 0.001f;
+		p->LifeTime = RandomRange(0.5f, 2.0f);
+		p->Scale = Vector::ONE * RandomRange(1.0f, 2.0f);
+	};
+	settings.ParticleUpdateFunc = [](ParticleEmitter::Particle* p) {
+		// p->Position += p->Velocity;
+	};
+
+	GameMgrCmp->GameEntities.PushBack(ParticlesEnt);
+
+	ParticleComponent* particleCmp = DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, ParticlesEnt, settings);
+	return particleCmp;
+}
+
+ParticleComponent* GameManagerSystem::SpawnEmitterLocalSpace(World* world, Vector pos)
+{
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
+	Entity* ParticlesEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
+	EntityTransform& ParticlesTrans = ParticlesEnt->GetTransform();
+	ParticlesTrans.SetLocalTranslation(pos);
+
+	SpritesheetSettings spriteSettings;
+	spriteSettings.SubImages = Vector2f(4.0f, 4.0f);
+	spriteSettings.SpritePath = "Textures/test_4_4.png";
+
+	ParticleEmitter::Settings settings;
+	settings.MaxSize = 20;
+	settings.SpritesheetSettings = spriteSettings;
+	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::LOCAL_SPACE;
+	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
+		p->Position = RandomVectorRange(-1.0f, 1.0f);
+		p->Velocity = RandomVectorRange(0.5f, 1.0f) * 0.001f;
+		p->LifeTime = RandomRange(1.0f, 5.0f);
+		p->Scale = Vector::ONE * RandomRange(1.0f, 2.0f);
+	};
+	settings.ParticleUpdateFunc = [](ParticleEmitter::Particle* p) {
+		// p->Position += p->Acceleration;
+	};
+
+	GameMgrCmp->GameEntities.PushBack(ParticlesEnt);
+
+	ParticleComponent* particleCmp = DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, ParticlesEnt, settings);
+	return particleCmp;
+}
+
+
+#pragma endregion
 
 
 #pragma region Spritesheet examples
@@ -200,153 +453,6 @@ void GameManagerSystem::SpawnSpritesheetGandalf(World* world, Vector pos)
 #pragma endregion
 
 
-#pragma region Particle Examples
-
-void GameManagerSystem::SpawnEmitterDefault(World* world, Vector pos)
-{
-	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
-
-	Entity* ParticlesEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
-	EntityTransform& ParticlesTrans = ParticlesEnt->GetTransform();
-	ParticlesTrans.SetLocalTranslation(pos);
-
-	SpritesheetSettings spriteSettings;
-	spriteSettings.SubImages = Vector2f(4.0f, 4.0f);
-	spriteSettings.SpritePath = "Textures/test_4_4.png";
-
-	ParticleEmitter::Settings settings;
-	settings.SpritesheetSettings = spriteSettings;
-	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
-		p->Position = RandomVectorRange(-1.0f, 1.0f);
-		p->Acceleration = RandomVectorRange(0.5f, 1.0f) * 0.001f;
-		p->LifeTime = RandomRange(1.0f, 5.0f);
-		p->Scale = Vector::ONE * RandomRange(1.0f, 2.0f);
-	};
-	settings.ParticleUpdateFunc = [](ParticleEmitter::Particle* p) {
-		p->Position += p->Acceleration;
-	};
-
-	DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, ParticlesEnt, settings);
-
-	GameMgrCmp->GameEntities.PushBack(ParticlesEnt);
-}
-
-void GameManagerSystem::SpawnEmitterAmbientDust(World* world, Vector pos)
-{
-	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
-
-	Entity* ParticlesEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
-	EntityTransform& ParticlesTrans = ParticlesEnt->GetTransform();
-	ParticlesTrans.SetLocalTranslation(pos);
-
-	ParticleEmitter::Settings settings;
-	settings.MaxSize = 1000;
-	settings.InitialSize = 1000;
-	settings.BurstSizeMin = 1;
-	settings.BurstSizeMax = 10;
-	settings.BurstTimeMin = 1.0f;
-	settings.BurstTimeMax = 2.0f;
-	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
-		p->Position = RandomVectorRange(-1.0f, 1.0f) * 20.0f;
-		p->Acceleration = RandomVectorRange(-1.0f, 1.0f) * 0.005f;
-		p->LifeTime = RandomRange(100.0f, 200.0f);
-		p->Scale = Vector::ONE * (0.05f + RandomRange(0.0f, 0.05f));
-	};
-	settings.ParticleUpdateFunc = [](ParticleEmitter::Particle* p) {
-		p->Position += p->Acceleration;
-	};
-
-	DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, ParticlesEnt, settings);
-
-	GameMgrCmp->GameEntities.PushBack(ParticlesEnt);
-}
-
-void GameManagerSystem::SpawnEmitter1(World* world, Vector pos)
-{
-	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
-
-	Entity* ParticlesEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
-	EntityTransform& ParticlesTrans = ParticlesEnt->GetTransform();
-	ParticlesTrans.SetLocalTranslation(pos);
-	ParticleEmitter::Settings settings;
-	settings.InitialSize = 10; 
-	settings.BurstSizeMin = 5;
-	settings.BurstSizeMax = 10;
-	settings.BurstTimeMin = 0.1f;
-	settings.BurstTimeMax = 0.2f;
-	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
-		p->Position = Vector(-20.0f, 0.0f, 0.0f) + RandomVectorRange(0.1f, 0.1f);
-		Vector accel = RandomVectorRange(0.1f, 1.0f);
-		p->Acceleration = Vector(1.0f * accel.X, 0.05f * accel.Y, 0.05f * accel.Z);
-		p->LifeTime = RandomRange(0.25f, 0.5f);
-		p->Scale = Vector::ONE;
-	};
-	settings.ParticleUpdateFunc = [](ParticleEmitter::Particle* p) {
-		p->Position += p->Acceleration;
-		p->Scale = Vector::ONE * (1.0f - Lerp(p->Age/p->LifeTime, 0.1f, 1.0f));
-	};
-	DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, ParticlesEnt, settings);
-
-	GameMgrCmp->GameEntities.PushBack(ParticlesEnt);
-}
-
-void GameManagerSystem::SpawnEmitter2(World* world, Vector pos)
-{
-	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
-
-	Entity* ParticlesEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
-	EntityTransform& ParticlesTrans = ParticlesEnt->GetTransform();
-	ParticlesTrans.SetLocalTranslation(pos);
-	ParticleEmitter::Settings settings;
-	settings.InitialSize = 10;
-	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
-		p->Position = Vector(0.0f, 0.0f, -20.0f) + RandomVectorRange(-2.0f, 2.0f);
-		p->Acceleration = RandomVectorRange(0.01f, 0.1f);
-		p->LifeTime = RandomRange(10.0f, 12.0f);
-		p->Scale = Vector::ONE;
-	};
-	settings.ParticleUpdateFunc = [](ParticleEmitter::Particle* p) {
-		p->Position += p->Acceleration;
-	};
-	DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, ParticlesEnt, settings);
-
-	GameMgrCmp->GameEntities.PushBack(ParticlesEnt);
-}
-
-void GameManagerSystem::SpawnEmitter3(World* world, Vector pos)
-{
-	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
-
-	Entity* ParticlesEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
-	EntityTransform& ParticlesTrans = ParticlesEnt->GetTransform();
-	ParticlesTrans.SetLocalTranslation(pos);
-	ParticleEmitter::Settings settings;
-	settings.InitialSize = 10;
-	settings.BurstSizeMin = 5;
-	settings.BurstSizeMax = 10;
-	settings.BurstTimeMin = 0.1f;
-	settings.BurstTimeMax = 0.2f;
-	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
-		p->Position = RandomVectorRange(0.2f, 0.2f);
-		Vector accel = RandomVectorRange(0.1f, 1.0f);
-		p->Acceleration = Vector(0.05f * accel.X, 1.0f * accel.Y, 0.05f * accel.Z);
-		p->LifeTime = RandomRange(0.25f, 0.5f);
-		p->Scale = Vector::ONE;
-	};
-	settings.ParticleUpdateFunc = [](ParticleEmitter::Particle* p) {
-		p->Position += p->Acceleration;
-		float life = Lerp(p->Age / p->LifeTime, 0.1f, 1.0f);
-		p->Scale = Vector::ONE * (1.0f - life * life);
-	};
-	DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, ParticlesEnt, settings);
-	ParticleComponent* ParticleComp = world->GetComponent<ParticleComponent>(ParticlesEnt);
-	
-	GameMgrCmp->GameEntities.PushBack(ParticlesEnt);
-}
-
-#pragma endregion
-
-
 void GameManagerSystem::SpawnShaderball(World* world)
 {
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
@@ -378,7 +484,7 @@ void GameManagerSystem::SpawnSponzaScene(World* world)
 	GameMgrCmp->KeyDirLight = KeyDirLight;
 
 	// Point Lights
-	CreatePointLight(world, 100.0f);
+	// CreatePointLight(world, 100.0f);
 
 	// AddPointLights(world, 7);
 
@@ -423,6 +529,55 @@ void GameManagerSystem::Update(World* world)
 		{
 			GameMgrCmp->DebugMeshes[i]->SetShadingModel(GameMgrCmp->IsDrawingDebugMeshes ? eShadingModel::UNLIT : eShadingModel::NONE);
 		}
+	}
+
+	UpdateParticles(world);
+}
+
+void GameManagerSystem::UpdateParticles(World* world)
+{
+	float time = (float)(world->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
+	float deltaTime = (float)(TimeSystem::GetTimerDeltaTime(world, Poly::eEngineTimer::GAMEPLAY));
+
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
+	Vector translation = Vector::UNIT_Y * (0.2f*Abs(Sin(1.0_rad*3.1415f *time + 0.5_rad)));
+	Vector scale = Vector::ONE * (1.0f + 0.1f*(0.5f + 0.5f*Sin(2.0_rad*3.1415f *time + 0.5_rad)));
+	Quaternion rotation = Quaternion(Vector::UNIT_Y, 0.5_rad * time);
+
+	if (GameMgrCmp->particleHeart)
+	{
+		GameMgrCmp->particleHeart->GetTransform().SetGlobalTranslation(translation);
+		GameMgrCmp->particleHeart->GetTransform().SetGlobalScale(scale);
+		GameMgrCmp->particleHeart->GetTransform().SetGlobalRotation(rotation);
+	}
+
+	if (GameMgrCmp->particleHeartImpact0)
+	{
+		GameMgrCmp->particleHeartImpact0->GetTransform().SetGlobalTranslation(translation);
+		GameMgrCmp->particleHeartImpact0->GetTransform().SetGlobalScale(scale);
+		GameMgrCmp->particleHeartImpact0->GetTransform().SetGlobalRotation(rotation);
+	}
+
+	if (GameMgrCmp->particleHeartImpact1)
+	{
+		GameMgrCmp->particleHeartImpact1->GetTransform().SetGlobalRotation(rotation);
+	}
+
+	if (GameMgrCmp->particleHeartImpact2)
+	{
+		GameMgrCmp->particleHeartImpact2->GetTransform().SetGlobalTranslation(Vector::UNIT_Y * 0.2f);
+		GameMgrCmp->particleHeartImpact2->GetTransform().SetGlobalRotation(rotation);
+	}
+
+	if (GameMgrCmp->particleLocalSpace)
+	{
+		GameMgrCmp->particleLocalSpace->GetTransform().SetGlobalTranslation(Vector(0.0f, 4.0f, 0.0f) + Vector(Cos(100.0_deg * time), 0.0f, Sin(100.0_deg * time)) * 6.0f);
+	}
+
+	if (GameMgrCmp->particleWorldSpace)
+	{
+		GameMgrCmp->particleWorldSpace->GetTransform().SetGlobalTranslation(Vector(0.0f, 4.0f, 0.0f) + Vector(Cos(100.0_deg * time + 180.0_deg), 0.0f, Sin(100.0_deg * time + 180.0_deg)) * 6.0f);
 	}
 }
 

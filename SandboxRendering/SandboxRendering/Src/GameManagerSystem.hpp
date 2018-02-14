@@ -12,14 +12,10 @@ namespace GameManagerSystem
 	void SpawnShaderball(World* world);
 	void SpawnSponzaScene(World* world);
 	void Update(World* world);
+	void UpdateParticles(World* world);
 	void Deinit(World* world);
 
-	void SpawnEmitterDefault(World* world, Vector pos);
-	void SpawnEmitterAmbientDust(World* world, Vector pos);
-	void SpawnEmitter1(World* world, Vector pos);
-	void SpawnEmitter2(World* world, Vector pos);
-	void SpawnEmitter3(World* world, Vector pos);
-
+	
 	void SpawnSpritesheet11(World* world, Vector pos);
 	void SpawnSpritesheet22(World* world, Vector pos);
 	void SpawnSpritesheet44(World* world, Vector pos);
@@ -27,6 +23,15 @@ namespace GameManagerSystem
 	void SpawnSpritesheet41(World* world, Vector pos);
 	void SpawnSpritesheet44Random(World* world, Vector pos);
 	void SpawnSpritesheetGandalf(World* world, Vector pos);
+
+
+	ParticleComponent* SpawnEmitterDefault(World* world, Vector pos);
+	ParticleComponent* SpawnEmitterHeart(World* world, Vector pos);
+	ParticleComponent* SpawnEmitterHeartImpact(World* world, Vector pos);
+	ParticleComponent* SpawnEmitterHeartImpact2(World* world, Vector pos);
+	ParticleComponent* SpawnEmitterWorldSpace(World* world, Vector pos);
+	ParticleComponent* SpawnEmitterLocalSpace(World* world, Vector pos);
+
 
 	void AddPointLights(World* world, int Quata);
 	void CreatePointLight(World* world, float Range);
