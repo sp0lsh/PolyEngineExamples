@@ -68,13 +68,13 @@ void GameManagerSystem::CreateScene(World* world)
 	// SpawnSpritesheetGandalf(world,	spritesheetsPosition + Vector( 0.0f, 12.0f, 0.0f));
 
 
-	GameMgrCmp->particleDefault		= SpawnEmitterDefault(world,	Vector( 0.0f, 0.0f, 0.0f));
-	GameMgrCmp->particleHeart		= SpawnEmitterHeart(world, Vector(0.0f, 4.0f, 0.0f));
-	GameMgrCmp->particleHeartImpact0 = SpawnEmitterHeartImpact(world, Vector(0.0f, 4.0f, 0.0f));
-	GameMgrCmp->particleHeartImpact1 = SpawnEmitterHeartImpact(world, Vector(0.0f, 4.0f, 0.0f));
-	GameMgrCmp->particleHeartImpact2 = SpawnEmitterHeartImpact2(world, Vector(0.0f, 4.0f, 0.0f));
-	GameMgrCmp->particleWorldSpace	= SpawnEmitterWorldSpace(world,	Vector( 0.0f, 0.0f, 0.0f));
-	GameMgrCmp->particleLocalSpace	= SpawnEmitterLocalSpace(world,	Vector( 0.0f, 0.0f, 0.0f));
+	// GameMgrCmp->particleDefault		= SpawnEmitterDefault(world,	Vector( 0.0f, 0.0f, 0.0f));
+	// GameMgrCmp->particleHeart		= SpawnEmitterHeart(world, Vector(0.0f, 4.0f, 0.0f));
+	// GameMgrCmp->particleHeartImpact0 = SpawnEmitterHeartImpact(world, Vector(0.0f, 4.0f, 0.0f));
+	// GameMgrCmp->particleHeartImpact1 = SpawnEmitterHeartImpact(world, Vector(0.0f, 4.0f, 0.0f));
+	// GameMgrCmp->particleHeartImpact2 = SpawnEmitterHeartImpact2(world, Vector(0.0f, 4.0f, 0.0f));
+	// GameMgrCmp->particleWorldSpace	= SpawnEmitterWorldSpace(world,	Vector( 0.0f, 0.0f, 0.0f));
+	// GameMgrCmp->particleLocalSpace	= SpawnEmitterLocalSpace(world,	Vector( 0.0f, 0.0f, 0.0f));
 
 	// SpawnEmitterAmbientDust(world,	Vector( 0.0f, 0.0f,  0.0f));
 	// SpawnEmitter1(world,			Vector(-5.0f, 0.0f, -4.0f));
@@ -84,7 +84,7 @@ void GameManagerSystem::CreateScene(World* world)
 
 	// CreateShaderball(world, GameMgrCmp);
 
-	SpawnSponzaScene(world);
+	// SpawnSponzaScene(world);
 }
 
 
