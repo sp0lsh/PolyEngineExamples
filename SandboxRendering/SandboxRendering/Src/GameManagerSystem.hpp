@@ -38,6 +38,9 @@ namespace GameManagerSystem
 	ParticleComponent* SpawnEmitterWorldSpace(World* world, Vector pos);
 	ParticleComponent* SpawnEmitterLocalSpace(World* world, Vector pos);
 
+	ParticleComponent* SpawnSmokeEmitterInWS(World* world, Entity* parent, Vector offset);
+	ParticleComponent* SpawnSmokeBurstEmitterInWS(World* world, Entity* parent, Vector offset);
+
 
 	void AddPointLights(World* world, int Quata);
 	void CreatePointLight(World* world, float Range);

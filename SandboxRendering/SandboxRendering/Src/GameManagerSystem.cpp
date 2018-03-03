@@ -64,13 +64,13 @@ void GameManagerSystem::SpawnParticleExamples(World* world)
 {
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
-	GameMgrCmp->particleDefault = SpawnEmitterDefault(world, Vector(0.0f, 0.0f, 0.0f));
-	GameMgrCmp->particleHeart = SpawnEmitterHeart(world, Vector(0.0f, 4.0f, 0.0f));
-	GameMgrCmp->particleHeartImpact0 = SpawnEmitterHeartImpact(world, Vector(0.0f, 4.0f, 0.0f));
-	GameMgrCmp->particleHeartImpact1 = SpawnEmitterHeartImpact(world, Vector(0.0f, 4.0f, 0.0f));
-	GameMgrCmp->particleHeartImpact2 = SpawnEmitterHeartImpact2(world, Vector(0.0f, 4.0f, 0.0f));
-	GameMgrCmp->particleWorldSpace = SpawnEmitterWorldSpace(world, Vector(0.0f, 0.0f, 0.0f));
-	GameMgrCmp->particleLocalSpace = SpawnEmitterLocalSpace(world, Vector(0.0f, 0.0f, 0.0f));
+	// GameMgrCmp->particleDefault = SpawnEmitterDefault(world, Vector(0.0f, 0.0f, 0.0f));
+	// GameMgrCmp->particleHeart = SpawnEmitterHeart(world, Vector(0.0f, 4.0f, 0.0f));
+	// GameMgrCmp->particleHeartImpact0 = SpawnEmitterHeartImpact(world, Vector(0.0f, 4.0f, 0.0f));
+	// GameMgrCmp->particleHeartImpact1 = SpawnEmitterHeartImpact(world, Vector(0.0f, 4.0f, 0.0f));
+	// GameMgrCmp->particleHeartImpact2 = SpawnEmitterHeartImpact2(world, Vector(0.0f, 4.0f, 0.0f));
+	// GameMgrCmp->particleWorldSpace = SpawnEmitterWorldSpace(world, Vector(0.0f, 0.0f, 0.0f));
+	// GameMgrCmp->particleLocalSpace = SpawnEmitterLocalSpace(world, Vector(0.0f, 0.0f, 0.0f));
 
 	// SpawnEmitterAmbientDust(world,	Vector( 0.0f, 0.0f,  0.0f));
 	// SpawnEmitter1(world,			Vector(-5.0f, 0.0f, -4.0f));
@@ -98,30 +98,32 @@ void GameManagerSystem::SpawnShip(World* world)
 	Entity* ShipModelEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
 	ShipModelEnt->SetParent(ShipRootEnt);
 	EntityTransform& ShipModelTrans = ShipModelEnt->GetTransform();
-	ShipModelTrans.SetLocalRotation(Quaternion(Vector::UNIT_X, -90_deg) * Quaternion(Vector::UNIT_Z, -90_deg));
+	// ShipModelTrans.SetLocalRotation(Quaternion(Vector::UNIT_X, -90_deg) * Quaternion(Vector::UNIT_Z, -90_deg));
 	// ShipTrans.SetLocalTranslation(Vector(0.0f, 0.0f, 0.0f));
-	// shipTrans.SetLocalScale(1.0f);
-	DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, ShipModelEnt, "Models/Primitives/Ship.fbx", eResourceSource::GAME);
+	ShipModelTrans.SetLocalScale(Vector(2.0f, 0.5f, 1.0f));
+	DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, ShipModelEnt, "Models/Primitives/Cube.fbx", eResourceSource::GAME);
 	MeshRenderingComponent* ShipMesh = world->GetComponent<MeshRenderingComponent>(ShipModelEnt);
 	ShipMesh->SetMaterial(0, PhongMaterial(Color(1.0f, 1.0f, 1.0f), Color(1.0f, 1.0f, 0.0f), Color(1.0f, 1.0f, 0.5f), 8.0f));
 	
-	Entity* ShipCanonEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
-	ShipCanonEnt->SetParent(ShipRootEnt);
-	EntityTransform& ShipCanonTrans = ShipCanonEnt->GetTransform();
+	// Entity* ShipCanonEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
+	// ShipCanonEnt->SetParent(ShipRootEnt);
+	// EntityTransform& ShipCanonTrans = ShipCanonEnt->GetTransform();
 	// ShipModelTrans.SetLocalRotation(Quaternion(Vector::UNIT_X, -90_deg) * Quaternion(Vector::UNIT_Z, -90_deg));
-	ShipCanonTrans.SetLocalTranslation(Vector(0.0f, 1.0f, 0.0f));
-	ShipCanonTrans.SetLocalScale(0.5f);
-	DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, ShipCanonEnt, "Models/Primitives/Canon.fbx", eResourceSource::GAME);
-	MeshRenderingComponent* ShipCanonMesh = world->GetComponent<MeshRenderingComponent>(ShipCanonEnt);
-	ShipCanonMesh->SetMaterial(0, PhongMaterial(Color(1.0f, 1.0f, 1.0f), Color(1.0f, 1.0f, 0.0f), Color(1.0f, 1.0f, 0.5f), 8.0f));
+	// ShipCanonTrans.SetLocalTranslation(Vector(0.0f, 1.0f, 0.0f));
+	// ShipCanonTrans.SetLocalScale(0.5f);
+	// DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, ShipCanonEnt, "Models/Primitives/Canon.fbx", eResourceSource::GAME);
+	// MeshRenderingComponent* ShipCanonMesh = world->GetComponent<MeshRenderingComponent>(ShipCanonEnt);
+	// ShipCanonMesh->SetMaterial(0, PhongMaterial(Color(1.0f, 1.0f, 1.0f), Color(1.0f, 1.0f, 0.0f), Color(1.0f, 1.0f, 0.5f), 8.0f));
 
 	GameMgrCmp->ShipRoot = ShipRootEnt;
 	GameMgrCmp->ShipModel = ShipModelEnt;
-	GameMgrCmp->ShipCanon = ShipCanonEnt;
+	// GameMgrCmp->ShipCanon = ShipCanonEnt;
 	GameMgrCmp->GameEntities.PushBack(ShipModelEnt);
 	GameMgrCmp->GameEntities.PushBack(ShipRootEnt);
 
-
+	GameMgrCmp->ShipParticleSmoke = SpawnSmokeEmitterInWS(world, ShipRootEnt, Vector(1.2f, 3.0f, 0.0f));
+	GameMgrCmp->ShipParticleSmokeBurst = SpawnSmokeBurstEmitterInWS(world, ShipRootEnt, Vector(1.2f, 3.0f, 0.0f));
+	
 	
 	Entity* CameraRootHEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
 	// CameraRootHEnt->SetParent(ShipRootEnt);
@@ -133,7 +135,7 @@ void GameManagerSystem::SpawnShip(World* world)
 	CameraEnt->SetParent(CameraRootVEnt);
 	DeferredTaskSystem::AddComponentImmediate<CameraComponent>(world, CameraEnt, 90_deg, 0.1f, 3000.f);
 	EntityTransform& CameraTrans = CameraEnt->GetTransform();
-	CameraTrans.SetLocalTranslation(Vector(0.0f, 3.0f, 4.0f));
+	CameraTrans.SetLocalTranslation(Vector(0.0f, 1.0f, 2.0f) * 3.0f);
 	world->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, world->GetComponent<CameraComponent>(CameraEnt));
 
 	PostprocessSettingsComponent* postCmp = DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(world, CameraEnt);
@@ -361,6 +363,89 @@ ParticleComponent* GameManagerSystem::SpawnEmitterWorldSpace(World* world, Vecto
 	GameMgrCmp->GameEntities.PushBack(ParticlesEnt);
 
 	ParticleComponent* particleCmp = DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, ParticlesEnt, settings);
+	return particleCmp;
+}
+
+ParticleComponent* GameManagerSystem::SpawnSmokeEmitterInWS(World* world, Entity* parent, Vector offset)
+{
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
+	Entity* ParticlesEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
+	ParticlesEnt->SetParent(parent);
+	EntityTransform& ParticlesTrans = ParticlesEnt->GetTransform();
+	ParticlesTrans.SetLocalTranslation(offset);
+
+	SpritesheetSettings spriteSettings;
+	spriteSettings.SubImages = Vector2f(4.0f, 4.0f);
+	spriteSettings.SpritePath = "Textures/puff_4_4.png";
+
+	ParticleEmitter::Settings settings;
+	settings.MaxSize = 1000;
+	settings.SpritesheetSettings = spriteSettings;
+	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::WORLD_SPACE;
+	settings.BurstTimeMin = 0.1f;
+	settings.BurstTimeMax = 0.1f;
+	settings.BurstSizeMin = 3;
+	settings.BurstSizeMin = 5;
+	settings.Speed = 0.05f;
+	settings.Color = Color(0.3f, 0.3f, 0.3f, 0.1f);
+	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
+		p->Position += RandomVectorRange(-1.0f, 1.0f) * 0.2f;
+		p->Velocity = RandomVectorRange(0.5f, 1.0f) * 0.001f;
+		p->LifeTime = RandomRange(7.0f, 10.0f);
+		p->Scale = Vector::ONE * RandomRange(1.0f, 2.0f);
+	};
+	settings.ParticleUpdateFunc = [](ParticleEmitter::Particle* p) {
+		// p->Position += p->Velocity;
+		float t = p->Age / p->LifeTime;
+		p->Scale = Vector::ONE * Lerp( 0.5f, 5.0f, t);
+	};
+
+	GameMgrCmp->GameEntities.PushBack(ParticlesEnt);
+
+	ParticleComponent* particleCmp = DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, ParticlesEnt, settings);
+	return particleCmp;
+}
+
+ParticleComponent* GameManagerSystem::SpawnSmokeBurstEmitterInWS(World* world, Entity* parent, Vector offset)
+{
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
+	Entity* ParticlesEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
+	ParticlesEnt->SetParent(parent);
+	EntityTransform& ParticlesTrans = ParticlesEnt->GetTransform();
+	ParticlesTrans.SetLocalTranslation(offset);
+
+	SpritesheetSettings spriteSettings;
+	spriteSettings.SubImages = Vector2f(4.0f, 4.0f);
+	spriteSettings.SpritePath = "Textures/puff_4_4.png";
+
+	ParticleEmitter::Settings settings;
+	settings.MaxSize = 1000;
+	settings.SpritesheetSettings = spriteSettings;
+	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::WORLD_SPACE;
+	settings.BurstTimeMin = 0.1f;
+	settings.BurstTimeMax = 0.2f;
+	settings.BurstSizeMin = 2;
+	settings.BurstSizeMin = 8;
+	settings.Speed = 0.05f;
+	settings.Color = Color(0.1f, 0.1f, 0.1f, 0.2f);
+	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
+		p->Position += RandomVectorRange(-1.0f, 1.0f) * 0.2f;
+		p->Velocity = RandomVectorRange(0.5f, 1.0f) * 0.001f;
+		p->LifeTime = RandomRange(7.0f, 10.0f);
+		p->Scale = Vector::ONE * RandomRange(0.2f, 2.0f);
+	};
+	settings.ParticleUpdateFunc = [](ParticleEmitter::Particle* p) {
+		// p->Position += p->Velocity;
+		float t = p->Age / p->LifeTime;
+		p->Scale = Vector::ONE * Lerp(1.0f, 10.0f, t);
+	};
+
+	GameMgrCmp->GameEntities.PushBack(ParticlesEnt);
+
+	ParticleComponent* particleCmp = DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, ParticlesEnt, settings);
+	particleCmp->GetEmitter()->SetBurstEnabled(false);
 	return particleCmp;
 }
 
@@ -636,6 +721,9 @@ void GameManagerSystem::UpdateCamera(World* world)
 		if (move.LengthSquared() > 0)
 			move.Normalize();
 		*/
+		bool IsInputActive = AccelImpulse.LengthSquared() > 0.01f;
+		GameMgrCmp->ShipParticleSmokeBurst->GetEmitter()->SetBurstEnabled(IsInputActive);
+
 		EntityTransform& ShipRootTrans = GameMgrCmp->ShipRoot->GetTransform();
 		
 		Vector Velocity = GameMgrCmp->GetVelocity();
@@ -672,10 +760,10 @@ void GameManagerSystem::UpdateCamera(World* world)
 			5.0f * deltaTime
 		));
 
-		gConsole.LogInfo("GameManagerSystem::UpdateCamera ShipRoot: {}, CameraRoot: {}",
-			ShipRootTrans.GetGlobalTranslation(),
-			CameraRootTrans.GetGlobalTranslation()
-		);
+		// gConsole.LogInfo("GameManagerSystem::UpdateCamera ShipRoot: {}, CameraRoot: {}",
+		// 	ShipRootTrans.GetGlobalTranslation(),
+		// 	CameraRootTrans.GetGlobalTranslation()
+		// );
 	}
 
 
@@ -697,8 +785,7 @@ void GameManagerSystem::UpdateCamera(World* world)
 
 	if (	GameMgrCmp->Camera != nullptr
 		&&	GameMgrCmp->CameraRootH != nullptr
-		&&	GameMgrCmp->CameraRootV != nullptr
-		&&	GameMgrCmp->ShipCanon != nullptr)
+		&&	GameMgrCmp->CameraRootV != nullptr)
 	{
 		EntityTransform& CameraTrans = GameMgrCmp->Camera->GetTransform();
 		EntityTransform& CameraRootHTrans = GameMgrCmp->CameraRootH->GetTransform();
@@ -751,6 +838,14 @@ void GameManagerSystem::UpdateCamera(World* world)
 
 	PostprocessSettingsComponent* PostCmp = GameMgrCmp->Camera->GetComponent<PostprocessSettingsComponent>();
 	PostCmp->ShipPos = GameMgrCmp->ShipRoot->GetTransform().GetGlobalTranslation();
+	EulerAngles Angles = GameMgrCmp->ShipRoot->GetTransform().GetGlobalRotation().ToEulerAngles();
+	Angles.X = 0.0_rad;
+	Angles.Z = 0.0_rad;
+	PostCmp->ShipPos.W = Angles.Y.AsRadians();
+	// PostCmp->ShipFwd = MovementSystem::GetGlobalForward(GameMgrCmp->ShipRoot->GetTransform());
+	gConsole.LogDebug("GameManagerSystem::UpdateCamera: ShipRot: {}",
+		GameMgrCmp->ShipRoot->GetTransform().GetGlobalRotation().ToEulerAngles()
+	);
 }
 
 void GameManagerSystem::UpdateParticles(World* world)
@@ -764,35 +859,35 @@ void GameManagerSystem::UpdateParticles(World* world)
 	Vector scale = Vector::ONE * (1.0f + 0.1f*(0.5f + 0.5f*Sin(2.0_rad*3.1415f *time + 0.5_rad)));
 	Quaternion rotation = Quaternion(Vector::UNIT_Y, 0.5_rad * time);
 
-	if (GameMgrCmp->particleHeart)
-	{
-		GameMgrCmp->particleHeart->GetTransform().SetGlobalTranslation(translation);
-		GameMgrCmp->particleHeart->GetTransform().SetGlobalScale(scale);
-		GameMgrCmp->particleHeart->GetTransform().SetGlobalRotation(rotation);
-	}
-
-	if (GameMgrCmp->particleHeartImpact0)
-	{
-		GameMgrCmp->particleHeartImpact0->GetTransform().SetGlobalTranslation(translation);
-		GameMgrCmp->particleHeartImpact0->GetTransform().SetGlobalScale(scale);
-		GameMgrCmp->particleHeartImpact0->GetTransform().SetGlobalRotation(rotation);
-	}
-
-	if (GameMgrCmp->particleHeartImpact1)
-	{
-		GameMgrCmp->particleHeartImpact1->GetTransform().SetGlobalRotation(rotation);
-	}
-
-	if (GameMgrCmp->particleHeartImpact2)
-	{
-		GameMgrCmp->particleHeartImpact2->GetTransform().SetGlobalTranslation(Vector::UNIT_Y * 0.2f);
-		GameMgrCmp->particleHeartImpact2->GetTransform().SetGlobalRotation(rotation);
-	}
-
-	if (GameMgrCmp->particleLocalSpace)
-	{
-		GameMgrCmp->particleLocalSpace->GetTransform().SetGlobalTranslation(Vector(0.0f, 4.0f, 0.0f) + Vector(Cos(100.0_deg * time), 0.0f, Sin(100.0_deg * time)) * 6.0f);
-	}
+	// if (GameMgrCmp->particleHeart)
+	// {
+	// 	GameMgrCmp->particleHeart->GetTransform().SetGlobalTranslation(translation);
+	// 	GameMgrCmp->particleHeart->GetTransform().SetGlobalScale(scale);
+	// 	GameMgrCmp->particleHeart->GetTransform().SetGlobalRotation(rotation);
+	// }
+	// 
+	// if (GameMgrCmp->particleHeartImpact0)
+	// {
+	// 	GameMgrCmp->particleHeartImpact0->GetTransform().SetGlobalTranslation(translation);
+	// 	GameMgrCmp->particleHeartImpact0->GetTransform().SetGlobalScale(scale);
+	// 	GameMgrCmp->particleHeartImpact0->GetTransform().SetGlobalRotation(rotation);
+	// }
+	// 
+	// if (GameMgrCmp->particleHeartImpact1)
+	// {
+	// 	GameMgrCmp->particleHeartImpact1->GetTransform().SetGlobalRotation(rotation);
+	// }
+	// 
+	// if (GameMgrCmp->particleHeartImpact2)
+	// {
+	// 	GameMgrCmp->particleHeartImpact2->GetTransform().SetGlobalTranslation(Vector::UNIT_Y * 0.2f);
+	// 	GameMgrCmp->particleHeartImpact2->GetTransform().SetGlobalRotation(rotation);
+	// }
+	// 
+	// if (GameMgrCmp->particleLocalSpace)
+	// {
+	// 	GameMgrCmp->particleLocalSpace->GetTransform().SetGlobalTranslation(Vector(0.0f, 4.0f, 0.0f) + Vector(Cos(100.0_deg * time), 0.0f, Sin(100.0_deg * time)) * 6.0f);
+	// }
 
 	if (GameMgrCmp->particleWorldSpace)
 	{

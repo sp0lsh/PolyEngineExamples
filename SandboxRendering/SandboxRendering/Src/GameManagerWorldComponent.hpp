@@ -14,7 +14,10 @@ class GAME_DLLEXPORT GameManagerWorldComponent : public ComponentBase
 public:
 	SafePtr<Entity> ShipRoot;
 	SafePtr<Entity> ShipModel;
-	SafePtr<Entity> ShipCanon;
+	// SafePtr<Entity> ShipCanon;
+	ParticleComponent* ShipParticleSmoke;
+	ParticleComponent* ShipParticleSmokeBurst;
+
 	SafePtr<Entity> Camera;
 	SafePtr<Entity> CameraRootH;
 	SafePtr<Entity> CameraRootV;
