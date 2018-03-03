@@ -377,7 +377,7 @@ ParticleComponent* GameManagerSystem::SpawnSmokeEmitterInWS(World* world, Entity
 
 	SpritesheetSettings spriteSettings;
 	spriteSettings.SubImages = Vector2f(4.0f, 4.0f);
-	spriteSettings.SpritePath = "Textures/puff_4_4.png";
+	spriteSettings.SpritePath = "Textures/puff2_4_4.png";
 
 	ParticleEmitter::Settings settings;
 	settings.MaxSize = 1000;
@@ -387,11 +387,12 @@ ParticleComponent* GameManagerSystem::SpawnSmokeEmitterInWS(World* world, Entity
 	settings.BurstTimeMax = 0.1f;
 	settings.BurstSizeMin = 3;
 	settings.BurstSizeMin = 5;
-	settings.Speed = 0.05f;
+	settings.Speed = 0.1f;
 	settings.Color = Color(0.3f, 0.3f, 0.3f, 0.1f);
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
 		p->Position += RandomVectorRange(-1.0f, 1.0f) * 0.2f;
-		p->Velocity = RandomVectorRange(0.5f, 1.0f) * 0.001f;
+		Vector rndVel = RandomVectorRange(0.5f, 1.0f);
+		p->Velocity = Vector(0.0f, 0.5f * rndVel.Y, 1.0f * rndVel.Z) * 0.1f;
 		p->LifeTime = RandomRange(7.0f, 10.0f);
 		p->Scale = Vector::ONE * RandomRange(1.0f, 2.0f);
 	};
@@ -418,7 +419,7 @@ ParticleComponent* GameManagerSystem::SpawnSmokeBurstEmitterInWS(World* world, E
 
 	SpritesheetSettings spriteSettings;
 	spriteSettings.SubImages = Vector2f(4.0f, 4.0f);
-	spriteSettings.SpritePath = "Textures/puff_4_4.png";
+	spriteSettings.SpritePath = "Textures/puff2_4_4.png";
 
 	ParticleEmitter::Settings settings;
 	settings.MaxSize = 1000;
@@ -428,11 +429,12 @@ ParticleComponent* GameManagerSystem::SpawnSmokeBurstEmitterInWS(World* world, E
 	settings.BurstTimeMax = 0.2f;
 	settings.BurstSizeMin = 2;
 	settings.BurstSizeMin = 8;
-	settings.Speed = 0.05f;
+	settings.Speed = 0.1f;
 	settings.Color = Color(0.1f, 0.1f, 0.1f, 0.2f);
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
 		p->Position += RandomVectorRange(-1.0f, 1.0f) * 0.2f;
-		p->Velocity = RandomVectorRange(0.5f, 1.0f) * 0.001f;
+		Vector rndVel = RandomVectorRange(0.5f, 1.0f);
+		p->Velocity = Vector(0.0f, 0.5f * rndVel.Y, 1.0f * rndVel.Z) * 0.1f;
 		p->LifeTime = RandomRange(7.0f, 10.0f);
 		p->Scale = Vector::ONE * RandomRange(0.2f, 2.0f);
 	};
