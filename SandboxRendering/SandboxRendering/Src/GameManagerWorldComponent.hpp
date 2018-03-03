@@ -17,8 +17,8 @@ public:
 	// SafePtr<Entity> ShipCanon;
 	ParticleComponent* ShipParticleSmoke;
 	ParticleComponent* ShipParticleSmokeBurst;
-	ParticleComponent* ShipParticleEngine;
-	ParticleComponent* ShipParticleEngineBurst;
+	// ParticleComponent* ShipParticleEngine;
+	// ParticleComponent* ShipParticleEngineBurst;
 
 	SafePtr<Entity> Camera;
 	SafePtr<Entity> CameraRootH;
@@ -43,31 +43,28 @@ public:
 
 	
 	// Movement
-	const Vector& GetVelocity() const { return Velocity; };
-	void SetVelocity(Vector& value) { Velocity = value; };
-	const Vector& GetAccel() const { return Accel; };
-	void SetAccel(Vector& value) { Accel = value; };
-//	float GetMoveSpeed() const { return MoveSpeed; }
-//	void SetMoveSpeed(float value) { MoveSpeed = value; }
-	float GetFriction() const { return Friction; }
-	float GetAngularVelocity() const { return RotationSpeed; }
-	
+	const float GetShipAngleY() const { return ShipAngleY; }
+	void SetShipAngleY(float value) { ShipAngleY = value; }
+
+	const float GetShipVelocity() const { return ShipVelocity; }
+	void SetShipVelocity(float value) { ShipVelocity = value; }
+
 	// Camera
-	const float GetAngleV() const { return AngleV; }
-	const float GetAngleH() const { return AngleH; }
-	void SetAngleV(float value) { AngleV = value; }
-	void SetAngleH(float value) { AngleH = value; }
+	const float GetCamAngleV() const { return CamAngleV; }
+	const float GetCamAngleH() const { return CamAngleH; }
+	void SetCamAngleV(float value) { CamAngleV = value; }
+	void SetCamAngleH(float value) { CamAngleH = value; }
+	
+	const float GetAngularVelocity() const { return AngularVelocity; }
 
 private:
-	Vector MoveForce = Vector(0.0f, 0.0f, 0.0f);
-	Vector Velocity = Vector(0.0f, 0.0f, 0.0f);
-	Vector Accel = Vector(0.0f, 0.0f, 0.0f);
-	float Friction = 0.5f;
 
-	// float MoveSpeed = 1.0f;
-	float Acceleration = 1.0f;
-	float RotationSpeed = 0.5f;
+	// Ship
+	float ShipAngleY = 0.0f; // rad
+	float ShipVelocity = 1.0f;
 
-	float AngleV = 0.0f;
-	float AngleH = 0.0f;
+	// Camera
+	float CamAngleV = 0.0f;
+	float CamAngleH = 0.0f;
+	float AngularVelocity = 1.0f;
 };
