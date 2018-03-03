@@ -38,8 +38,9 @@ void GameManagerSystem::CreateScene(World* world)
 	dirLightTrans.SetLocalRotation(DirLightRot);
 	GameMgrCmp->GameEntities.PushBack(KeyDirLightEnt);
 
-	
 	SpawnShip(world);
+	
+	// SpawnExplosionEmitterInWS(world, nullptr, Vector(0.0f, 1.0f, 0.0f));
 
 	for (int i = 0; i < 20; ++i)
 	{
@@ -300,87 +301,146 @@ ParticleComponent* GameManagerSystem::SpawnEmitterLocalSpace(World* world, Vecto
 	return particleCmp;
 }
 
-ParticleComponent* GameManagerSystem::SpawnEngineEmitterInWS(World* world, Entity* parent, Vector offset)
+ParticleComponent* GameManagerSystem::SpawnExplosionEmitterInWS(World* world, Entity* parent, Vector offset)
 {
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
 	Entity* ParticlesEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
-	ParticlesEnt->SetParent(parent);
+	if (parent != nullptr)
+	{
+		ParticlesEnt->SetParent(parent);
+	}
 	EntityTransform& ParticlesTrans = ParticlesEnt->GetTransform();
 	ParticlesTrans.SetLocalTranslation(offset);
 
 	SpritesheetSettings spriteSettings;
 	spriteSettings.SubImages = Vector2f(4.0f, 4.0f);
-	spriteSettings.SpritePath = "Textures/water2_4_4.png";
+	spriteSettings.SpritePath = "Textures/puff2_4_4.png";
 
 	ParticleEmitter::Settings settings;
-	settings.MaxSize = 500;
+	settings.MaxSize = 200;
+	settings.InitialSize = 200;
 	settings.SpritesheetSettings = spriteSettings;
 	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::WORLD_SPACE;
-	settings.BurstTimeMin = 0.1f;
+	settings.BurstTimeMin = 0.01f;
 	settings.BurstTimeMax = 0.1f;
-	settings.BurstSizeMin = 3;
+	settings.BurstSizeMin = 2;
 	settings.BurstSizeMin = 5;
-	settings.Speed = 0.1f;
-	settings.Color = Color(1.0f, 1.8f, 2.0f, 0.01f);
+	settings.Speed = 0.5f;
+	settings.Color = Color(2.0f, 0.9f, 0.9f, 0.1f);
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
 		p->Position += RandomVectorRange(-1.0f, 1.0f) * 0.2f;
 		Vector rndVel = RandomVectorRange(0.5f, 1.0f);
-		p->Velocity = Vector(0.1f*rndVel.X, 0.2f * rndVel.Y, 0.1f * rndVel.Z) * 0.01f;
-		p->LifeTime = RandomRange(0.1f, 0.5f);
-		p->Scale = Vector::ONE * RandomRange(0.1f, 0.5f);
+		p->Velocity = Vector(0.1f*rndVel.X, 1.0f * rndVel.Y, 1.0f * rndVel.Z) * 0.2f;
+		p->LifeTime = RandomRange(0.75f, 1.0f);
+		p->Scale = Vector::ONE * RandomRange(0.1f, 2.0f);
 	};
 	settings.ParticleUpdateFunc = [](ParticleEmitter::Particle* p) {
 		// p->Position += p->Velocity;
 		float t = p->Age / p->LifeTime;
-		p->Scale = Vector::ONE * Lerp(0.5f, 2.0f, t);
+		p->Scale = Vector::ONE * Lerp(0.1f, 1.0f, pow(t, 0.5f));
 	};
 
 	GameMgrCmp->GameEntities.PushBack(ParticlesEnt);
 
 	ParticleComponent* particleCmp = DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, ParticlesEnt, settings);
+	// particleCmp->GetEmitter()->SetBurstEnabled(false);
 	return particleCmp;
 }
 
-ParticleComponent* GameManagerSystem::SpawnEngineBurstEmitterInWS(World* world, Entity* parent, Vector offset)
+ParticleComponent* GameManagerSystem::SpawnExplosionEmitterInWS2(World* world, Entity* parent, Vector offset)
 {
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
 	Entity* ParticlesEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
-	ParticlesEnt->SetParent(parent);
+	if (parent != nullptr)
+	{
+		ParticlesEnt->SetParent(parent);
+	}
 	EntityTransform& ParticlesTrans = ParticlesEnt->GetTransform();
 	ParticlesTrans.SetLocalTranslation(offset);
 
 	SpritesheetSettings spriteSettings;
 	spriteSettings.SubImages = Vector2f(4.0f, 4.0f);
-	spriteSettings.SpritePath = "Textures/water2_4_4.png";
+	spriteSettings.SpritePath = "Textures/puff2_4_4.png";
 
 	ParticleEmitter::Settings settings;
-	settings.MaxSize = 500;
+	settings.MaxSize = 50;
+	settings.InitialSize = 50;
 	settings.SpritesheetSettings = spriteSettings;
 	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::WORLD_SPACE;
-	settings.BurstTimeMin = 0.1f;
+	settings.BurstTimeMin = 0.01f;
 	settings.BurstTimeMax = 0.1f;
-	settings.BurstSizeMin = 3;
+	settings.BurstSizeMin = 2;
 	settings.BurstSizeMin = 5;
-	settings.Speed = 0.1f;
-	settings.Color = Color(1.0f, 1.8f, 2.0f, 0.1f);
+	settings.Speed = 0.5f;
+	settings.Color = Color(10.0f, 5.0f, 0.9f, 0.2f);
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
 		p->Position += RandomVectorRange(-1.0f, 1.0f) * 0.2f;
 		Vector rndVel = RandomVectorRange(0.5f, 1.0f);
-		p->Velocity = Vector(0.1f*rndVel.X, 0.2f * rndVel.Y, 0.1f * rndVel.Z) * 0.01f;
-		p->LifeTime = RandomRange(0.1f, 0.5f);
+		p->Velocity = Vector(0.1f*rndVel.X, 1.0f * rndVel.Y, 1.0f * rndVel.Z) * 0.2f;
+		p->LifeTime = RandomRange(0.3f, 0.5f);
 		p->Scale = Vector::ONE * RandomRange(0.1f, 0.5f);
 	};
 	settings.ParticleUpdateFunc = [](ParticleEmitter::Particle* p) {
 		// p->Position += p->Velocity;
 		float t = p->Age / p->LifeTime;
-		p->Scale = Vector::ONE * Lerp(0.5f, 2.0f, t);
+		// p->Scale = Vector::ONE * Lerp(0.1f, 0.5f, Abs(2.0f*(t-0.5)));
+		p->Scale = Vector::ONE * Lerp(0.1f, 0.5f, 1.0f-t);
 	};
 
 	GameMgrCmp->GameEntities.PushBack(ParticlesEnt);
 
 	ParticleComponent* particleCmp = DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, ParticlesEnt, settings);
+	// particleCmp->GetEmitter()->SetBurstEnabled(false);
+	return particleCmp;
+}
+
+ParticleComponent* GameManagerSystem::SpawnExplosionEmitterInWS3(World* world, Entity* parent, Vector offset)
+{
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
+	Entity* ParticlesEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
+	if (parent != nullptr)
+	{
+		ParticlesEnt->SetParent(parent);
+	}
+	EntityTransform& ParticlesTrans = ParticlesEnt->GetTransform();
+	ParticlesTrans.SetLocalTranslation(offset);
+
+	SpritesheetSettings spriteSettings;
+	spriteSettings.SubImages = Vector2f(4.0f, 4.0f);
+	spriteSettings.SpritePath = "Textures/puff2_4_4.png";
+
+	ParticleEmitter::Settings settings;
+	settings.MaxSize = 500;
+	settings.InitialSize = 100;
+	settings.SpritesheetSettings = spriteSettings;
+	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::WORLD_SPACE;
+	settings.BurstTimeMin = 0.2f;
+	settings.BurstTimeMax = 0.3f;
+	settings.BurstSizeMin = 2;
+	settings.BurstSizeMin = 5;
+	settings.Speed = 0.2f;
+	settings.Color = Color(0.1f, 0.1f, 0.1f, 0.3f);
+	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
+		p->Position += RandomVectorRange(-1.0f, 1.0f) * 0.2f;
+		Vector rndVel = RandomVectorRange(0.5f, 1.0f);
+		p->Velocity = Vector(0.1f*rndVel.X, 1.0f * rndVel.Y, 1.0f * rndVel.Z) * 0.2f;
+		p->LifeTime = RandomRange(2.0f, 2.5f);
+		p->Scale = Vector::ONE * RandomRange(1.0f, 2.5f);
+	};
+	settings.ParticleUpdateFunc = [](ParticleEmitter::Particle* p) {
+		// p->Position += p->Velocity;
+		float t = p->Age / p->LifeTime;
+		// p->Scale = Vector::ONE * Lerp(0.1f, 0.5f, Abs(2.0f*(t-0.5)));
+		p->Scale = Vector::ONE * Lerp(1.0f, 2.5f, t);
+	};
+
+	GameMgrCmp->GameEntities.PushBack(ParticlesEnt);
+
+	ParticleComponent* particleCmp = DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, ParticlesEnt, settings);
+	// particleCmp->GetEmitter()->SetBurstEnabled(false);
 	return particleCmp;
 }
 
@@ -428,6 +488,11 @@ void GameManagerSystem::UpdateGameplay(World* world)
 	{
 		if (CollideWithBomb(GameMgrCmp->ShipCollision.Get(), Bomb.Get()))
 		{
+			Vector ExplosionPos = GameMgrCmp->ShipCollision.Get()->GetTransform().GetGlobalTranslation();
+			SpawnExplosionEmitterInWS(world, nullptr, ExplosionPos);
+			SpawnExplosionEmitterInWS2(world, nullptr, ExplosionPos - Vector(0.01f, 0.0f, 0.01f));
+			SpawnExplosionEmitterInWS3(world, nullptr, ExplosionPos - Vector(0.02f, 0.0f, 0.02f));
+
 			GameMgrCmp->SetIsPaused(true);
 			GameMgrCmp->SetNeedRestart(true);
 			PostCmp->TimeOfDeath = time;

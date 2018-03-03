@@ -29,6 +29,8 @@ namespace GameManagerSystem
 
 	ParticleComponent* SpawnSmokeEmitterInWS(World* world, Entity* parent, Vector offset);
 	ParticleComponent* SpawnSmokeBurstEmitterInWS(World* world, Entity* parent, Vector offset);
-	ParticleComponent* SpawnEngineEmitterInWS(World* world, Entity* parent, Vector offset);
-	ParticleComponent* SpawnEngineBurstEmitterInWS(World* world, Entity* parent, Vector offset);
+	
+	ParticleComponent* SpawnExplosionEmitterInWS(World* world, Entity* parent, Vector offset);
+	ParticleComponent* SpawnExplosionEmitterInWS2(World* world, Entity* parent, Vector offset);
+	ParticleComponent* SpawnExplosionEmitterInWS3(World* world, Entity* parent, Vector offset);
 }
