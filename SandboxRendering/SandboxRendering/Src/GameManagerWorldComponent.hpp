@@ -17,6 +17,8 @@ public:
 	// SafePtr<Entity> ShipCanon;
 	ParticleComponent* ShipParticleSmoke;
 	ParticleComponent* ShipParticleSmokeBurst;
+	ParticleComponent* ShipParticleEngine;
+	ParticleComponent* ShipParticleEngineBurst;
 
 	SafePtr<Entity> Camera;
 	SafePtr<Entity> CameraRootH;

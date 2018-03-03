@@ -123,6 +123,8 @@ void GameManagerSystem::SpawnShip(World* world)
 
 	GameMgrCmp->ShipParticleSmoke = SpawnSmokeEmitterInWS(world, ShipRootEnt, Vector(1.2f, 3.0f, 0.0f));
 	GameMgrCmp->ShipParticleSmokeBurst = SpawnSmokeBurstEmitterInWS(world, ShipRootEnt, Vector(1.2f, 3.0f, 0.0f));
+	GameMgrCmp->ShipParticleEngine = SpawnEngineEmitterInWS(world, ShipRootEnt, Vector(4.0f, 0.0f, 0.0f));
+	GameMgrCmp->ShipParticleEngineBurst = SpawnEngineBurstEmitterInWS(world, ShipRootEnt, Vector(4.0f, 0.0f, 0.0f));
 	
 	
 	Entity* CameraRootHEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
@@ -483,6 +485,89 @@ ParticleComponent* GameManagerSystem::SpawnEmitterLocalSpace(World* world, Vecto
 	return particleCmp;
 }
 
+ParticleComponent* GameManagerSystem::SpawnEngineEmitterInWS(World* world, Entity* parent, Vector offset)
+{
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
+	Entity* ParticlesEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
+	ParticlesEnt->SetParent(parent);
+	EntityTransform& ParticlesTrans = ParticlesEnt->GetTransform();
+	ParticlesTrans.SetLocalTranslation(offset);
+
+	SpritesheetSettings spriteSettings;
+	spriteSettings.SubImages = Vector2f(4.0f, 4.0f);
+	spriteSettings.SpritePath = "Textures/water2_4_4.png";
+
+	ParticleEmitter::Settings settings;
+	settings.MaxSize = 500;
+	settings.SpritesheetSettings = spriteSettings;
+	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::WORLD_SPACE;
+	settings.BurstTimeMin = 0.1f;
+	settings.BurstTimeMax = 0.1f;
+	settings.BurstSizeMin = 3;
+	settings.BurstSizeMin = 5;
+	settings.Speed = 0.1f;
+	settings.Color = Color(1.0f, 1.8f, 2.0f, 0.01f);
+	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
+		p->Position += RandomVectorRange(-1.0f, 1.0f) * 0.2f;
+		Vector rndVel = RandomVectorRange(0.5f, 1.0f);
+		p->Velocity = Vector(0.1f*rndVel.X, 0.2f * rndVel.Y, 0.1f * rndVel.Z) * 0.01f;
+		p->LifeTime = RandomRange(0.1f, 0.5f);
+		p->Scale = Vector::ONE * RandomRange(0.1f, 0.5f);
+	};
+	settings.ParticleUpdateFunc = [](ParticleEmitter::Particle* p) {
+		// p->Position += p->Velocity;
+		float t = p->Age / p->LifeTime;
+		p->Scale = Vector::ONE * Lerp(0.5f, 2.0f, t);
+	};
+
+	GameMgrCmp->GameEntities.PushBack(ParticlesEnt);
+
+	ParticleComponent* particleCmp = DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, ParticlesEnt, settings);
+	return particleCmp;
+}
+
+ParticleComponent* GameManagerSystem::SpawnEngineBurstEmitterInWS(World* world, Entity* parent, Vector offset)
+{
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
+	Entity* ParticlesEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
+	ParticlesEnt->SetParent(parent);
+	EntityTransform& ParticlesTrans = ParticlesEnt->GetTransform();
+	ParticlesTrans.SetLocalTranslation(offset);
+
+	SpritesheetSettings spriteSettings;
+	spriteSettings.SubImages = Vector2f(4.0f, 4.0f);
+	spriteSettings.SpritePath = "Textures/water2_4_4.png";
+
+	ParticleEmitter::Settings settings;
+	settings.MaxSize = 500;
+	settings.SpritesheetSettings = spriteSettings;
+	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::WORLD_SPACE;
+	settings.BurstTimeMin = 0.1f;
+	settings.BurstTimeMax = 0.1f;
+	settings.BurstSizeMin = 3;
+	settings.BurstSizeMin = 5;
+	settings.Speed = 0.1f;
+	settings.Color = Color(1.0f, 1.8f, 2.0f, 0.1f);
+	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
+		p->Position += RandomVectorRange(-1.0f, 1.0f) * 0.2f;
+		Vector rndVel = RandomVectorRange(0.5f, 1.0f);
+		p->Velocity = Vector(0.1f*rndVel.X, 0.2f * rndVel.Y, 0.1f * rndVel.Z) * 0.01f;
+		p->LifeTime = RandomRange(0.1f, 0.5f);
+		p->Scale = Vector::ONE * RandomRange(0.1f, 0.5f);
+	};
+	settings.ParticleUpdateFunc = [](ParticleEmitter::Particle* p) {
+		// p->Position += p->Velocity;
+		float t = p->Age / p->LifeTime;
+		p->Scale = Vector::ONE * Lerp(0.5f, 2.0f, t);
+	};
+
+	GameMgrCmp->GameEntities.PushBack(ParticlesEnt);
+
+	ParticleComponent* particleCmp = DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, ParticlesEnt, settings);
+	return particleCmp;
+}
 
 #pragma endregion
 
@@ -725,6 +810,7 @@ void GameManagerSystem::UpdateCamera(World* world)
 		*/
 		bool IsInputActive = AccelImpulse.LengthSquared() > 0.01f;
 		GameMgrCmp->ShipParticleSmokeBurst->GetEmitter()->SetBurstEnabled(IsInputActive);
+		GameMgrCmp->ShipParticleEngineBurst->GetEmitter()->SetBurstEnabled(IsInputActive);
 
 		EntityTransform& ShipRootTrans = GameMgrCmp->ShipRoot->GetTransform();
 		
