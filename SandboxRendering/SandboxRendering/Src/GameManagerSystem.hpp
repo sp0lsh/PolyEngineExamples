@@ -10,14 +10,20 @@ namespace GameManagerSystem
 {
 	void CreateScene(World* world);
 	void Update(World* world);
-	void UpdateShipAndCamera(World* world);
+	void UpdateCamera(World* world);
+	void UpdateShip(World* world);
+	void UpdateGameplay(World* world);
 	void UpdateParticles(World* world);
 	void Deinit(World* world);
-
+	
+	void RestartGame(World* world);
+	
 	void SpawnShip(World* world);
 	void SpawnBomb(World* world, Vector pos);
+	bool CollideWithBomb(Entity* ShipCollision, Entity* Bomb);
 
 	void SpawnParticleExamples(World* world);
+
 	ParticleComponent* SpawnEmitterWorldSpace(World* world, Vector pos);
 	ParticleComponent* SpawnEmitterLocalSpace(World* world, Vector pos);
 
@@ -25,9 +31,4 @@ namespace GameManagerSystem
 	ParticleComponent* SpawnSmokeBurstEmitterInWS(World* world, Entity* parent, Vector offset);
 	ParticleComponent* SpawnEngineEmitterInWS(World* world, Entity* parent, Vector offset);
 	ParticleComponent* SpawnEngineBurstEmitterInWS(World* world, Entity* parent, Vector offset);
-
-
-	void AddPointLights(World* world, int Quata);
-	void CreatePointLight(World* world, float Range);
-	void CreateSpotLight(World * world, float Range);
 }

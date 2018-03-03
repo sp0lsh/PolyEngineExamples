@@ -14,16 +14,13 @@ class GAME_DLLEXPORT GameManagerWorldComponent : public ComponentBase
 public:
 	SafePtr<Entity> ShipRoot;
 	SafePtr<Entity> ShipModel;
-	// SafePtr<Entity> ShipCanon;
+	SafePtr<Entity> ShipCollision;
 	ParticleComponent* ShipParticleSmoke;
 	ParticleComponent* ShipParticleSmokeBurst;
-	// ParticleComponent* ShipParticleEngine;
-	// ParticleComponent* ShipParticleEngineBurst;
 
 	SafePtr<Entity> Camera;
 	SafePtr<Entity> CameraRootH;
 	SafePtr<Entity> CameraRootV;
-	SafePtr<Entity> KeyDirLight;
 	Dynarray<SafePtr<Entity>> DirLights;
 	Dynarray<PointLightComponent*> PointLights;
 	Dynarray<Vector> PointLightPositions;
@@ -32,6 +29,7 @@ public:
 	bool IsDrawingDebugMeshes = true;
 
 	Dynarray<SafePtr<Entity>> GameEntities;
+	Dynarray<SafePtr<Entity>> BombEntities;
 
 	ParticleComponent* particleDefault;
 	ParticleComponent* particleHeart;
@@ -42,6 +40,12 @@ public:
 	ParticleComponent* particleWorldSpace;
 
 	
+	// Game 
+	bool GetIsPaused() const { return IsPaused; }
+	void SetIsPaused(bool value) { IsPaused = value; }
+	bool GetNeedRestart() const { return NeedRestart; }
+	void SetNeedRestart(bool value) { NeedRestart = value; }
+
 	// Movement
 	const float GetShipAngleY() const { return ShipAngleY; }
 	void SetShipAngleY(float value) { ShipAngleY = value; }
@@ -58,6 +62,9 @@ public:
 	const float GetAngularVelocity() const { return AngularVelocity; }
 
 private:
+	// Game
+	bool IsPaused = true;
+	bool NeedRestart = false;
 
 	// Ship
 	float ShipAngleY = 0.0f; // rad

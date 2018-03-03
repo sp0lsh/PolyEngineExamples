@@ -32,15 +32,16 @@ void GameManagerSystem::CreateScene(World* world)
 
 	// Dir Light 0
 	Quaternion DirLightRot = Quaternion(Vector::UNIT_Y, -45_deg) * Quaternion(Vector::UNIT_X, -35_deg);
-	Entity* KeyDirLight = DeferredTaskSystem::SpawnEntityImmediate(world);
-	DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(world, KeyDirLight, Color(1.0f, 0.9f, 0.8f), 0.8f);
-	EntityTransform& dirLightTrans = KeyDirLight->GetTransform();
+	Entity* KeyDirLightEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
+	DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(world, KeyDirLightEnt, Color(1.0f, 0.9f, 0.8f), 0.8f);
+	EntityTransform& dirLightTrans = KeyDirLightEnt->GetTransform();
 	dirLightTrans.SetLocalRotation(DirLightRot);
-	GameMgrCmp->KeyDirLight = KeyDirLight;
+	GameMgrCmp->GameEntities.PushBack(KeyDirLightEnt);
 
+	
 	SpawnShip(world);
 
-	for (int i = 0; i < 10; ++i)
+	for (int i = 0; i < 20; ++i)
 	{
 		Vector rnd = RandomVectorRange(0.0f, 1.0f) * 100.0f;
 		SpawnBomb(world, Vector(rnd.X, 0.0f, rnd.Z));
@@ -73,37 +74,32 @@ void GameManagerSystem::SpawnShip(World* world)
 	Entity* ShipModelEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
 	ShipModelEnt->SetParent(ShipRootEnt);
 	EntityTransform& ShipModelTrans = ShipModelEnt->GetTransform();
-	// ShipModelTrans.SetLocalRotation(Quaternion(Vector::UNIT_X, -90_deg) * Quaternion(Vector::UNIT_Z, -90_deg));
-	ShipModelTrans.SetLocalTranslation(Vector(0.0f, 2.0f, 0.0f));
+	ShipModelTrans.SetLocalTranslation(Vector(0.0f, 0.0f, 0.0f));
 	ShipModelTrans.SetLocalScale(Vector(1.5f, 0.2f, 0.5f));
 	DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, ShipModelEnt, "Models/Primitives/Cube.fbx", eResourceSource::GAME);
 	MeshRenderingComponent* ShipMesh = world->GetComponent<MeshRenderingComponent>(ShipModelEnt);
 	ShipMesh->SetMaterial(0, PhongMaterial(Color(1.0f, 1.0f, 1.0f), Color(1.0f, 1.0f, 0.0f), Color(1.0f, 1.0f, 0.5f), 8.0f));
-	
-	// Entity* ShipCanonEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
-	// ShipCanonEnt->SetParent(ShipRootEnt);
-	// EntityTransform& ShipCanonTrans = ShipCanonEnt->GetTransform();
-	// ShipModelTrans.SetLocalRotation(Quaternion(Vector::UNIT_X, -90_deg) * Quaternion(Vector::UNIT_Z, -90_deg));
-	// ShipCanonTrans.SetLocalTranslation(Vector(0.0f, 1.0f, 0.0f));
-	// ShipCanonTrans.SetLocalScale(0.5f);
-	// DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, ShipCanonEnt, "Models/Primitives/Canon.fbx", eResourceSource::GAME);
-	// MeshRenderingComponent* ShipCanonMesh = world->GetComponent<MeshRenderingComponent>(ShipCanonEnt);
-	// ShipCanonMesh->SetMaterial(0, PhongMaterial(Color(1.0f, 1.0f, 1.0f), Color(1.0f, 1.0f, 0.0f), Color(1.0f, 1.0f, 0.5f), 8.0f));
 
+	Entity* ShipCollisionEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
+	ShipCollisionEnt->SetParent(ShipRootEnt);
+	EntityTransform& ShipCollisionTrans = ShipCollisionEnt->GetTransform();
+	ShipCollisionTrans.SetLocalScale(1.0f);
+	DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, ShipCollisionEnt, "Models/Primitives/Sphere_Lowpoly.fbx", eResourceSource::GAME);
+	MeshRenderingComponent* ShipCollisionMesh = world->GetComponent<MeshRenderingComponent>(ShipCollisionEnt);
+	ShipCollisionMesh->SetMaterial(0, PhongMaterial(Color(1.0f, 1.0f, 1.0f), Color(1.0f, 1.0f, 0.0f), Color(1.0f, 1.0f, 0.5f), 8.0f));
+	
 	GameMgrCmp->ShipRoot = ShipRootEnt;
 	GameMgrCmp->ShipModel = ShipModelEnt;
-	// GameMgrCmp->ShipCanon = ShipCanonEnt;
+	GameMgrCmp->ShipCollision = ShipCollisionEnt;
 	GameMgrCmp->GameEntities.PushBack(ShipModelEnt);
 	GameMgrCmp->GameEntities.PushBack(ShipRootEnt);
+	GameMgrCmp->GameEntities.PushBack(ShipCollisionEnt);
 
 	GameMgrCmp->ShipParticleSmoke = SpawnSmokeEmitterInWS(world, ShipRootEnt, Vector(-1.4f, 3.0f, 0.0f));
 	GameMgrCmp->ShipParticleSmokeBurst = SpawnSmokeBurstEmitterInWS(world, ShipRootEnt, Vector(-1.4f, 3.0f, 0.0f));
-	// GameMgrCmp->ShipParticleEngine = SpawnEngineEmitterInWS(world, ShipRootEnt, Vector(4.0f, 0.0f, 0.0f));
-	// GameMgrCmp->ShipParticleEngineBurst = SpawnEngineBurstEmitterInWS(world, ShipRootEnt, Vector(4.0f, 0.0f, 0.0f));
 	
 	
 	Entity* CameraRootHEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
-	// CameraRootHEnt->SetParent(ShipRootEnt);
 
 	Entity* CameraRootVEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
 	CameraRootVEnt->SetParent(CameraRootHEnt);
@@ -148,6 +144,7 @@ void GameManagerSystem::SpawnBomb(World* world, Vector pos)
 	BombMesh->SetMaterial(0, PhongMaterial(Color(1.0f, 1.0f, 1.0f), Color(1.0f, 1.0f, 0.0f), Color(1.0f, 1.0f, 0.5f), 8.0f));
 
 	GameMgrCmp->GameEntities.PushBack(BombEnt);
+	GameMgrCmp->BombEntities.PushBack(BombEnt);
 }
 
 #pragma region Particle Examples
@@ -395,35 +392,98 @@ void GameManagerSystem::Update(World* world)
 	float deltaTime = (float)(TimeSystem::GetTimerDeltaTime(world, Poly::eEngineTimer::GAMEPLAY));
 
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
-
-	for (int i = 0; i < GameMgrCmp->PointLights.GetSize(); ++i)
-	{
-		PointLightComponent* PointLightCmp = GameMgrCmp->PointLights[i];
-		EntityTransform& TransCmp = PointLightCmp->GetTransform();
-		Vector Position = GameMgrCmp->PointLightPositions[i];
-		Vector Bounce = Vector(0.0f, 100.0f*Abs(Sin(1.0_rad * (time + 0.1f*(Position.X + Position.Y)))), 0.0f);
-		TransCmp.SetLocalTranslation(Position + Bounce);
-	}
-
 	InputWorldComponent* inputCmp = world->GetWorldComponent<InputWorldComponent>();
-	if (inputCmp->IsReleased(eKey::KEY_G))
-	{
-		GameMgrCmp->IsDrawingDebugMeshes = !GameMgrCmp->IsDrawingDebugMeshes;
 
-		gConsole.LogInfo("GameManagerSystem::Update IsDrawingDebugMeshes: {}", GameMgrCmp->IsDrawingDebugMeshes);
-
-		for (int i = 0; i < GameMgrCmp->DebugMeshes.GetSize(); ++i)
-		{
-			GameMgrCmp->DebugMeshes[i]->SetShadingModel(GameMgrCmp->IsDrawingDebugMeshes ? eShadingModel::UNLIT : eShadingModel::NONE);
-		}
-	}
-
-	UpdateShipAndCamera(world);
+	UpdateCamera(world);
 
 	UpdateParticles(world);
+
+	if (inputCmp->IsReleased(eKey::SPACE))
+	{
+		GameMgrCmp->SetIsPaused(!GameMgrCmp->GetIsPaused());
+	}
+
+	if (GameMgrCmp->GetIsPaused())
+	{
+		return;
+	}
+
+	if (GameMgrCmp->GetNeedRestart())
+	{
+		RestartGame(world);
+	}
+
+	UpdateShip(world);
+
+	UpdateGameplay(world);
 }
 
-void GameManagerSystem::UpdateShipAndCamera(World* world)
+void GameManagerSystem::UpdateGameplay(World* world)
+{
+	float time = (float)(world->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+	PostprocessSettingsComponent* PostCmp = GameMgrCmp->Camera->GetComponent<PostprocessSettingsComponent>();
+
+	for (SafePtr<Entity> Bomb : GameMgrCmp->BombEntities)
+	{
+		if (CollideWithBomb(GameMgrCmp->ShipCollision.Get(), Bomb.Get()))
+		{
+			GameMgrCmp->SetIsPaused(true);
+			GameMgrCmp->SetNeedRestart(true);
+			PostCmp->TimeOfDeath = time;
+		}
+	}
+}
+
+bool GameManagerSystem::CollideWithBomb(Entity* ShipCollision, Entity* Bomb)
+{
+	EntityTransform& ShipTrans = ShipCollision->GetTransform();
+	Vector ShipPosition = ShipTrans.GetGlobalTranslation();
+	float ShipRadius = 1.0f;
+	
+	EntityTransform& BombTrans = Bomb->GetTransform();
+	Vector BombPosition = BombTrans.GetGlobalTranslation();
+	float BombRadius = 1.0f;
+
+	float Distance = (ShipPosition - BombPosition).Length();
+	// gConsole.LogInfo("GameManagerSystem::CollideWithBomb Distance: {}", Distance );
+	return Distance < (ShipRadius + BombRadius);
+}
+
+void GameManagerSystem::RestartGame(World* world)
+{
+	gConsole.LogInfo("GameManagerSystem::RestartGame");
+
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
+	EntityTransform& ShipModelTrans = GameMgrCmp->ShipRoot.Get()->GetTransform();
+	ShipModelTrans.SetGlobalTranslation(Vector(0.0f, 0.0f, 0.0f));
+	GameMgrCmp->SetShipAngleY(0.0f);
+	GameMgrCmp->SetShipVelocity(1.0f);
+
+	EntityTransform& CameraRootTrans = GameMgrCmp->CameraRootH->GetTransform();
+	CameraRootTrans.SetGlobalTranslation(Vector(0.0f, 0.0f, 0.0f));
+	GameMgrCmp->SetCamAngleV(0.0f);
+	GameMgrCmp->SetCamAngleH(0.0f);
+	GameMgrCmp->CameraRootV.Get()->GetTransform().SetLocalRotation(Quaternion::IDENTITY);
+	GameMgrCmp->CameraRootH.Get()->GetTransform().SetLocalRotation(Quaternion(Vector::UNIT_Y, -90.0_deg));
+
+	PostprocessSettingsComponent* PostCmp = GameMgrCmp->Camera->GetComponent<PostprocessSettingsComponent>();
+	PostCmp->ShipPos = GameMgrCmp->ShipRoot->GetTransform().GetGlobalTranslation();
+	PostCmp->ShipAngleY = GameMgrCmp->GetShipAngleY();
+	PostCmp->TimeOfDeath = -1.0f;
+
+	for (SafePtr<Entity> Bomb : GameMgrCmp->BombEntities)
+	{
+		EntityTransform& BombTrans = Bomb.Get()->GetTransform();
+		Vector rnd = RandomVectorRange(0.0f, 1.0f) * 100.0f;
+		BombTrans.SetGlobalTranslation(Vector(rnd.X, 0.0f, rnd.Z));
+	}
+
+	GameMgrCmp->SetNeedRestart(false);
+}
+
+void GameManagerSystem::UpdateShip(World* world)
 {
 	float deltaTime = (float)(TimeSystem::GetTimerDeltaTime(world, Poly::eEngineTimer::GAMEPLAY));
 	float time = (float)(TimeSystem::GetTimerElapsedTime(world, Poly::eEngineTimer::GAMEPLAY));
@@ -472,13 +532,16 @@ void GameManagerSystem::UpdateShipAndCamera(World* world)
 		PostprocessSettingsComponent* PostCmp = GameMgrCmp->Camera->GetComponent<PostprocessSettingsComponent>();
 		PostCmp->ShipPos = GameMgrCmp->ShipRoot->GetTransform().GetGlobalTranslation();
 		PostCmp->ShipAngleY = -RotYValue;
-		gConsole.LogDebug("GameManagerSystem::UpdateCamera: ShipRot: {}",
-			RotYValue
-		);
+		// gConsole.LogDebug("GameManagerSystem::UpdateCamera: ShipRot: {}", RotYValue );
 	}
+}
 
+void GameManagerSystem::UpdateCamera(World* world)
+{
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+	InputWorldComponent* inputCmp = world->GetWorldComponent<InputWorldComponent>();
 
-	if (	GameMgrCmp->Camera != nullptr
+	if (GameMgrCmp->Camera != nullptr
 		&&	GameMgrCmp->CameraRootH != nullptr
 		&&	GameMgrCmp->CameraRootV != nullptr)
 	{
@@ -491,9 +554,9 @@ void GameManagerSystem::UpdateShipAndCamera(World* world)
 		float AngularVel = GameMgrCmp->GetAngularVelocity();
 		float AngleH = GameMgrCmp->GetCamAngleH();
 		float AngleV = GameMgrCmp->GetCamAngleV();
+
 		AngleH += -mouseDelta.X * AngularVel;
 		AngleV += -mouseDelta.Y * AngularVel;
-
 		AngleV = Clamp(AngleV, -38.0f, 20.0f);
 
 		Quaternion rotH = Quaternion(Vector::UNIT_Y, 1.0_deg * AngleH);
@@ -501,17 +564,12 @@ void GameManagerSystem::UpdateShipAndCamera(World* world)
 
 		CameraRootVTrans.SetLocalRotation(rotV);
 		CameraRootHTrans.SetLocalRotation(rotH);
-		// gConsole.LogDebug("GameManagerSystem::UpdateCamera: preRot: ({}, {}), delta({}, {}), postRot: ({}, {})",
-		// 	GameMgrCmp->GetAngleH(), GameMgrCmp->GetAngleV(),
-		// 	mouseDelta.X, mouseDelta.Y,
-		// 	AngleH, AngleV
-		// );
+
 		GameMgrCmp->SetCamAngleH(AngleH);
 		GameMgrCmp->SetCamAngleV(AngleV);
 
 		EntityTransform& ShipRootTrans = GameMgrCmp->ShipRoot->GetTransform();
 		EntityTransform& CameraRootTrans = GameMgrCmp->CameraRootH->GetTransform();
-		// CameraRootTrans.SetGlobalTranslation(ShipRootTrans.GetGlobalTranslation());
 
 		// float posDiff = (CameraRootTrans.GetGlobalTranslation() - ShipRootTrans.GetGlobalTranslation()).LengthSquared();
 		// if (posDiff > 0.1f)
@@ -578,6 +636,6 @@ void GameManagerSystem::Deinit(World* world)
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 	for (SafePtr<Entity> e : GameMgrCmp->GameEntities)
 	{
-		DeferredTaskSystem::DestroyEntity(world, e.Get());
+		DeferredTaskSystem::DestroyEntityImmediate(world, e.Get());
 	}
 }
