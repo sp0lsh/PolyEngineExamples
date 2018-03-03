@@ -9,13 +9,18 @@ using namespace Poly;
 namespace GameManagerSystem
 {
 	void CreateScene(World* world);
-	void SpawnShaderball(World* world);
-	void SpawnSponzaScene(World* world);
 	void Update(World* world);
+	void UpdateCamera(World* world);
 	void UpdateParticles(World* world);
 	void Deinit(World* world);
 
+	void SpawnShip(World* world);
+
+	void SpawnShaderball(World* world);
+	void SpawnSponzaScene(World* world);
+
 	
+	void SpawnSpritesheerExamples(World* world);
 	void SpawnSpritesheet11(World* world, Vector pos);
 	void SpawnSpritesheet22(World* world, Vector pos);
 	void SpawnSpritesheet44(World* world, Vector pos);
@@ -25,6 +30,7 @@ namespace GameManagerSystem
 	void SpawnSpritesheetGandalf(World* world, Vector pos);
 
 
+	void SpawnParticleExamples(World* world);
 	ParticleComponent* SpawnEmitterDefault(World* world, Vector pos);
 	ParticleComponent* SpawnEmitterHeart(World* world, Vector pos);
 	ParticleComponent* SpawnEmitterHeartImpact(World* world, Vector pos);

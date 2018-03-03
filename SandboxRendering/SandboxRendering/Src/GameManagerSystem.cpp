@@ -26,13 +26,119 @@ void GameManagerSystem::CreateScene(World* world)
 
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
-	Entity* Camera = DeferredTaskSystem::SpawnEntityImmediate(world);
-	DeferredTaskSystem::AddComponentImmediate<CameraComponent>(world, Camera, 50_deg, 0.1f, 3000.f);
-	DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(world, Camera, 1.0f, 0.003f);
-	DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(world, Camera);
-	PostprocessSettingsComponent* postCmp = world->GetComponent<PostprocessSettingsComponent>(Camera);
-	postCmp->UseBgShader = false;
-	postCmp->UseFgShader = false;
+	// EnumArray<String, eCubemapSide> stormydays{
+	// 	{eCubemapSide::RIGHT, "Cubemaps/stormydays/stormydays_rt.jpg"},
+	// 	{eCubemapSide::LEFT , "Cubemaps/stormydays/stormydays_lt.jpg"},
+	// 	{eCubemapSide::TOP  , "Cubemaps/stormydays/stormydays_up.jpg"},
+	// 	{eCubemapSide::DOWN , "Cubemaps/stormydays/stormydays_dn.jpg"},
+	// 	{eCubemapSide::BACK , "Cubemaps/stormydays/stormydays_bk.jpg"},
+	// 	{eCubemapSide::FRONT, "Cubemaps/stormydays/stormydays_ft.jpg"}
+	// };
+	// DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(world, stormydays);
+
+	/*
+	Entity* DirLightEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
+	DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(world, DirLightEnt, Color(0.8f, 0.8f, 1.0f), 0.3);
+	DirLightEnt->GetTransform().SetLocalRotation(Quaternion(Vector::UNIT_X, -30_deg));
+
+	Entity* DirLightEnt1 = DeferredTaskSystem::SpawnEntityImmediate(world);
+	DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(world, DirLightEnt1, Color(1.0f, 0.8f, 0.8f), 0.1);
+	DirLightEnt1->GetTransform().SetLocalRotation(Quaternion(Vector::UNIT_X, -140_deg));
+	*/
+
+	world->GetWorldComponent<AmbientLightWorldComponent>()->SetColor(Color(0.0f, 0.0f, 0.1f));
+	world->GetWorldComponent<AmbientLightWorldComponent>()->SetIntensity(1.0f);
+
+	
+	SpawnShip(world);
+	
+	// SpawnSponzaScene(world);
+
+	// SpawnSpritesheerExamples(world);
+	// SpawnParticleExamples(world);
+
+	// CreateShaderball(world, GameMgrCmp);
+}
+
+void GameManagerSystem::SpawnParticleExamples(World* world)
+{
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
+	GameMgrCmp->particleDefault = SpawnEmitterDefault(world, Vector(0.0f, 0.0f, 0.0f));
+	GameMgrCmp->particleHeart = SpawnEmitterHeart(world, Vector(0.0f, 4.0f, 0.0f));
+	GameMgrCmp->particleHeartImpact0 = SpawnEmitterHeartImpact(world, Vector(0.0f, 4.0f, 0.0f));
+	GameMgrCmp->particleHeartImpact1 = SpawnEmitterHeartImpact(world, Vector(0.0f, 4.0f, 0.0f));
+	GameMgrCmp->particleHeartImpact2 = SpawnEmitterHeartImpact2(world, Vector(0.0f, 4.0f, 0.0f));
+	GameMgrCmp->particleWorldSpace = SpawnEmitterWorldSpace(world, Vector(0.0f, 0.0f, 0.0f));
+	GameMgrCmp->particleLocalSpace = SpawnEmitterLocalSpace(world, Vector(0.0f, 0.0f, 0.0f));
+
+	// SpawnEmitterAmbientDust(world,	Vector( 0.0f, 0.0f,  0.0f));
+	// SpawnEmitter1(world,			Vector(-5.0f, 0.0f, -4.0f));
+	// SpawnEmitter2(world,			Vector( 0.0f, 0.0f, -4.0f));
+	// SpawnEmitter3(world,			Vector(-5.0f, 0.0f, -4.0f));
+}
+
+void GameManagerSystem::SpawnSpritesheerExamples(World* world)
+{
+	Vector spritesheetsPosition = Vector(-15.0f, 0.0f, 0.0f);
+	SpawnSpritesheet11(world, spritesheetsPosition + Vector(-5.0f, 4.0f, 0.0f));
+	SpawnSpritesheet22(world, spritesheetsPosition + Vector(0.0f, 4.0f, 0.0f));
+	SpawnSpritesheet44(world, spritesheetsPosition + Vector(5.0f, 4.0f, 0.0f));
+	SpawnSpritesheet42(world, spritesheetsPosition + Vector(-5.0f, 8.0f, 0.0f));
+	SpawnSpritesheet41(world, spritesheetsPosition + Vector(0.0f, 8.0f, 0.0f));
+	SpawnSpritesheet44Random(world, spritesheetsPosition + Vector(5.0f, 8.0f, 0.0f));
+	SpawnSpritesheetGandalf(world, spritesheetsPosition + Vector(0.0f, 12.0f, 0.0f));
+}
+
+void GameManagerSystem::SpawnShip(World* world)
+{
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
+	Entity* ShipRootEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
+	Entity* ShipModelEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
+	ShipModelEnt->SetParent(ShipRootEnt);
+	EntityTransform& ShipModelTrans = ShipModelEnt->GetTransform();
+	ShipModelTrans.SetLocalRotation(Quaternion(Vector::UNIT_X, -90_deg) * Quaternion(Vector::UNIT_Z, -90_deg));
+	// ShipTrans.SetLocalTranslation(Vector(0.0f, 0.0f, 0.0f));
+	// shipTrans.SetLocalScale(1.0f);
+	DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, ShipModelEnt, "Models/Primitives/Ship.fbx", eResourceSource::GAME);
+	MeshRenderingComponent* ShipMesh = world->GetComponent<MeshRenderingComponent>(ShipModelEnt);
+	ShipMesh->SetMaterial(0, PhongMaterial(Color(1.0f, 1.0f, 1.0f), Color(1.0f, 1.0f, 0.0f), Color(1.0f, 1.0f, 0.5f), 8.0f));
+	
+	Entity* ShipCanonEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
+	ShipCanonEnt->SetParent(ShipRootEnt);
+	EntityTransform& ShipCanonTrans = ShipCanonEnt->GetTransform();
+	// ShipModelTrans.SetLocalRotation(Quaternion(Vector::UNIT_X, -90_deg) * Quaternion(Vector::UNIT_Z, -90_deg));
+	ShipCanonTrans.SetLocalTranslation(Vector(0.0f, 1.0f, 0.0f));
+	ShipCanonTrans.SetLocalScale(0.5f);
+	DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, ShipCanonEnt, "Models/Primitives/Canon.fbx", eResourceSource::GAME);
+	MeshRenderingComponent* ShipCanonMesh = world->GetComponent<MeshRenderingComponent>(ShipCanonEnt);
+	ShipCanonMesh->SetMaterial(0, PhongMaterial(Color(1.0f, 1.0f, 1.0f), Color(1.0f, 1.0f, 0.0f), Color(1.0f, 1.0f, 0.5f), 8.0f));
+
+	GameMgrCmp->ShipRoot = ShipRootEnt;
+	GameMgrCmp->ShipModel = ShipModelEnt;
+	GameMgrCmp->ShipCanon = ShipCanonEnt;
+	GameMgrCmp->GameEntities.PushBack(ShipModelEnt);
+	GameMgrCmp->GameEntities.PushBack(ShipRootEnt);
+
+
+	
+	Entity* CameraRootHEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
+	// CameraRootHEnt->SetParent(ShipRootEnt);
+
+	Entity* CameraRootVEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
+	CameraRootVEnt->SetParent(CameraRootHEnt);
+
+	Entity* CameraEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
+	CameraEnt->SetParent(CameraRootVEnt);
+	DeferredTaskSystem::AddComponentImmediate<CameraComponent>(world, CameraEnt, 90_deg, 0.1f, 3000.f);
+	EntityTransform& CameraTrans = CameraEnt->GetTransform();
+	CameraTrans.SetLocalTranslation(Vector(0.0f, 3.0f, 4.0f));
+	world->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, world->GetComponent<CameraComponent>(CameraEnt));
+
+	PostprocessSettingsComponent* postCmp = DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(world, CameraEnt);
+	postCmp->UseBgShader = true;
+	postCmp->UseFgShader = true;
 	postCmp->Distortion = 0.5f;
 	postCmp->ColorTempValue = 6500.0f;
 	postCmp->Saturation = 1.0f;
@@ -40,51 +146,13 @@ void GameManagerSystem::CreateScene(World* world)
 	postCmp->Stripes = 0.0f;
 	postCmp->Vignette = 1.0f;
 
-	EntityTransform& cameraTrans = Camera->GetTransform();
-	cameraTrans.SetLocalTranslation(Vector(0.0f, 4.0f, 5.0f));
-	world->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, world->GetComponent<CameraComponent>(Camera));
-
-	EnumArray<String, eCubemapSide> stormydays{
-		{eCubemapSide::RIGHT, "Cubemaps/stormydays/stormydays_rt.jpg"},
-		{eCubemapSide::LEFT , "Cubemaps/stormydays/stormydays_lt.jpg"},
-		{eCubemapSide::TOP  , "Cubemaps/stormydays/stormydays_up.jpg"},
-		{eCubemapSide::DOWN , "Cubemaps/stormydays/stormydays_dn.jpg"},
-		{eCubemapSide::BACK , "Cubemaps/stormydays/stormydays_bk.jpg"},
-		{eCubemapSide::FRONT, "Cubemaps/stormydays/stormydays_ft.jpg"}
-	};
-
-	DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(world, stormydays);
-
-	world->GetWorldComponent<AmbientLightWorldComponent>()->SetColor(Color(0.0f, 0.0f, 0.0f));
-	world->GetWorldComponent<AmbientLightWorldComponent>()->SetIntensity(0.0f);
-
-	// Vector spritesheetsPosition = Vector(-15.0f, 0.0f, 0.0f);
-	// SpawnSpritesheet11(world,		spritesheetsPosition + Vector(-5.0f,  4.0f, 0.0f));
-	// SpawnSpritesheet22(world,		spritesheetsPosition + Vector( 0.0f,  4.0f, 0.0f));
-	// SpawnSpritesheet44(world,		spritesheetsPosition + Vector( 5.0f,  4.0f, 0.0f));
-	// SpawnSpritesheet42(world,		spritesheetsPosition + Vector(-5.0f,  8.0f, 0.0f));
-	// SpawnSpritesheet41(world,		spritesheetsPosition + Vector( 0.0f,  8.0f, 0.0f));
-	// SpawnSpritesheet44Random(world, spritesheetsPosition + Vector( 5.0f,  8.0f, 0.0f));
-	// SpawnSpritesheetGandalf(world,	spritesheetsPosition + Vector( 0.0f, 12.0f, 0.0f));
-
-
-	// GameMgrCmp->particleDefault		= SpawnEmitterDefault(world,	Vector( 0.0f, 0.0f, 0.0f));
-	// GameMgrCmp->particleHeart		= SpawnEmitterHeart(world, Vector(0.0f, 4.0f, 0.0f));
-	// GameMgrCmp->particleHeartImpact0 = SpawnEmitterHeartImpact(world, Vector(0.0f, 4.0f, 0.0f));
-	// GameMgrCmp->particleHeartImpact1 = SpawnEmitterHeartImpact(world, Vector(0.0f, 4.0f, 0.0f));
-	// GameMgrCmp->particleHeartImpact2 = SpawnEmitterHeartImpact2(world, Vector(0.0f, 4.0f, 0.0f));
-	// GameMgrCmp->particleWorldSpace	= SpawnEmitterWorldSpace(world,	Vector( 0.0f, 0.0f, 0.0f));
-	// GameMgrCmp->particleLocalSpace	= SpawnEmitterLocalSpace(world,	Vector( 0.0f, 0.0f, 0.0f));
-
-	// SpawnEmitterAmbientDust(world,	Vector( 0.0f, 0.0f,  0.0f));
-	// SpawnEmitter1(world,			Vector(-5.0f, 0.0f, -4.0f));
-	// SpawnEmitter2(world,			Vector( 0.0f, 0.0f, -4.0f));
-	// SpawnEmitter3(world,			Vector(-5.0f, 0.0f, -4.0f));
-
-
-	// CreateShaderball(world, GameMgrCmp);
-
-	// SpawnSponzaScene(world);
+	GameMgrCmp->Camera = CameraEnt;
+	GameMgrCmp->CameraRootH = CameraRootHEnt;
+	GameMgrCmp->CameraRootV = CameraRootVEnt;
+	
+	GameMgrCmp->GameEntities.PushBack(CameraEnt);
+	GameMgrCmp->GameEntities.PushBack(CameraRootHEnt);
+	GameMgrCmp->GameEntities.PushBack(CameraRootVEnt);
 }
 
 
@@ -485,20 +553,15 @@ void GameManagerSystem::SpawnSponzaScene(World* world)
 
 	// Point Lights
 	// CreatePointLight(world, 100.0f);
-
 	// AddPointLights(world, 7);
-
 	// CreateSpotLight(world, 200.0f);
 
-
 	Entity* Ground = DeferredTaskSystem::SpawnEntityImmediate(world);
-	DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, Ground, "Models/Sponza/sponza.obj", eResourceSource::GAME);
-	EntityTransform& groundTrans = Ground->GetTransform();
-	MeshRenderingComponent* sponzaMesh = world->GetComponent<MeshRenderingComponent>(Ground);
-	for (int i = 0; i < sponzaMesh->GetMesh()->GetSubMeshes().GetSize(); ++i)
-	{
-		sponzaMesh->SetMaterial(i, PhongMaterial(Color(1.0f, 1.0f, 1.0f), Color(1.0f, 1.0f, 1.0f), Color(1.0f, 1.0f, 1.0f), 8.0f));
-	}
+	DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, Ground, "Models/Primitives/Plane.fbx", eResourceSource::GAME);
+	Ground->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_X, -90_deg)/* * Quaternion(Vector::UNIT_Z, -90_deg)*/);
+	Ground->GetTransform().SetGlobalScale(Vector(100.0f, 100.0f, 1.0f));
+	MeshRenderingComponent* GroundMesh = world->GetComponent<MeshRenderingComponent>(Ground);
+	GroundMesh->SetMaterial(0, PhongMaterial(Color(0.2f, 0.2f, 0.5f), Color(0.2f, 0.2f, 0.5f), Color(0.2f, 0.2f, 0.5f), 8.0f));
 	GameMgrCmp->GameEntities.PushBack(Ground);
 }
 
@@ -531,7 +594,163 @@ void GameManagerSystem::Update(World* world)
 		}
 	}
 
+	UpdateCamera(world);
+
 	UpdateParticles(world);
+}
+
+void GameManagerSystem::UpdateCamera(World* world)
+{
+	float deltaTime = (float)(TimeSystem::GetTimerDeltaTime(world, Poly::eEngineTimer::GAMEPLAY));
+	float time = (float)(TimeSystem::GetTimerElapsedTime(world, Poly::eEngineTimer::GAMEPLAY));
+	InputWorldComponent* inputCmp = world->GetWorldComponent<InputWorldComponent>();
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
+	/*
+	int wheelDelta = inputCmp->GetWheelPosDelta().Y;
+	float speed = GameMgrCmp->GetMovementSpeed();
+	speed = Clamp(speed + wheelDelta, 0.001f, 10000.0f);
+	GameMgrCmp->SetMovementSpeed(speed);
+	*/
+
+	
+	if (GameMgrCmp->ShipRoot != nullptr)
+	{
+		Vector AccelImpulse;
+		if (inputCmp->IsPressed(eKey::KEY_W))
+			AccelImpulse -= Vector::UNIT_Z;
+		else if (inputCmp->IsPressed(eKey::KEY_S))
+			AccelImpulse += Vector::UNIT_Z;
+
+		if (inputCmp->IsPressed(eKey::KEY_A))
+			AccelImpulse -= Vector::UNIT_X;
+		else if (inputCmp->IsPressed(eKey::KEY_D))
+			AccelImpulse += Vector::UNIT_X;
+
+		/*
+		if (inputCmp->IsPressed(eKey::KEY_Q))
+			move -= Vector::UNIT_Y;
+		else if (inputCmp->IsPressed(eKey::KEY_E))
+			move += Vector::UNIT_Y;
+
+		if (move.LengthSquared() > 0)
+			move.Normalize();
+		*/
+		EntityTransform& ShipRootTrans = GameMgrCmp->ShipRoot->GetTransform();
+		
+		Vector Velocity = GameMgrCmp->GetVelocity();
+		Vector Accel = GameMgrCmp->GetAccel();
+		Accel *= 0.99f; // drag
+		Accel += AccelImpulse * 0.1f;
+		Velocity += Accel - Velocity * GameMgrCmp->GetFriction();
+
+		// float VelocityValue = Velocity.Length();
+		// VelocityValue = Clamp(VelocityValue, 0.0f, 10.0f); // Clamp max velocity
+		// Velocity = Velocity.Normalize() * VelocityValue;
+
+		GameMgrCmp->SetVelocity(Velocity);
+		GameMgrCmp->SetAccel(Accel);
+
+		if (Accel.LengthSquared() > 0.01f)
+		{
+			Vector ShipForward = MovementSystem::GetGlobalForward(ShipRootTrans);
+			float RotAngle = Clamp(ShipForward.Dot(Accel.Normalize()), -0.5f, 0.5f);
+			ShipRootTrans.SetGlobalRotation(Quaternion::Slerp(
+				ShipRootTrans.GetGlobalRotation(),
+				ShipRootTrans.GetGlobalRotation() * Quaternion(Vector::UNIT_Y, 1.0_rad * RotAngle ),
+				15.0f * deltaTime
+			));
+		}
+		
+
+		ShipRootTrans.SetGlobalTranslation(ShipRootTrans.GetGlobalTranslation() + ShipRootTrans.GetGlobalRotation() * Velocity * deltaTime);
+
+		EntityTransform& CameraRootTrans = GameMgrCmp->CameraRootH->GetTransform();
+		CameraRootTrans.SetGlobalTranslation(Lerp(
+			CameraRootTrans.GetGlobalTranslation(),
+			ShipRootTrans.GetGlobalTranslation(),
+			5.0f * deltaTime
+		));
+
+		gConsole.LogInfo("GameManagerSystem::UpdateCamera ShipRoot: {}, CameraRoot: {}",
+			ShipRootTrans.GetGlobalTranslation(),
+			CameraRootTrans.GetGlobalTranslation()
+		);
+	}
+
+
+	/*
+	if (inputCmp->IsPressed(eMouseButton::LEFT))
+	{
+		Vector2i delta = inputCmp->GetMousePosDelta();
+
+		Quaternion rot = Quaternion(Vector::UNIT_Y, Angle::FromRadians(-delta.X * freeFloatMovementCmp->GetAngularVelocity()));
+		rot *= trans.GetLocalRotation();
+		rot *= Quaternion(Vector::UNIT_X, Angle::FromRadians(-delta.Y * freeFloatMovementCmp->GetAngularVelocity()));
+
+		if (rot != Quaternion()) {
+			rot.Normalize();
+			trans.SetLocalRotation(rot);
+		}
+	}
+	*/
+
+	if (	GameMgrCmp->Camera != nullptr
+		&&	GameMgrCmp->CameraRootH != nullptr
+		&&	GameMgrCmp->CameraRootV != nullptr
+		&&	GameMgrCmp->ShipCanon != nullptr)
+	{
+		EntityTransform& CameraTrans = GameMgrCmp->Camera->GetTransform();
+		EntityTransform& CameraRootHTrans = GameMgrCmp->CameraRootH->GetTransform();
+		EntityTransform& CameraRootVTrans = GameMgrCmp->CameraRootV->GetTransform();
+
+		Vector2i mouseDelta = inputCmp->GetMousePosDelta();
+
+		float AngularVel = GameMgrCmp->GetAngularVelocity();
+		float AngleH = GameMgrCmp->GetAngleH();
+		float AngleV = GameMgrCmp->GetAngleV();
+		AngleH += -mouseDelta.X * AngularVel;
+		AngleV += -mouseDelta.Y * AngularVel;
+
+		AngleV = Clamp(AngleV, -38.0f, 20.0f);
+
+		Quaternion rotH = Quaternion(Vector::UNIT_Y, 1.0_deg * AngleH);
+		Quaternion rotV = Quaternion(Vector::UNIT_X, 1.0_deg * AngleV);
+
+		CameraRootVTrans.SetLocalRotation(rotV);
+		CameraRootHTrans.SetLocalRotation(rotH);
+		// CameraTrans.SetGlobalRotation(Quaternion::LookAt(CameraTrans.GetGlobalTranslation(), Vector(0.0f, 5.0f*Sin(100_deg * time), 0.0f)));
+
+		// gConsole.LogDebug("GameManagerSystem::UpdateCamera: preRot: ({}, {}), delta({}, {}), postRot: ({}, {})",
+		// 	GameMgrCmp->GetAngleH(), GameMgrCmp->GetAngleV(),
+		// 	mouseDelta.X, mouseDelta.Y,
+		// 	AngleH, AngleV
+		// );
+		GameMgrCmp->SetAngleH(AngleH);
+		GameMgrCmp->SetAngleV(AngleV);
+
+		
+		/*
+		Vector CameraForward = MovementSystem::GetGlobalForward(CameraTrans);
+		// CameraForward.Y = 0.0f;
+		// CameraForward.Normalize();
+		
+		if (CameraForward.LengthSquared() > 0.01)
+		{
+			Vector CanonTarget = CameraForward;
+			CanonTarget.X = -CanonTarget.X;
+			CanonTarget.Z = -CanonTarget.Z;
+			EntityTransform& CanonTrans = GameMgrCmp->ShipCanon->GetTransform();
+			CanonTrans.SetGlobalRotation(Quaternion::LookAt(
+				CanonTrans.GetGlobalTranslation(),
+				CanonTrans.GetGlobalTranslation() + CanonTarget
+			));
+		}
+		*/
+	}
+
+	PostprocessSettingsComponent* PostCmp = GameMgrCmp->Camera->GetComponent<PostprocessSettingsComponent>();
+	PostCmp->ShipPos = GameMgrCmp->ShipRoot->GetTransform().GetGlobalTranslation();
 }
 
 void GameManagerSystem::UpdateParticles(World* world)
