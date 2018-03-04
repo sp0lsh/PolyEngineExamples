@@ -20,5 +20,6 @@ public:
 
 private:
 	
+	Poly::Dynarray<Poly::SoundResource*> SoundsPreload;
 	Engine* Engine;
 };

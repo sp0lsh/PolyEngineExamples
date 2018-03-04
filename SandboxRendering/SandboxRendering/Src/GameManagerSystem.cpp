@@ -1008,7 +1008,14 @@ void GameManagerSystem::UpdateEnemies(World * world)
 		if (EnemyShipRoot != nullptr)
 		{
 			EntityTransform& ShipRootTrans = EnemyShipRoot->GetTransform();
-			bool TorpedoTime = Random() < 0.5f && (time - GameMgrCmp->EnemyLastTorpedoTime[i] > 0.5f);
+			Vector PlayerPos = GameMgrCmp->PlayerShipRoot->GetTransform().GetGlobalTranslation();
+			Vector ThisShipPos = ShipRootTrans.GetGlobalTranslation();
+			Vector PlayerDir = (PlayerPos - ThisShipPos).Normalize();
+			Vector ShipForward = MovementSystem::GetGlobalRight(ShipRootTrans);
+			bool TorpedoTime = Random() < 0.5f
+				&& (time - GameMgrCmp->EnemyLastTorpedoTime[i] > 0.5f)
+				&& PlayerDir.Dot(ShipForward) > 0.7f;
+
 			if (TorpedoTime)
 			{
 				Vector ShipPos = ShipRootTrans.GetGlobalTranslation();
