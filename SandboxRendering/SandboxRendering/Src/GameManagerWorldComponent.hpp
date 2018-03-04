@@ -17,6 +17,7 @@ public:
 	SafePtr<Entity> PlayerShipCollision;
 	ParticleComponent* ShipParticleSmoke;
 	ParticleComponent* ShipParticleSmokeBurst;
+	float PlayerLastTorpedoTime;
 
 	Dynarray<SafePtr<Entity>> PlayerTorpedos;
 	Dynarray<float> PlayerTorpedosSpawnTime;
@@ -26,9 +27,13 @@ public:
 	Dynarray<ParticleComponent*> EnemyShipParticleSmokeBurst;
 	Dynarray<float> EnemyVelocity;
 	Dynarray<float> EnemyAngleY;
+	Dynarray<float> EnemyLastTorpedoTime;
 	// Dynarray<int> EnemyAlive;
 	
 	Dynarray<SafePtr<Entity>> EnemyTorpedos;
+	Dynarray<float> EnemyTorpedosSpawnTime;
+
+	Dynarray<SafePtr<Entity>> BossCollision;
 
 	SafePtr<Entity> Camera;
 	SafePtr<Entity> CameraRootH;
@@ -46,6 +51,9 @@ public:
 	ParticleComponent* particleDefault;
 	ParticleComponent* particleLocalSpace;
 	ParticleComponent* particleWorldSpace;
+
+	Entity* musicEmmiterEnt;
+	Entity* submarineEmmiterEnt;
 	
 	// Game 
 	bool GetIsPaused() const { return IsPaused; }
@@ -54,6 +62,8 @@ public:
 	void SetNeedRestart(bool value) { NeedRestart = value; }
 	int GetEnemiesCount() const { return EnemiesCount; }
 	void SetEnemiesCount(int value) { EnemiesCount = value; }
+	bool GetIsBossEngaged() const { return IsBossEngaged; }
+	void SetIsBossEngaged(bool value) { IsBossEngaged = value; }
 
 	// Movement
 	const float GetShipAngleY() const { return ShipAngleY; }
@@ -76,6 +86,7 @@ private:
 	bool IsPaused = true;
 	bool NeedRestart = false;
 	int EnemiesCount = 0;
+	bool IsBossEngaged = false;
 
 	// Ship
 	float ShipAngleY = 0.0f; // rad

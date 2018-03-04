@@ -18,8 +18,9 @@
 #include <SkyboxWorldComponent.hpp>
 #include <SpritesheetComponent.hpp>
 #include <InputWorldComponent.hpp>
+#include <SoundEmitterComponent.hpp>
 
-using namespace Poly;
+using namespace Poly;	
 
 void GameManagerSystem::CreateScene(World* world)
 {
@@ -38,20 +39,27 @@ void GameManagerSystem::CreateScene(World* world)
 	dirLightTrans.SetLocalRotation(DirLightRot);
 	GameMgrCmp->GameEntities.PushBack(KeyDirLightEnt);
 
+	Entity* musicEmmiter = DeferredTaskSystem::SpawnEntityImmediate(world);
+	DeferredTaskSystem::AddComponentImmediate<Poly::SoundEmitterComponent>(world, musicEmmiter, "March.ogg", eResourceSource::GAME);
+	SoundSystem::SetEmitterFrequency(world, musicEmmiter, 1.0f);
+	SoundSystem::SetEmitterGain(world, musicEmmiter, 1.0f);
+	SoundSystem::PlayEmitter(world, musicEmmiter);
+	SoundSystem::LoopEmitter(world, musicEmmiter);
+	GameMgrCmp->musicEmmiterEnt = musicEmmiter;
+
 	SpawnShip(world);
-	// SpawnEnemyShip(world);
+
 	SpawnCamera(world);
-	// SpawnExplosionEmitterInWS(world, nullptr, Vector(0.0f, 1.0f, 0.0f));
 
 	for (int i = 0; i < 2; ++i)
 	{
 		SpawnEnemyShip(world);
 	}
 
-	for (int i = 0; i < 20; ++i)
+	for (int i = 0; i < 10; ++i)
 	{
 		Vector rnd = RandomVectorRange(0.0f, 1.0f) * 100.0f;
-		SpawnBomb(world, Vector(rnd.X, 0.0f, rnd.Z));
+		SpawnBomb(world, Vector(rnd.X, -2.0f, rnd.Z));
 	}
 }
 
@@ -75,6 +83,7 @@ void GameManagerSystem::SpawnParticleExamples(World* world)
 
 void GameManagerSystem::SpawnShip(World* world)
 {
+	float time = (float)(world->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
 	Entity* ShipRootEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
@@ -83,23 +92,24 @@ void GameManagerSystem::SpawnShip(World* world)
 	EntityTransform& ShipModelTrans = ShipModelEnt->GetTransform();
 	ShipModelTrans.SetLocalTranslation(Vector(0.0f, 0.0f, 0.0f));
 	ShipModelTrans.SetLocalScale(Vector(1.5f, 0.2f, 0.5f));
-	DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, ShipModelEnt, "Models/Primitives/Cube.fbx", eResourceSource::GAME);
-	MeshRenderingComponent* ShipMesh = world->GetComponent<MeshRenderingComponent>(ShipModelEnt);
-	ShipMesh->SetMaterial(0, PhongMaterial(Color(1.0f, 1.0f, 1.0f), Color(1.0f, 1.0f, 0.0f), Color(1.0f, 1.0f, 0.5f), 8.0f));
+	// DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, ShipModelEnt, "Models/Primitives/Cube.fbx", eResourceSource::GAME);
+	// MeshRenderingComponent* ShipMesh = world->GetComponent<MeshRenderingComponent>(ShipModelEnt);
+	// ShipMesh->SetMaterial(0, PhongMaterial(Color(1.0f, 1.0f, 1.0f), Color(1.0f, 1.0f, 0.0f), Color(1.0f, 1.0f, 0.5f), 8.0f));
 
 	Entity* ShipCollisionEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
 	ShipCollisionEnt->SetParent(ShipRootEnt);
 	// EntityTransform& ShipCollisionTrans = ShipCollisionEnt->GetTransform();
 	// ShipCollisionTrans.SetLocalScale(1.0f);
-	DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, ShipCollisionEnt, "Models/Primitives/Sphere_Lowpoly.fbx", eResourceSource::GAME);
-	MeshRenderingComponent* ShipCollisionMesh = world->GetComponent<MeshRenderingComponent>(ShipCollisionEnt);
-	ShipCollisionMesh->SetMaterial(0, PhongMaterial(Color(1.0f, 1.0f, 1.0f), Color(1.0f, 1.0f, 0.0f), Color(1.0f, 1.0f, 0.5f), 8.0f));
+	// DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, ShipCollisionEnt, "Models/Primitives/Sphere_Lowpoly.fbx", eResourceSource::GAME);
+	// MeshRenderingComponent* ShipCollisionMesh = world->GetComponent<MeshRenderingComponent>(ShipCollisionEnt);
+	// ShipCollisionMesh->SetMaterial(0, PhongMaterial(Color(1.0f, 1.0f, 1.0f), Color(1.0f, 1.0f, 0.0f), Color(1.0f, 1.0f, 0.5f), 8.0f));
 	
 	GameMgrCmp->PlayerShipRoot = ShipRootEnt;
 	GameMgrCmp->PlayerShipCollision = ShipCollisionEnt;
 	GameMgrCmp->GameEntities.PushBack(ShipModelEnt);
 	GameMgrCmp->GameEntities.PushBack(ShipRootEnt);
 	GameMgrCmp->GameEntities.PushBack(ShipCollisionEnt);
+	GameMgrCmp->PlayerLastTorpedoTime = time;
 
 	GameMgrCmp->ShipParticleSmoke = SpawnSmokeEmitterInWS(world, ShipRootEnt, Vector(-1.4f, 3.0f, 0.0f));
 	GameMgrCmp->ShipParticleSmokeBurst = SpawnSmokeBurstEmitterInWS(world, ShipRootEnt, Vector(-1.4f, 3.0f, 0.0f));
@@ -115,17 +125,17 @@ void GameManagerSystem::SpawnEnemyShip(World* world)
 	EntityTransform& ShipModelTrans = ShipModelEnt->GetTransform();
 	// ShipModelTrans.SetLocalTranslation(Vector(0.0f, 0.0f, 0.0f));
 	ShipModelTrans.SetLocalScale(Vector(1.5f, 0.2f, 0.5f));
-	DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, ShipModelEnt, "Models/Primitives/Cube.fbx", eResourceSource::GAME);
-	MeshRenderingComponent* ShipMesh = world->GetComponent<MeshRenderingComponent>(ShipModelEnt);
-	ShipMesh->SetMaterial(0, PhongMaterial(Color(1.0f, 0.0f, 0.0f), Color(1.0f, 0.0f, 0.0f), Color(1.0f, 0.0f, 0.0f), 8.0f));
+	// DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, ShipModelEnt, "Models/Primitives/Cube.fbx", eResourceSource::GAME);
+	// MeshRenderingComponent* ShipMesh = world->GetComponent<MeshRenderingComponent>(ShipModelEnt);
+	// ShipMesh->SetMaterial(0, PhongMaterial(Color(1.0f, 0.0f, 0.0f), Color(1.0f, 0.0f, 0.0f), Color(1.0f, 0.0f, 0.0f), 8.0f));
 
 	Entity* ShipCollisionEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
 	ShipCollisionEnt->SetParent(ShipRootEnt);
 	// EntityTransform& ShipCollisionTrans = ShipCollisionEnt->GetTransform();
 	// ShipCollisionTrans.SetLocalScale(1.0f);
-	DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, ShipCollisionEnt, "Models/Primitives/Sphere_Lowpoly.fbx", eResourceSource::GAME);
-	MeshRenderingComponent* ShipCollisionMesh = world->GetComponent<MeshRenderingComponent>(ShipCollisionEnt);
-	ShipCollisionMesh->SetMaterial(0, PhongMaterial(Color(1.0f, 0.0f, 0.0f), Color(1.0f, 0.0f, 0.0f), Color(1.0f, 0.0f, 0.0f), 8.0f));
+	// DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, ShipCollisionEnt, "Models/Primitives/Sphere_Lowpoly.fbx", eResourceSource::GAME);
+	// MeshRenderingComponent* ShipCollisionMesh = world->GetComponent<MeshRenderingComponent>(ShipCollisionEnt);
+	// ShipCollisionMesh->SetMaterial(0, PhongMaterial(Color(1.0f, 0.0f, 0.0f), Color(1.0f, 0.0f, 0.0f), Color(1.0f, 0.0f, 0.0f), 8.0f));
 
 	SpawnSmokeEmitterInWS(world, ShipRootEnt, Vector(-1.4f, 3.0f, 0.0f));
 	ParticleComponent* ShipSmokeCmp = SpawnSmokeBurstEmitterInWS(world, ShipRootEnt, Vector(-1.4f, 3.0f, 0.0f));
@@ -140,6 +150,7 @@ void GameManagerSystem::SpawnEnemyShip(World* world)
 	GameMgrCmp->EnemyVelocity.PushBack(1.0f);
 	GameMgrCmp->EnemyAngleY.PushBack(0.0f);
 	GameMgrCmp->EnemyShipParticleSmokeBurst.PushBack(ShipSmokeCmp);
+	GameMgrCmp->EnemyLastTorpedoTime.PushBack(0.0f);
 
 	GameMgrCmp->GameEntities.PushBack(ShipModelEnt);
 	GameMgrCmp->GameEntities.PushBack(ShipRootEnt);
@@ -199,6 +210,28 @@ void GameManagerSystem::SpawnBomb(World* world, Vector pos)
 
 	GameMgrCmp->GameEntities.PushBack(BombEnt);
 	GameMgrCmp->BombEntities.PushBack(BombEnt);
+}
+
+void GameManagerSystem::SpawnBoss(World * world)
+{
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
+	gConsole.LogDebug("GameManagerSystem::SpawnBoss");
+
+	for( int i = 0; i < 8; i++)
+	{
+		Entity* BossCollisionEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
+		EntityTransform& BossCollisionTrans = BossCollisionEnt->GetTransform();
+		float x = Lerp(-16.0f, 16.0f, float(i) / 8.0f);
+		BossCollisionTrans.SetGlobalTranslation(Vector(x, 0.0f, 0.0f));
+		BossCollisionTrans.SetGlobalScale(Vector(1.0f, 1.0f, 1.0f) * 3.0f);
+
+		// DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, BossCollisionEnt, "Models/Primitives/Sphere_Lowpoly.fbx", eResourceSource::GAME);
+		// MeshRenderingComponent* ShipCollisionMesh = world->GetComponent<MeshRenderingComponent>(BossCollisionEnt);
+		// ShipCollisionMesh->SetMaterial(0, PhongMaterial(Color(1.0f, 0.0f, 0.0f), Color(1.0f, 0.0f, 0.0f), Color(1.0f, 0.0f, 0.0f), 8.0f));
+
+		GameMgrCmp->BossCollision.PushBack(BossCollisionEnt);
+	}
 }
 
 #pragma region Particle Examples
@@ -580,12 +613,14 @@ void GameManagerSystem::Update(World* world)
 
 	UpdateEnemies(world);
 
+	UpdateCollision(world);
+	
 	UpdateGameplay(world);
 
 	UpdatePostEffect(world);
 }
 
-void GameManagerSystem::UpdateGameplay(World* world)
+void GameManagerSystem::UpdateCollision(World* world)
 {
 	float time = (float)(world->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
@@ -657,6 +692,7 @@ void GameManagerSystem::UpdateGameplay(World* world)
 
 			GameMgrCmp->SetIsPaused(true);
 			GameMgrCmp->SetNeedRestart(true);
+			
 			PostCmp->TimeOfDeath = time;
 		}
 	}
@@ -696,15 +732,113 @@ void GameManagerSystem::UpdateGameplay(World* world)
 			}
 		}
 	}
+
+	for ( int i = 0; i < GameMgrCmp->EnemyTorpedos.GetSize(); ++i)
+	{
+		if (GameMgrCmp->EnemyTorpedos[i] == nullptr)
+		{
+			continue;
+		}
+		
+		Entity* EnemyTorpedo = GameMgrCmp->EnemyTorpedos[i].Get();
+		Entity* PlayerCollision = GameMgrCmp->PlayerShipCollision.Get();
+
+		if (IsColliding(PlayerCollision, 1.0f, EnemyTorpedo, 1.0f))
+		{
+			Vector ExplosionPos = PlayerCollision->GetTransform().GetGlobalTranslation();
+			SpawnExplosionEmitterInWS(world, nullptr, ExplosionPos);
+			SpawnExplosionEmitterInWS2(world, nullptr, ExplosionPos - Vector(0.01f, 0.0f, 0.01f));
+			SpawnExplosionEmitterInWS3(world, nullptr, ExplosionPos - Vector(0.02f, 0.0f, 0.02f));
+			SpawnExplosionEmitterInWS4(world, nullptr, ExplosionPos + Vector(0.02f, 0.0f, 0.02f));
+
+			// DeferredTaskSystem::DestroyEntityImmediate(world, EnemyCollision);
+			// DeferredTaskSystem::DestroyEntityImmediate(world, PlayerTorpedo);
+
+			GameMgrCmp->SetIsPaused(true);
+			GameMgrCmp->SetNeedRestart(true);
+			PostCmp->TimeOfDeath = time;
+		}
+	}
+
+	if (GameMgrCmp->GetIsBossEngaged()) 
+	{
+		for (int i = 0; i < GameMgrCmp->BossCollision.GetSize(); ++i)
+		{
+			Entity* SubmarineCollision = GameMgrCmp->BossCollision[i].Get();
+			Entity* PlayerCollision = GameMgrCmp->PlayerShipCollision.Get();
+
+			if (IsColliding(PlayerCollision, 1.0f, SubmarineCollision, 3.0f))
+			{
+				Vector ExplosionPos = PlayerCollision->GetTransform().GetGlobalTranslation();
+				SpawnExplosionEmitterInWS(world, nullptr, ExplosionPos);
+				SpawnExplosionEmitterInWS2(world, nullptr, ExplosionPos - Vector(0.01f, 0.0f, 0.01f));
+				SpawnExplosionEmitterInWS3(world, nullptr, ExplosionPos - Vector(0.02f, 0.0f, 0.02f));
+				SpawnExplosionEmitterInWS4(world, nullptr, ExplosionPos + Vector(0.02f, 0.0f, 0.02f));
+
+				// DeferredTaskSystem::DestroyEntityImmediate(world, EnemyCollision);
+				// DeferredTaskSystem::DestroyEntityImmediate(world, PlayerTorpedo);
+
+				SoundSystem::StopEmitter(world, GameMgrCmp->musicEmmiterEnt);
+
+				Entity* musicEmmiter = DeferredTaskSystem::SpawnEntityImmediate(world);
+				DeferredTaskSystem::AddComponentImmediate<Poly::SoundEmitterComponent>(world, musicEmmiter, "Yellow_Submarine.ogg", eResourceSource::GAME);
+				SoundSystem::SetEmitterFrequency(world, musicEmmiter, 1.0f);
+				SoundSystem::SetEmitterGain(world, musicEmmiter, 1.0f);
+				SoundSystem::PlayEmitter(world, musicEmmiter);
+				SoundSystem::LoopEmitter(world, musicEmmiter);
+				GameMgrCmp->submarineEmmiterEnt = musicEmmiter;
+
+				GameMgrCmp->SetIsPaused(true);
+				GameMgrCmp->SetNeedRestart(true);
+				
+				PostCmp->TimeOfDeath = time;
+			}
+		}
+	}
+}
+
+void GameManagerSystem::UpdateGameplay(World * world)
+{
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+	PostprocessSettingsComponent* PostCmp = GameMgrCmp->Camera->GetComponent<PostprocessSettingsComponent>();
+	
+	gConsole.LogDebug("GameManagerSystem::UpdateGamplay IsBossEngaged: {}", GameMgrCmp->GetIsBossEngaged());
+
+	if (!GameMgrCmp->GetIsBossEngaged())
+	{
+		int EnemiesDestroyed = 0;
+		for (int i = 0; i < GameMgrCmp->EnemyShipCollision.GetSize(); ++i)
+		{
+			gConsole.LogDebug("GameManagerSystem::UpdateGamplay EnemyId: {}, EnemyDead: {}, Score: {}/{}",
+				i, GameMgrCmp->EnemyShipCollision[i] == nullptr, EnemiesDestroyed, GameMgrCmp->GetEnemiesCount()
+			);
+
+			if (GameMgrCmp->EnemyShipCollision[i] == nullptr)
+			{
+				EnemiesDestroyed++;
+			}
+		}
+
+		if (GameMgrCmp->GetEnemiesCount() <= EnemiesDestroyed)
+		{
+			GameMgrCmp->SetIsBossEngaged(true);
+
+			SpawnBoss(world);
+			
+			PostCmp->EnableBoss = true;
+		}
+	}
 }
 
 bool GameManagerSystem::IsColliding(Entity* EntityA, float RadiusA, Entity* EntityB, float RadiusB)
 {
 	EntityTransform& ShipTrans = EntityA->GetTransform();
 	Vector EntityAPosition = ShipTrans.GetGlobalTranslation();
+	EntityAPosition.Y = 0.0f;
 	
 	EntityTransform& BombTrans = EntityB->GetTransform();
 	Vector EntityBPosition = BombTrans.GetGlobalTranslation();
+	EntityBPosition.Y = 0.0f;
 
 	float Distance = (EntityAPosition - EntityBPosition).Length();
 	// gConsole.LogInfo("GameManagerSystem::CollideWithBomb Distance: {}", Distance );
@@ -756,7 +890,8 @@ void GameManagerSystem::UpdatePlayer(World* world)
 	{
 		EntityTransform& ShipRootTrans = GameMgrCmp->PlayerShipRoot->GetTransform();
 
-		if (inputCmp->IsReleased(eKey::SPACE))
+		bool TorpedoTime = (time - GameMgrCmp->PlayerLastTorpedoTime > 0.5f);
+		if (inputCmp->IsReleased(eKey::SPACE) && TorpedoTime)
 		{
 			Vector ShipPos = ShipRootTrans.GetGlobalTranslation();
 			Vector ShipForward = MovementSystem::GetGlobalRight(ShipRootTrans);
@@ -767,6 +902,7 @@ void GameManagerSystem::UpdatePlayer(World* world)
 			GameMgrCmp->PlayerTorpedosSpawnTime.PushBack(time);
 			
 			PostCmp->TimeOfAction = time;
+			GameMgrCmp->PlayerLastTorpedoTime = time;
 		}
 
 		float InputAccel = 0.0f;
@@ -832,7 +968,7 @@ void GameManagerSystem::UpdatePlayer(World* world)
 
 		Vector VelocityVector = Vector::UNIT_X * 1.0f * Lerp(2.0f, 1.0f, Age/2.0f);
 		TorpedoTrans.SetGlobalTranslation(TorpedoTrans.GetGlobalTranslation() + TorpedoTrans.GetGlobalRotation() * VelocityVector);
-		gConsole.LogDebug("GameManagerSystem::UpdatePlayer TorpedoAge: {}", Age );
+		// gConsole.LogDebug("GameManagerSystem::UpdatePlayer TorpedoAge: {}", Age );
 	}
 }
 
@@ -854,11 +990,12 @@ void GameManagerSystem::UpdateEnemies(World * world)
 	float deltaTime = (float)(TimeSystem::GetTimerDeltaTime(world, Poly::eEngineTimer::GAMEPLAY));
 	float time = (float)(TimeSystem::GetTimerElapsedTime(world, Poly::eEngineTimer::GAMEPLAY));
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+	PostprocessSettingsComponent* PostCmp = GameMgrCmp->Camera->GetComponent<PostprocessSettingsComponent>();
 
 	int EnemiesCount = GameMgrCmp->GetEnemiesCount();
 	for (int i = 0; i < EnemiesCount; ++i)
 	{
-		gConsole.LogDebug("GameManagerSystem::UpdateEnemies: id: {}, Alive: {}", i, GameMgrCmp->EnemyShipCollision[i]);
+		// gConsole.LogDebug("GameManagerSystem::UpdateEnemies: id: {}, Alive: {}", i, GameMgrCmp->EnemyShipCollision[i]);
 
 		if (GameMgrCmp->EnemyShipCollision[i] == nullptr)
 		{
@@ -870,6 +1007,23 @@ void GameManagerSystem::UpdateEnemies(World * world)
 
 		if (EnemyShipRoot != nullptr)
 		{
+			EntityTransform& ShipRootTrans = EnemyShipRoot->GetTransform();
+			bool TorpedoTime = Random() < 0.5f && (time - GameMgrCmp->EnemyLastTorpedoTime[i] > 0.5f);
+			if (TorpedoTime)
+			{
+				Vector ShipPos = ShipRootTrans.GetGlobalTranslation();
+				Vector ShipForward = MovementSystem::GetGlobalRight(ShipRootTrans);
+				Vector TorpedoSpawnPos = ShipPos + ShipForward * 2.0f;
+				Quaternion TorpedoSpawnRot = ShipRootTrans.GetGlobalRotation();
+
+				GameMgrCmp->EnemyTorpedos.PushBack(SpawnTorpedo(world, TorpedoSpawnPos, TorpedoSpawnRot));
+				GameMgrCmp->EnemyTorpedosSpawnTime.PushBack(time);
+
+				GameMgrCmp->EnemyLastTorpedoTime[i] = time;
+
+				// PostCmp->TimeOfAction = time;
+			}
+
 			float rnd = RandomRange(0.5f, 2.0f);
 
 			float InputAccel = 0.5f * std::max(0.0f, Cos(0.2_rad *(time + rnd)));
@@ -894,7 +1048,6 @@ void GameManagerSystem::UpdateEnemies(World * world)
 			GameMgrCmp->EnemyVelocity[i] = Velocity;
 			Vector VelocityVector = Vector::UNIT_X * Velocity;
 			VelocityVector -= Vector(0.1f, 0.0f, -0.5f) * 0.02f;
-			EntityTransform& ShipRootTrans = EnemyShipRoot->GetTransform();
 			ShipRootTrans.SetGlobalTranslation(ShipRootTrans.GetGlobalTranslation() + ShipRootTrans.GetGlobalRotation() * VelocityVector);
 
 			float RotYValue = 1.0f * deltaTime * InputRotY + GameMgrCmp->EnemyAngleY[i]; // rad;
@@ -909,6 +1062,35 @@ void GameManagerSystem::UpdateEnemies(World * world)
 			// PostCmp->ShipAngleY = -RotYValue;
 			// gConsole.LogDebug("GameManagerSystem::UpdateCamera: ShipRot: {}", RotYValue );
 		}
+	}
+
+	for (int i = 0; i < GameMgrCmp->EnemyTorpedos.GetSize(); ++i)
+	{
+		Entity* TorpedoEnt = GameMgrCmp->EnemyTorpedos[i].Get();
+
+		if (TorpedoEnt == nullptr)
+		{
+			continue;
+		}
+
+		EntityTransform& TorpedoTrans = TorpedoEnt->GetTransform();
+		Vector TorpedoPos = TorpedoTrans.GetGlobalTranslation();
+
+		float Age = time - GameMgrCmp->EnemyTorpedosSpawnTime[i];
+		if (Age > 2.0f)
+		{
+			Vector ExplosionPos = TorpedoPos - Vector(0.0f, -1.0f, 0.0f);
+			SpawnExplosionEmitterInWS(world, nullptr, ExplosionPos);
+			SpawnExplosionEmitterInWS2(world, nullptr, ExplosionPos - Vector(0.01f, 0.0f, 0.01f));
+			SpawnExplosionEmitterInWS3(world, nullptr, ExplosionPos - Vector(0.02f, 0.0f, 0.02f));
+			SpawnExplosionEmitterInWS4(world, nullptr, ExplosionPos + Vector(0.02f, 0.0f, 0.02f));
+
+			GameMgrCmp->EnemyTorpedos[i] = nullptr;
+		}
+
+		Vector VelocityVector = Vector::UNIT_X * 1.0f * Lerp(2.0f, 1.0f, Age / 2.0f);
+		TorpedoTrans.SetGlobalTranslation(TorpedoTrans.GetGlobalTranslation() + TorpedoTrans.GetGlobalRotation() * VelocityVector);
+		// gConsole.LogDebug("GameManagerSystem::UpdateEnemy TorpedoAge: {}", Age);
 	}
 }
 

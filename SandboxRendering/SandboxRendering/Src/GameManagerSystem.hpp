@@ -10,22 +10,25 @@ namespace GameManagerSystem
 {
 	void CreateScene(World* world);
 	void Update(World* world);
+	void Deinit(World* world);
+
 	void UpdateCamera(World* world);
 	void UpdatePlayer(World* world);
-	Entity* SpawnTorpedo(World* world, Vector &TorpedoSpawnPos, Quaternion &TorpedoSpawnRot);
 	void UpdateEnemies(World* world);
+	void UpdateCollision(World* world);
 	void UpdateGameplay(World* world);
 	void UpdateParticles(World* world);
 	void UpdatePostEffect(World* world);
-	void Deinit(World* world);
 	
+	bool IsColliding(Entity* EntityA, float RadiusA, Entity* EntityB, float RadiusB);
 	void RestartGame(World* world);
 	
 	void SpawnShip(World* world);
 	void SpawnEnemyShip(World* world);
 	void SpawnCamera(World* world);
 	void SpawnBomb(World* world, Vector pos);
-	bool IsColliding(Entity* EntityA, float RadiusA, Entity* EntityB, float RadiusB);
+	void SpawnBoss(World* world);
+	Entity* SpawnTorpedo(World* world, Vector &TorpedoSpawnPos, Quaternion &TorpedoSpawnRot);
 
 	void SpawnParticleExamples(World* world);
 
