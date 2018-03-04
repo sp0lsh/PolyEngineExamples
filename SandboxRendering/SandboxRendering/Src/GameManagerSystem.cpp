@@ -660,6 +660,42 @@ void GameManagerSystem::UpdateGameplay(World* world)
 			PostCmp->TimeOfDeath = time;
 		}
 	}
+
+	for ( int i = 0; i < GameMgrCmp->PlayerTorpedos.GetSize(); ++i)
+	{
+		if (GameMgrCmp->PlayerTorpedos[i] == nullptr)
+		{
+			continue;
+		}
+		
+		Entity* PlayerTorpedo = GameMgrCmp->PlayerTorpedos[i].Get();
+
+		for (int j = 0; j < GameMgrCmp->EnemyShipCollision.GetSize(); ++j)
+		{
+			if (GameMgrCmp->EnemyShipCollision[j] == nullptr)
+			{
+				continue;
+			}
+
+			Entity* EnemyCollision = GameMgrCmp->EnemyShipCollision[j].Get();
+
+			if (IsColliding(EnemyCollision, 1.0f, PlayerTorpedo, 1.0f))
+			{
+				Vector ExplosionPos = EnemyCollision->GetTransform().GetGlobalTranslation();
+				SpawnExplosionEmitterInWS(world, nullptr, ExplosionPos);
+				SpawnExplosionEmitterInWS2(world, nullptr, ExplosionPos - Vector(0.01f, 0.0f, 0.01f));
+				SpawnExplosionEmitterInWS3(world, nullptr, ExplosionPos - Vector(0.02f, 0.0f, 0.02f));
+				SpawnExplosionEmitterInWS4(world, nullptr, ExplosionPos + Vector(0.02f, 0.0f, 0.02f));
+
+				PostCmp->TimeOfAction = time;
+
+				// DeferredTaskSystem::DestroyEntityImmediate(world, EnemyCollision);
+				// DeferredTaskSystem::DestroyEntityImmediate(world, PlayerTorpedo);
+				GameMgrCmp->EnemyShipCollision[j] = nullptr;
+				GameMgrCmp->PlayerTorpedos[i] = nullptr;
+			}
+		}
+	}
 }
 
 bool GameManagerSystem::IsColliding(Entity* EntityA, float RadiusA, Entity* EntityB, float RadiusB)
@@ -714,6 +750,7 @@ void GameManagerSystem::UpdatePlayer(World* world)
 	float time = (float)(TimeSystem::GetTimerElapsedTime(world, Poly::eEngineTimer::GAMEPLAY));
 	InputWorldComponent* inputCmp = world->GetWorldComponent<InputWorldComponent>();
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+	PostprocessSettingsComponent* PostCmp = GameMgrCmp->Camera->GetComponent<PostprocessSettingsComponent>();
 
 	if (GameMgrCmp->PlayerShipRoot != nullptr)
 	{
@@ -725,8 +762,11 @@ void GameManagerSystem::UpdatePlayer(World* world)
 			Vector ShipForward = MovementSystem::GetGlobalRight(ShipRootTrans);
 			Vector TorpedoSpawnPos = ShipPos + ShipForward * 2.0f;
 			Quaternion TorpedoSpawnRot = ShipRootTrans.GetGlobalRotation();
+			
 			GameMgrCmp->PlayerTorpedos.PushBack(SpawnTorpedo(world, TorpedoSpawnPos, TorpedoSpawnRot));
 			GameMgrCmp->PlayerTorpedosSpawnTime.PushBack(time);
+			
+			PostCmp->TimeOfAction = time;
 		}
 
 		float InputAccel = 0.0f;
@@ -779,7 +819,7 @@ void GameManagerSystem::UpdatePlayer(World* world)
 		Vector TorpedoPos = TorpedoTrans.GetGlobalTranslation();
 
 		float Age = time - GameMgrCmp->PlayerTorpedosSpawnTime[i];
-		if (Age > 2.0f) 
+		if (Age > 2.0f)
 		{
 			Vector ExplosionPos = TorpedoPos - Vector(0.0f, -1.0f, 0.0f);
 			SpawnExplosionEmitterInWS(world, nullptr, ExplosionPos);
@@ -790,7 +830,7 @@ void GameManagerSystem::UpdatePlayer(World* world)
 			GameMgrCmp->PlayerTorpedos[i] = nullptr;
 		}
 
-		Vector VelocityVector = Vector::UNIT_X * 1.0f;
+		Vector VelocityVector = Vector::UNIT_X * 1.0f * Lerp(2.0f, 1.0f, Age/2.0f);
 		TorpedoTrans.SetGlobalTranslation(TorpedoTrans.GetGlobalTranslation() + TorpedoTrans.GetGlobalRotation() * VelocityVector);
 		gConsole.LogDebug("GameManagerSystem::UpdatePlayer TorpedoAge: {}", Age );
 	}
