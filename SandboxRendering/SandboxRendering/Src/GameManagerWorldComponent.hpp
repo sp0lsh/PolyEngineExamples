@@ -12,11 +12,17 @@ using namespace Poly;
 class GAME_DLLEXPORT GameManagerWorldComponent : public ComponentBase
 {
 public:
-	SafePtr<Entity> ShipRoot;
-	SafePtr<Entity> ShipModel;
-	SafePtr<Entity> ShipCollision;
+
+	SafePtr<Entity> PlayerShipRoot;
+	SafePtr<Entity> PlayerShipCollision;
 	ParticleComponent* ShipParticleSmoke;
 	ParticleComponent* ShipParticleSmokeBurst;
+
+	Dynarray<SafePtr<Entity>> EnemyShipRoot;
+	Dynarray<SafePtr<Entity>> EnemyShipCollision;
+	Dynarray<ParticleComponent*> EnemyShipParticleSmokeBurst;
+	Dynarray<float> EnemyVelocity;
+	Dynarray<float> EnemyAngleY;
 
 	SafePtr<Entity> Camera;
 	SafePtr<Entity> CameraRootH;
@@ -32,19 +38,16 @@ public:
 	Dynarray<SafePtr<Entity>> BombEntities;
 
 	ParticleComponent* particleDefault;
-	ParticleComponent* particleHeart;
-	ParticleComponent* particleHeartImpact0;
-	ParticleComponent* particleHeartImpact1;
-	ParticleComponent* particleHeartImpact2;
 	ParticleComponent* particleLocalSpace;
 	ParticleComponent* particleWorldSpace;
-
 	
 	// Game 
 	bool GetIsPaused() const { return IsPaused; }
 	void SetIsPaused(bool value) { IsPaused = value; }
 	bool GetNeedRestart() const { return NeedRestart; }
 	void SetNeedRestart(bool value) { NeedRestart = value; }
+	int GetEnemiesCount() const { return EnemiesCount; }
+	void SetEnemiesCount(int value) { EnemiesCount = value; }
 
 	// Movement
 	const float GetShipAngleY() const { return ShipAngleY; }
@@ -62,9 +65,11 @@ public:
 	const float GetAngularVelocity() const { return AngularVelocity; }
 
 private:
+
 	// Game
 	bool IsPaused = true;
 	bool NeedRestart = false;
+	int EnemiesCount = 0;
 
 	// Ship
 	float ShipAngleY = 0.0f; // rad

@@ -11,14 +11,18 @@ namespace GameManagerSystem
 	void CreateScene(World* world);
 	void Update(World* world);
 	void UpdateCamera(World* world);
-	void UpdateShip(World* world);
+	void UpdatePlayer(World* world);
+	void UpdateEnemies(World* world);
 	void UpdateGameplay(World* world);
 	void UpdateParticles(World* world);
+	void UpdatePostEffect(World* world);
 	void Deinit(World* world);
 	
 	void RestartGame(World* world);
 	
 	void SpawnShip(World* world);
+	void SpawnEnemyShip(World* world);
+	void SpawnCamera(World* world);
 	void SpawnBomb(World* world, Vector pos);
 	bool CollideWithBomb(Entity* ShipCollision, Entity* Bomb);
 
@@ -33,4 +37,5 @@ namespace GameManagerSystem
 	ParticleComponent* SpawnExplosionEmitterInWS(World* world, Entity* parent, Vector offset);
 	ParticleComponent* SpawnExplosionEmitterInWS2(World* world, Entity* parent, Vector offset);
 	ParticleComponent* SpawnExplosionEmitterInWS3(World* world, Entity* parent, Vector offset);
+	ParticleComponent* SpawnExplosionEmitterInWS4(World* world, Entity* parent, Vector offset);
 }
