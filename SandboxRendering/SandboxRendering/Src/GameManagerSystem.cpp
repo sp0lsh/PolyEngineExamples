@@ -372,7 +372,7 @@ ParticleComponent* GameManagerSystem::SpawnExplosionEmitterInWS(World* world, En
 
 	ParticleEmitter::Settings settings;
 	settings.MaxSize = 100;
-	settings.InitialSize = 100;
+	settings.InitialSize = 50;
 	settings.SpritesheetSettings = spriteSettings;
 	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::WORLD_SPACE;
 	settings.BurstTimeMin = 0.01f;
@@ -419,7 +419,7 @@ ParticleComponent* GameManagerSystem::SpawnExplosionEmitterInWS2(World* world, E
 
 	ParticleEmitter::Settings settings;
 	settings.MaxSize = 50;
-	settings.InitialSize = 50;
+	settings.InitialSize = 25;
 	settings.SpritesheetSettings = spriteSettings;
 	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::WORLD_SPACE;
 	settings.BurstTimeMin = 0.01f;
@@ -427,7 +427,7 @@ ParticleComponent* GameManagerSystem::SpawnExplosionEmitterInWS2(World* world, E
 	settings.BurstSizeMin = 2;
 	settings.BurstSizeMin = 5;
 	settings.Speed = 0.5f;
-	settings.Color = Color(10.0f, 5.0f, 0.9f, 0.2f);
+	settings.Color = Color(10.0f, 5.0f, 0.9f, 0.1f);
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
 		p->Position += RandomVectorRange(-1.0f, 1.0f) * 0.2f;
 		Vector rndVel = RandomVectorRange(0.5f, 1.0f);
@@ -475,19 +475,19 @@ ParticleComponent* GameManagerSystem::SpawnExplosionEmitterInWS3(World* world, E
 	settings.BurstSizeMin = 2;
 	settings.BurstSizeMin = 5;
 	settings.Speed = 0.2f;
-	settings.Color = Color(0.1f, 0.1f, 0.1f, 0.3f);
+	settings.Color = Color(0.1f, 0.1f, 0.1f, 0.05f);
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
 		p->Position += RandomVectorRange(-1.0f, 1.0f) * 0.2f;
 		Vector rndVel = RandomVectorRange(0.5f, 1.0f);
 		p->Velocity = Vector(0.1f*rndVel.X, 1.0f * rndVel.Y, 1.0f * rndVel.Z) * 0.2f;
-		p->LifeTime = RandomRange(2.0f, 2.5f);
+		p->LifeTime = RandomRange(4.0f, 4.5f);
 		p->Scale = Vector::ONE * RandomRange(1.0f, 2.5f);
 	};
 	settings.ParticleUpdateFunc = [](ParticleEmitter::Particle* p) {
 		// p->Position += p->Velocity;
 		float t = p->Age / p->LifeTime;
 		// p->Scale = Vector::ONE * Lerp(0.1f, 0.5f, Abs(2.0f*(t-0.5)));
-		p->Scale = Vector::ONE * Lerp(1.0f, 2.5f, t);
+		p->Scale = Vector::ONE * Lerp(0.2f, 2.5f, t);
 	};
 
 	GameMgrCmp->GameEntities.PushBack(ParticlesEnt);
@@ -523,7 +523,7 @@ ParticleComponent* GameManagerSystem::SpawnExplosionEmitterInWS4(World* world, E
 	settings.BurstSizeMin = 5;
 	settings.BurstSizeMin = 15;
 	settings.Speed = 0.5f;
-	settings.Color = Color(10.0f, 5.0f, 0.9f, 0.2f);
+	settings.Color = Color(10.0f, 5.0f, 0.9f, 0.1f);
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
 		p->Position += RandomVectorRange(-1.0f, 1.0f) * 0.2f;
 		Vector rndVel = RandomVectorRange(0.5f, 1.0f);
@@ -593,9 +593,63 @@ void GameManagerSystem::UpdateGameplay(World* world)
 
 	for (SafePtr<Entity> Bomb : GameMgrCmp->BombEntities)
 	{
-		if (CollideWithBomb(GameMgrCmp->PlayerShipCollision.Get(), Bomb.Get()))
+		if (IsColliding(GameMgrCmp->PlayerShipCollision.Get(), 1.0f, Bomb.Get(), 1.0f))
 		{
 			Vector ExplosionPos = GameMgrCmp->PlayerShipCollision.Get()->GetTransform().GetGlobalTranslation();
+			SpawnExplosionEmitterInWS(world, nullptr, ExplosionPos);
+			SpawnExplosionEmitterInWS2(world, nullptr, ExplosionPos - Vector(0.01f, 0.0f, 0.01f));
+			SpawnExplosionEmitterInWS3(world, nullptr, ExplosionPos - Vector(0.02f, 0.0f, 0.02f));
+			SpawnExplosionEmitterInWS4(world, nullptr, ExplosionPos + Vector(0.02f, 0.0f, 0.02f));
+
+			GameMgrCmp->SetIsPaused(true);
+			GameMgrCmp->SetNeedRestart(true);
+			PostCmp->TimeOfDeath = time;
+
+			// DeferredTaskSystem::DestroyEntityImmediate(world, Bomb.Get());
+		}
+	}
+
+	for (SafePtr<Entity> Bomb : GameMgrCmp->BombEntities)
+	{
+		for (int i = 0; i < GameMgrCmp->EnemyShipCollision.GetSize(); ++i)
+		{
+			if (GameMgrCmp->EnemyShipCollision[i] == nullptr) 
+			{
+				continue;
+			}
+
+			Entity* EnemyCollision = GameMgrCmp->EnemyShipCollision[i].Get();
+
+			if (IsColliding(EnemyCollision, 1.0f, Bomb.Get(), 1.0f))
+			{
+				Vector ExplosionPos = EnemyCollision->GetTransform().GetGlobalTranslation();
+				SpawnExplosionEmitterInWS(world, nullptr, ExplosionPos);
+				SpawnExplosionEmitterInWS2(world, nullptr, ExplosionPos - Vector(0.01f, 0.0f, 0.01f));
+				SpawnExplosionEmitterInWS3(world, nullptr, ExplosionPos - Vector(0.02f, 0.0f, 0.02f));
+				SpawnExplosionEmitterInWS4(world, nullptr, ExplosionPos + Vector(0.02f, 0.0f, 0.02f));
+
+				PostCmp->TimeOfAction = time;
+
+				// DeferredTaskSystem::DestroyEntityImmediate(world, Bomb.Get());
+				// DeferredTaskSystem::DestroyEntityImmediate(world, EnemyCollision);
+				GameMgrCmp->EnemyShipCollision[i] = nullptr;
+			}
+		}
+	}
+
+	for ( int i = 0; i < GameMgrCmp->EnemyShipCollision.GetSize(); ++i)
+	{
+		if (GameMgrCmp->EnemyShipCollision[i] == nullptr)
+		{
+			continue;
+		}
+
+		Entity* EnemyCollision = GameMgrCmp->EnemyShipCollision[i].Get();
+		Entity* PlayerCollision = GameMgrCmp->PlayerShipCollision.Get();
+
+		if (IsColliding(EnemyCollision, 1.0f, PlayerCollision, 1.0f))
+		{
+			Vector ExplosionPos = EnemyCollision->GetTransform().GetGlobalTranslation();
 			SpawnExplosionEmitterInWS(world, nullptr, ExplosionPos);
 			SpawnExplosionEmitterInWS2(world, nullptr, ExplosionPos - Vector(0.01f, 0.0f, 0.01f));
 			SpawnExplosionEmitterInWS3(world, nullptr, ExplosionPos - Vector(0.02f, 0.0f, 0.02f));
@@ -608,19 +662,17 @@ void GameManagerSystem::UpdateGameplay(World* world)
 	}
 }
 
-bool GameManagerSystem::CollideWithBomb(Entity* ShipCollision, Entity* Bomb)
+bool GameManagerSystem::IsColliding(Entity* EntityA, float RadiusA, Entity* EntityB, float RadiusB)
 {
-	EntityTransform& ShipTrans = ShipCollision->GetTransform();
-	Vector ShipPosition = ShipTrans.GetGlobalTranslation();
-	float ShipRadius = 1.0f;
+	EntityTransform& ShipTrans = EntityA->GetTransform();
+	Vector EntityAPosition = ShipTrans.GetGlobalTranslation();
 	
-	EntityTransform& BombTrans = Bomb->GetTransform();
-	Vector BombPosition = BombTrans.GetGlobalTranslation();
-	float BombRadius = 1.0f;
+	EntityTransform& BombTrans = EntityB->GetTransform();
+	Vector EntityBPosition = BombTrans.GetGlobalTranslation();
 
-	float Distance = (ShipPosition - BombPosition).Length();
+	float Distance = (EntityAPosition - EntityBPosition).Length();
 	// gConsole.LogInfo("GameManagerSystem::CollideWithBomb Distance: {}", Distance );
-	return Distance < (ShipRadius + BombRadius);
+	return Distance < (RadiusA + RadiusB);
 }
 
 void GameManagerSystem::RestartGame(World* world)
@@ -718,7 +770,12 @@ void GameManagerSystem::UpdateEnemies(World * world)
 	int EnemiesCount = GameMgrCmp->GetEnemiesCount();
 	for (int i = 0; i < EnemiesCount; ++i)
 	{
-		gConsole.LogDebug("GameManagerSystem::UpdateEnemies: id: {}", i );
+		gConsole.LogDebug("GameManagerSystem::UpdateEnemies: id: {}, Alive: {}", i, GameMgrCmp->EnemyShipCollision[i]);
+
+		if (GameMgrCmp->EnemyShipCollision[i] == nullptr)
+		{
+			continue;
+		}
 
 		Entity* EnemyShipRoot = GameMgrCmp->EnemyShipRoot[i].Get();
 		ParticleComponent* SmokeBurst = GameMgrCmp->EnemyShipParticleSmokeBurst[i];
@@ -808,7 +865,7 @@ void GameManagerSystem::UpdateCamera(World* world)
 		CameraRootTrans.SetGlobalTranslation(Lerp(
 			CameraRootTrans.GetGlobalTranslation(),
 			ShipRootTrans.GetGlobalTranslation(),
-			0.06f
+			0.08f
 		));
 		// }
 	}
@@ -874,7 +931,7 @@ void GameManagerSystem::UpdatePostEffect(World * world)
 	{
 		Vector EnemyPos = GameMgrCmp->EnemyShipRoot[i].Get()->GetTransform().GetGlobalTranslation();
 		float Angle = GameMgrCmp->EnemyAngleY[i];
-		gConsole.LogDebug("GameManagerSystem::UpdateEnemies: id: {}, Pos: {}, Angle: {}", i, EnemyPos, Angle);
+		// gConsole.LogDebug("GameManagerSystem::UpdateEnemies: id: {}, Pos: {}, Angle: {}", i, EnemyPos, Angle);
 		PostCmp->EnemyShipPos.PushBack(EnemyPos);
 		PostCmp->EnemyShipAngleY.PushBack(-Angle);
 	}

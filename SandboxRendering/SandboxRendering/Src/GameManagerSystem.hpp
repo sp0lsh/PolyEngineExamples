@@ -24,7 +24,7 @@ namespace GameManagerSystem
 	void SpawnEnemyShip(World* world);
 	void SpawnCamera(World* world);
 	void SpawnBomb(World* world, Vector pos);
-	bool CollideWithBomb(Entity* ShipCollision, Entity* Bomb);
+	bool IsColliding(Entity* EntityA, float RadiusA, Entity* EntityB, float RadiusB);
 
 	void SpawnParticleExamples(World* world);
 

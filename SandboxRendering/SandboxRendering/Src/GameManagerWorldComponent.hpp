@@ -23,6 +23,7 @@ public:
 	Dynarray<ParticleComponent*> EnemyShipParticleSmokeBurst;
 	Dynarray<float> EnemyVelocity;
 	Dynarray<float> EnemyAngleY;
+	// Dynarray<int> EnemyAlive;
 
 	SafePtr<Entity> Camera;
 	SafePtr<Entity> CameraRootH;
