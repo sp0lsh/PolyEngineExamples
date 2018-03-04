@@ -12,6 +12,7 @@ namespace GameManagerSystem
 	void Update(World* world);
 	void UpdateCamera(World* world);
 	void UpdatePlayer(World* world);
+	Entity* SpawnTorpedo(World* world, Vector &TorpedoSpawnPos, Quaternion &TorpedoSpawnRot);
 	void UpdateEnemies(World* world);
 	void UpdateGameplay(World* world);
 	void UpdateParticles(World* world);

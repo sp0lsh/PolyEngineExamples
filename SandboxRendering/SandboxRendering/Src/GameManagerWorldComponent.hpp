@@ -18,12 +18,17 @@ public:
 	ParticleComponent* ShipParticleSmoke;
 	ParticleComponent* ShipParticleSmokeBurst;
 
+	Dynarray<SafePtr<Entity>> PlayerTorpedos;
+	Dynarray<float> PlayerTorpedosSpawnTime;
+
 	Dynarray<SafePtr<Entity>> EnemyShipRoot;
 	Dynarray<SafePtr<Entity>> EnemyShipCollision;
 	Dynarray<ParticleComponent*> EnemyShipParticleSmokeBurst;
 	Dynarray<float> EnemyVelocity;
 	Dynarray<float> EnemyAngleY;
 	// Dynarray<int> EnemyAlive;
+	
+	Dynarray<SafePtr<Entity>> EnemyTorpedos;
 
 	SafePtr<Entity> Camera;
 	SafePtr<Entity> CameraRootH;
