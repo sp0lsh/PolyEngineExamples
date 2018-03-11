@@ -30,6 +30,8 @@ namespace GameManagerSystem
 	ParticleComponent* SpawnEmitterDefault(World* world, Vector pos);
 	ParticleComponent* SpawnEmitterWorldSpace(World* world, Vector pos);
 	ParticleComponent* SpawnEmitterLocalSpace(World* world, Vector pos);
+	ParticleComponent* SpawnEmitterAmbient(World* world, Vector pos);
+	ParticleComponent* SpawnEmitterAmbientWind(World* world, Vector pos);
 	void SpawnHeartSystem(World* world);
 	ParticleComponent* SpawnEmitterHeart(World* world, Vector pos);
 	ParticleComponent* SpawnEmitterHeartImpact(World* world, Vector pos);
