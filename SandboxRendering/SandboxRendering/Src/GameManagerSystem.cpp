@@ -58,23 +58,37 @@ void GameManagerSystem::CreateScene(World* world)
 	world->GetWorldComponent<AmbientLightWorldComponent>()->SetColor(Color(0.0f, 0.0f, 0.0f));
 	world->GetWorldComponent<AmbientLightWorldComponent>()->SetIntensity(0.0f);
 
-	Vector spritesheetsPosition = Vector(-15.0f, 0.0f, 0.0f);
-	SpawnSpritesheet11(world,		spritesheetsPosition + Vector(-5.0f,  4.0f, 0.0f));
-	SpawnSpritesheet22(world,		spritesheetsPosition + Vector( 0.0f,  4.0f, 0.0f));
-	SpawnSpritesheet44(world,		spritesheetsPosition + Vector( 5.0f,  4.0f, 0.0f));
-	SpawnSpritesheet42(world,		spritesheetsPosition + Vector(-5.0f,  8.0f, 0.0f));
-	SpawnSpritesheet41(world,		spritesheetsPosition + Vector( 0.0f,  8.0f, 0.0f));
-	SpawnSpritesheet44Random(world, spritesheetsPosition + Vector( 5.0f,  8.0f, 0.0f));
-	SpawnSpritesheetGandalf(world,	spritesheetsPosition + Vector( 0.0f, 12.0f, 0.0f));
+
+	SpawnSpritesSheets(world);
 
 
-	GameMgrCmp->particleDefault		= SpawnEmitterDefault(world,	Vector( 0.0f, 0.0f, 0.0f));
-	GameMgrCmp->particleWorldSpace	= SpawnEmitterWorldSpace(world,	Vector( 0.0f, 0.0f, 0.0f));
-	GameMgrCmp->particleLocalSpace	= SpawnEmitterLocalSpace(world,	Vector( 0.0f, 0.0f, 0.0f));
-	
-	// SpawnHeartSystem(world);
+	SpawnParticles(world);
+
 
 	SpawnSponzaScene(world);
+}
+
+void GameManagerSystem::SpawnParticles(World* world)
+{
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+	Vector particlesPosition = Vector(0.0f, 0.0f, 0.0f);
+	GameMgrCmp->particleDefault = SpawnEmitterDefault(world,		particlesPosition);
+	GameMgrCmp->particleWorldSpace = SpawnEmitterWorldSpace(world,	particlesPosition);
+	GameMgrCmp->particleLocalSpace = SpawnEmitterLocalSpace(world,	particlesPosition);
+
+	// SpawnHeartSystem(world);
+}
+
+void GameManagerSystem::SpawnSpritesSheets(Poly::World * world)
+{
+	Vector spritesheetsPosition = Vector(-15.0f, 0.0f, 0.0f);
+	SpawnSpritesheet11(world, spritesheetsPosition + Vector(-5.0f, 4.0f, 0.0f));
+	SpawnSpritesheet22(world, spritesheetsPosition + Vector(0.0f, 4.0f, 0.0f));
+	SpawnSpritesheet44(world, spritesheetsPosition + Vector(5.0f, 4.0f, 0.0f));
+	SpawnSpritesheet42(world, spritesheetsPosition + Vector(-5.0f, 8.0f, 0.0f));
+	SpawnSpritesheet41(world, spritesheetsPosition + Vector(0.0f, 8.0f, 0.0f));
+	SpawnSpritesheet44Random(world, spritesheetsPosition + Vector(5.0f, 8.0f, 0.0f));
+	SpawnSpritesheetGandalf(world, spritesheetsPosition + Vector(0.0f, 12.0f, 0.0f));
 }
 
 void GameManagerSystem::Deinit(World* world)
@@ -313,7 +327,7 @@ void GameManagerSystem::SpawnSpritesheet44Random(World* world, Vector pos)
 	SpritesheetSettings settings;
 	settings.SubImages = Vector2f(4.0f, 4.0f);
 	settings.SpritePath = "Textures/test_4_4.png";
-	settings.IsRandom = true;
+	settings.IsRandomStartFrame = true;
 	DeferredTaskSystem::AddComponentImmediate<SpritesheetComponent>(world, SpriteSheetEnt, settings);
 	SpritesheetComponent* SpritesheetComp = world->GetComponent<SpritesheetComponent>(SpriteSheetEnt);
 	GameMgrCmp->GameEntities.PushBack(SpriteSheetEnt);
