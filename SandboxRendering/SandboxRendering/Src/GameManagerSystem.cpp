@@ -68,41 +68,6 @@ void GameManagerSystem::CreateScene(World* world)
 	SpawnSponzaScene(world);
 }
 
-void GameManagerSystem::SpawnParticles(World* world)
-{
-	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
-	Vector particlesPosition = Vector(0.0f, 0.0f, 0.0f);
-	GameMgrCmp->particleDefault		= SpawnEmitterDefault(world,		particlesPosition);
-	GameMgrCmp->particleWorldSpace	= SpawnEmitterWorldSpace(world,		particlesPosition);
-	GameMgrCmp->particleLocalSpace	= SpawnEmitterLocalSpace(world,		particlesPosition);
-	GameMgrCmp->particleAmbient		= SpawnEmitterAmbient(world,		particlesPosition);
-	GameMgrCmp->particleAmbientWind = SpawnEmitterAmbientWind(world,	particlesPosition);
-
-	// SpawnHeartSystem(world);
-}
-
-void GameManagerSystem::SpawnSpritesSheets(Poly::World * world)
-{
-	Vector spritesheetsPosition = Vector(-15.0f, 0.0f, 0.0f);
-	SpawnSpritesheet11(world, spritesheetsPosition + Vector(-5.0f, 4.0f, 0.0f));
-	SpawnSpritesheet22(world, spritesheetsPosition + Vector(0.0f, 4.0f, 0.0f));
-	SpawnSpritesheet44(world, spritesheetsPosition + Vector(5.0f, 4.0f, 0.0f));
-	SpawnSpritesheet42(world, spritesheetsPosition + Vector(-5.0f, 8.0f, 0.0f));
-	SpawnSpritesheet41(world, spritesheetsPosition + Vector(0.0f, 8.0f, 0.0f));
-	SpawnSpritesheet44Random(world, spritesheetsPosition + Vector(5.0f, 8.0f, 0.0f));
-	SpawnSpritesheetGandalf(world, spritesheetsPosition + Vector(0.0f, 12.0f, 0.0f));
-}
-
-void GameManagerSystem::Deinit(World* world)
-{
-	gConsole.LogInfo("GameManagerSystem::Cleanup");
-	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
-	for (SafePtr<Entity> e : GameMgrCmp->GameEntities)
-	{
-		DeferredTaskSystem::DestroyEntity(world, e.Get());
-	}
-}
-
 void GameManagerSystem::Update(World* world)
 {
 	float time = (float)(world->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
@@ -134,6 +99,17 @@ void GameManagerSystem::Update(World* world)
 
 	UpdateParticles(world);
 }
+
+void GameManagerSystem::Deinit(World* world)
+{
+	gConsole.LogInfo("GameManagerSystem::Cleanup");
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+	for (SafePtr<Entity> e : GameMgrCmp->GameEntities)
+	{
+		DeferredTaskSystem::DestroyEntity(world, e.Get());
+	}
+}
+
 
 void GameManagerSystem::UpdateParticles(World* world)
 {
@@ -180,6 +156,32 @@ void GameManagerSystem::UpdateParticles(World* world)
 	{
 		GameMgrCmp->particleWorldSpace->GetTransform().SetGlobalTranslation(Vector(0.0f, 4.0f, 0.0f) + Vector(Cos(100.0_deg * time + 180.0_deg), 0.0f, Sin(100.0_deg * time + 180.0_deg)) * 6.0f);
 	}
+}
+
+
+void GameManagerSystem::SpawnParticles(World* world)
+{
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+	Vector particlesPosition = Vector(0.0f, 0.0f, 0.0f);
+	GameMgrCmp->particleDefault		= SpawnEmitterDefault(world,		particlesPosition);
+	GameMgrCmp->particleWorldSpace	= SpawnEmitterWorldSpace(world,		particlesPosition);
+	GameMgrCmp->particleLocalSpace	= SpawnEmitterLocalSpace(world,		particlesPosition);
+	GameMgrCmp->particleAmbient		= SpawnEmitterAmbient(world,		particlesPosition);
+	GameMgrCmp->particleAmbientWind = SpawnEmitterAmbientWind(world,	particlesPosition);
+
+	// SpawnHeartSystem(world);
+}
+
+void GameManagerSystem::SpawnSpritesSheets(Poly::World * world)
+{
+	Vector spritesheetsPosition = Vector(-15.0f, 0.0f, 0.0f);
+	SpawnSpritesheet11(world, spritesheetsPosition + Vector(-5.0f, 4.0f, 0.0f));
+	SpawnSpritesheet22(world, spritesheetsPosition + Vector(0.0f, 4.0f, 0.0f));
+	SpawnSpritesheet44(world, spritesheetsPosition + Vector(5.0f, 4.0f, 0.0f));
+	SpawnSpritesheet42(world, spritesheetsPosition + Vector(-5.0f, 8.0f, 0.0f));
+	SpawnSpritesheet41(world, spritesheetsPosition + Vector(0.0f, 8.0f, 0.0f));
+	SpawnSpritesheet44Random(world, spritesheetsPosition + Vector(5.0f, 8.0f, 0.0f));
+	SpawnSpritesheetGandalf(world, spritesheetsPosition + Vector(0.0f, 12.0f, 0.0f));
 }
 
 void GameManagerSystem::SpawnShaderball(World* world)
