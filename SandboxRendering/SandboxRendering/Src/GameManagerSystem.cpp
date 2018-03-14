@@ -503,7 +503,7 @@ ParticleComponent* GameManagerSystem::SpawnEmitterAmbientWind(World* world, Vect
 	settings.BurstTimeMin = 1.0f;
 	settings.BurstTimeMax = 2.0f;
 	settings.BurstSizeMin = 200;
-	settings.BurstSizeMax = 200;
+	settings.BurstSizeMax = 400;
 	settings.Color = Color(1.0f, 1.0f, 1.0f, 0.1f);
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
 		p->Position += Vector(-20.0f, 2.0f, 0.0f) + RandomVectorRange(-1.0f, 1.0f) * 10.0f;
