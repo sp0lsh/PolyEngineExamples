@@ -679,7 +679,7 @@ void GameManagerSystem::AddPointLights(World* world, int Quota)
 void GameManagerSystem::CreatePointLight(World* world, float Range)
 {
 	Vector PointLightPos = Vector(RandomRange(-1.0f, 1.0f), RandomRange(0.0f, 0.2f), RandomRange(-0.5f, 0.5f)) * 1000.0f;
-	Color LightColor = Color(1.0f, 0.5f, 0.0f) + Color(RandomRange(0.0f, 1.0f), RandomRange(0.0, 0.5f), RandomRange(0.0f, 0.2f));
+	Color LightColor = Color(1.0f, 0.5f, 0.0f) + Color(RandomRange(0.0f, 1.0f), RandomRange(0.0f, 0.5f), RandomRange(0.0f, 0.2f));
 
 	Entity* PointLight = DeferredTaskSystem::SpawnEntityImmediate(world);
 	DeferredTaskSystem::AddComponentImmediate<PointLightComponent>(world, PointLight, LightColor, 1.0f, Range);
@@ -717,7 +717,7 @@ void GameManagerSystem::CreatePointLight(World* world, float Range)
 void GameManagerSystem::CreateSpotLight(World* world, float Range)
 {
 	Vector SpotLightPos = Vector(50.0f, 50.0f, 0.0f);
-	Color LightColor = Color(1.0f, 0.5f, 0.0f) + Color(RandomRange(0.0f, 1.0f), RandomRange(0.0, 0.5f), RandomRange(0.0f, 0.2f));
+	Color LightColor = Color(1.0f, 0.5f, 0.0f) + Color(RandomRange(0.0f, 1.0f), RandomRange(0.0f, 0.5f), RandomRange(0.0f, 0.2f));
 	Quaternion SpotLightRot = Quaternion(Vector::UNIT_Y, -45_deg) * Quaternion(Vector::UNIT_X, -35_deg);
 	// float PointLightRange = 100.0f;
 	Entity* SpotLight = DeferredTaskSystem::SpawnEntityImmediate(world);
