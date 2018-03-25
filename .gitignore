@@ -6,6 +6,7 @@
 
 # Engine specific files
 console.log
+quick_update.bat
 
 # Engine local configurations
 AssetsPathConfig.json
