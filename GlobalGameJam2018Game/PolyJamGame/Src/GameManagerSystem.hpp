@@ -11,8 +11,6 @@
 enum class eLevels
 {
 	MOVEMENT_TEST = 0,
-	CUSTOM_COLLIDER_TEST,
-	NAV_MESH_GENERATION_TEST,
 	RELEASE_LEVEL,
 	_COUNT
 };
@@ -40,8 +38,6 @@ namespace GGJGame
 		// levels spawn
 
 		Poly::Entity* SpawnMovementTestLevel(Poly::World* world);
-		Poly::Entity* SpawnCustomColliderTestLevel(Poly::World* world);
-		Poly::Entity* SpawnNavMeshGenerationTest(Poly::World* world);
 		Poly::Entity* SpawnReleaseLevel(Poly::World* world);
 
 		// objects spawn

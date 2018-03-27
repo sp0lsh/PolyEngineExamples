@@ -118,16 +118,6 @@ void GameManagerSystem::Update(Poly::World* world)
 		Cleanup(world);
 		SpawnLevel(world, eLevels::MOVEMENT_TEST);
 	}
-	else if (inputCmp->IsPressed(eKey::KEY_2))
-	{
-		Cleanup(world);
-		SpawnLevel(world, eLevels::CUSTOM_COLLIDER_TEST); //TODO: check framedrop after multiple spawns respawns
-	}
-	else if (inputCmp->IsPressed(eKey::KEY_3))
-	{
-		Cleanup(world);
-		SpawnLevel(world, eLevels::NAV_MESH_GENERATION_TEST); //TODO: check framedrop after multiple spawns respawns//TODO:
-	}
 
 	if (!gameManager->Level->GetComponent<LevelComponent>()->NavigationGrid)
 	{
@@ -282,14 +272,6 @@ Poly::Entity* GameManagerSystem::SpawnLevel(Poly::World* world, eLevels level)
 	{
 	case eLevels::MOVEMENT_TEST:
 		levelEntity = SpawnMovementTestLevel(world);
-		break;
-
-	case eLevels::CUSTOM_COLLIDER_TEST:
-		levelEntity = SpawnCustomColliderTestLevel(world);
-		break;
-
-	case eLevels::NAV_MESH_GENERATION_TEST:
-		levelEntity = SpawnNavMeshGenerationTest(world);
 		break;
 
 	case eLevels::RELEASE_LEVEL:
