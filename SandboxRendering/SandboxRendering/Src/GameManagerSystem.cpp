@@ -3,20 +3,19 @@
 #include "GameManagerWorldComponent.hpp"
 
 #include <Core.hpp>
-#include <ParticleEmitter.hpp>
-#include <ResourceManager.hpp>
-#include <DeferredTaskSystem.hpp>
-#include <MeshRenderingComponent.hpp>
-#include <CameraComponent.hpp>
-#include <ParticleComponent.hpp>
-#include <FreeFloatMovementComponent.hpp>
-#include <LightSourceComponent.hpp>
-#include <PostprocessSettingsComponent.hpp>
-#include <ViewportWorldComponent.hpp>
-#include <TimeWorldComponent.hpp>
-#include <SkyboxWorldComponent.hpp>
-#include <SpritesheetComponent.hpp>
-#include <InputWorldComponent.hpp>
+#include <Rendering/Particles/ParticleComponent.hpp>
+#include <Resources/ResourceManager.hpp>
+#include <ECS/DeferredTaskSystem.hpp>
+#include <Rendering/MeshRenderingComponent.hpp>
+#include <Rendering/Camera/CameraComponent.hpp>
+#include <Movement/FreeFloatMovementComponent.hpp>
+#include <Rendering/Lighting/LightSourceComponent.hpp>
+#include <Rendering/PostprocessSettingsComponent.hpp>
+#include <Rendering/ViewportWorldComponent.hpp>
+#include <Time/TimeWorldComponent.hpp>
+#include <Rendering/SkyboxWorldComponent.hpp>
+#include <Rendering/SpritesheetComponent.hpp>
+#include <Input/InputWorldComponent.hpp>
 
 using namespace Poly;
 
@@ -281,7 +280,7 @@ void GameManagerSystem::SpawnSpritesheet44(World* world, Vector pos)
 	SpritesheetSettings settings;
 	settings.SubImages = Vector2f(4.0f, 4.0f);
 	settings.SpritePath = "Textures/test_4_4.png";
-	settings.Color = Color(0.0f, 1.0f, 0.0f, 0.5f);
+	settings.SpriteColor = Color(0.0f, 1.0f, 0.0f, 0.5f);
 	DeferredTaskSystem::AddComponentImmediate<SpritesheetComponent>(world, SpriteSheetEnt, settings);
 	SpritesheetComponent* SpritesheetComp = world->GetComponent<SpritesheetComponent>(SpriteSheetEnt);
 	GameMgrCmp->GameEntities.PushBack(SpriteSheetEnt);
@@ -314,7 +313,7 @@ void GameManagerSystem::SpawnSpritesheet41(World* world, Vector pos)
 	SpritesheetSettings settings;
 	settings.SubImages = Vector2f(4.0f, 1.0f);
 	settings.SpritePath = "Textures/test_4_1.png";
-	settings.Color = Color::RED;
+	settings.SpriteColor = Color::RED;
 	DeferredTaskSystem::AddComponentImmediate<SpritesheetComponent>(world, SpriteSheetEnt, settings);
 	SpritesheetComponent* SpritesheetComp = world->GetComponent<SpritesheetComponent>(SpriteSheetEnt);
 	GameMgrCmp->GameEntities.PushBack(SpriteSheetEnt);
@@ -373,7 +372,7 @@ ParticleComponent* GameManagerSystem::SpawnEmitterDefault(World* world, Vector p
 
 	ParticleEmitter::Settings settings;
 	settings.MaxSize = 20;
-	settings.SpritesheetSettings = spriteSettings;
+	settings.SprsheetSettings = spriteSettings;
 	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::LOCAL_SPACE;
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
 		p->Position += RandomVectorRange(-1.0f, 1.0f);
@@ -402,7 +401,7 @@ ParticleComponent* GameManagerSystem::SpawnEmitterWorldSpace(World* world, Vecto
 
 	ParticleEmitter::Settings settings;
 	settings.MaxSize = 50;
-	settings.SpritesheetSettings = spriteSettings;
+	settings.SprsheetSettings = spriteSettings;
 	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::WORLD_SPACE;
 	settings.BurstTimeMin = 0.05f;
 	settings.BurstTimeMax = 0.20f;
@@ -433,7 +432,7 @@ ParticleComponent* GameManagerSystem::SpawnEmitterLocalSpace(World* world, Vecto
 
 	ParticleEmitter::Settings settings;
 	settings.MaxSize = 20;
-	settings.SpritesheetSettings = spriteSettings;
+	settings.SprsheetSettings = spriteSettings;
 	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::LOCAL_SPACE;
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
 		p->Position = RandomVectorRange(-1.0f, 1.0f);
@@ -463,13 +462,13 @@ ParticleComponent* GameManagerSystem::SpawnEmitterAmbient(World* world, Vector p
 	ParticleEmitter::Settings settings;
 	settings.MaxSize = 500;
 	settings.InitialSize = 500;
-	settings.SpritesheetSettings = spriteSettings;
+	settings.SprsheetSettings = spriteSettings;
 	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::WORLD_SPACE;
 	settings.BurstTimeMin = 1.0f;
 	settings.BurstTimeMax = 2.0f;
 	settings.BurstSizeMin = 10;
 	settings.BurstSizeMax = 20;
-	settings.Color = Color(1.0f, 1.0f, 1.0f, 0.5f);
+	settings.BaseColor = Color(1.0f, 1.0f, 1.0f, 0.5f);
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
 		p->Position += RandomVectorRange(-1.0f, 1.0f) * 10.0f;
 		p->Velocity = RandomVectorRange(-1.0f, 1.0f) * 0.001f;
@@ -498,13 +497,13 @@ ParticleComponent* GameManagerSystem::SpawnEmitterAmbientWind(World* world, Vect
 	ParticleEmitter::Settings settings;
 	settings.MaxSize = 200;
 	settings.InitialSize = 0;
-	settings.SpritesheetSettings = spriteSettings;
+	settings.SprsheetSettings = spriteSettings;
 	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::WORLD_SPACE;
 	settings.BurstTimeMin = 1.0f;
 	settings.BurstTimeMax = 2.0f;
 	settings.BurstSizeMin = 200;
 	settings.BurstSizeMax = 400;
-	settings.Color = Color(1.0f, 1.0f, 1.0f, 0.1f);
+	settings.BaseColor = Color(1.0f, 1.0f, 1.0f, 0.1f);
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
 		p->Position += Vector(-20.0f, 2.0f, 0.0f) + RandomVectorRange(-1.0f, 1.0f) * 10.0f;
 		p->Velocity = Vector(RandomRange(0.75f, 1.0f) * 0.5f, 0.0f, 0.0f);
@@ -533,12 +532,12 @@ ParticleComponent* GameManagerSystem::SpawnEmitterHeart(World* world, Vector pos
 
 	ParticleEmitter::Settings settings;
 	settings.MaxSize = 1000;
-	settings.Color = Color(1.2f, 0.8f, 0.8f, 0.5f);
+	settings.BaseColor = Color(1.2f, 0.8f, 0.8f, 0.5f);
 	settings.BurstTimeMin = 0.01f;
 	settings.BurstTimeMax = 0.05f;
 	settings.BurstSizeMin = 10;
 	settings.BurstSizeMax = 30;
-	settings.SpritesheetSettings = spriteSettings;
+	settings.SprsheetSettings = spriteSettings;
 	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::LOCAL_SPACE;
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
 		Vector rnd = RandomVectorRange(-1.0f, 1.0f);
@@ -573,12 +572,12 @@ ParticleComponent* GameManagerSystem::SpawnEmitterHeartImpact(World* world, Vect
 
 	ParticleEmitter::Settings settings;
 	settings.MaxSize = 1000;
-	settings.Color = Color(1.5f, 1.0f, 1.0f, 0.95f);
+	settings.BaseColor = Color(1.5f, 1.0f, 1.0f, 0.95f);
 	settings.BurstTimeMin = 0.1f;
 	settings.BurstTimeMax = 0.5f;
 	settings.BurstSizeMin = 10;
 	settings.BurstSizeMax = 30;
-	settings.SpritesheetSettings = spriteSettings;
+	settings.SprsheetSettings = spriteSettings;
 	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::LOCAL_SPACE;
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
 		Vector rndPos = RandomVectorRange(-1.0f, 1.0f);
@@ -619,12 +618,12 @@ ParticleComponent* GameManagerSystem::SpawnEmitterHeartImpact2(World* world, Vec
 
 	ParticleEmitter::Settings settings;
 	settings.MaxSize = 1000;
-	settings.Color = Color(2.0f, 0.5f, 0.5f, 0.2f);
+	settings.BaseColor = Color(2.0f, 0.5f, 0.5f, 0.2f);
 	settings.BurstTimeMin = 1.0f;
 	settings.BurstTimeMax = 1.0f;
 	settings.BurstSizeMin = 200;
 	settings.BurstSizeMax = 200;
-	settings.SpritesheetSettings = spriteSettings;
+	settings.SprsheetSettings = spriteSettings;
 	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::LOCAL_SPACE;
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
 		Vector rndPos = RandomVectorRange(-1.0f, 1.0f);
