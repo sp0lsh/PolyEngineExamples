@@ -1,21 +1,20 @@
 #include "GameManager.hpp"
 
-#include <DeferredTaskSystem.hpp>
-#include <ViewportWorldComponent.hpp>
-#include <CameraComponent.hpp>
-#include <TransformComponent.hpp>
-#include <PostprocessSettingsComponent.hpp>
-#include <Rigidbody3DComponent.hpp>
-#include <Collider3DComponent.hpp>
-#include <Physics3DShapes.hpp>
-#include <Physics3DSystem.hpp>
-#include <MeshRenderingComponent.hpp>
-#include <ConfigBase.hpp>
-#include <FreeFloatMovementComponent.hpp>
-#include <LightSourceComponent.hpp>
-#include <InputSystem.hpp>
-#include <InputWorldComponent.hpp>
-#include <Physics3DWorldComponent.hpp>
+#include <ECS/DeferredTaskSystem.hpp>
+#include <Rendering/ViewportWorldComponent.hpp>
+#include <Rendering/Camera/CameraComponent.hpp>
+#include <Rendering/PostprocessSettingsComponent.hpp>
+#include <Physics3D/Rigidbody3DComponent.hpp>
+#include <Physics3D/Collider3DComponent.hpp>
+#include <Physics3D/Physics3DShapes.hpp>
+#include <Physics3D/Physics3DSystem.hpp>
+#include <Rendering/MeshRenderingComponent.hpp>
+#include <Configs/ConfigBase.hpp>
+#include <Movement/FreeFloatMovementComponent.hpp>
+#include <Rendering/Lighting/LightSourceComponent.hpp>
+#include <Input/InputSystem.hpp>
+#include <Input/InputWorldComponent.hpp>
+#include <Physics3D/Physics3DWorldComponent.hpp>
 
 #include "GameManagerWorldComponent.hpp"
 #include "StatusFlagsComponent.hpp"
