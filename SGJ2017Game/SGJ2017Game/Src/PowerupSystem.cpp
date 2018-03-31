@@ -1,12 +1,12 @@
-#include "Physics2DColliders.hpp"
+#include "Physics2D/Physics2DColliders.hpp"
 #include "PowerupSystem.hpp"
 #include "PlayerControllerComponent.hpp"
 #include "PlayerUpdateSystem.hpp"
-#include "World.hpp"
+#include "ECS/World.hpp"
 #include "Powerups.hpp"
-#include "Rigidbody2DComponent.hpp"
-#include "TimeSystem.hpp"
-#include "Physics2DWorldComponent.hpp"
+#include "Physics2D/Rigidbody2DComponent.hpp"
+#include "Time/TimeSystem.hpp"
+#include "Physics2D/Physics2DWorldComponent.hpp"
 
 using namespace Poly;
 

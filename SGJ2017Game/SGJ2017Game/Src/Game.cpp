@@ -1,17 +1,17 @@
 #include "Game.hpp"
 
-#include <TimeWorldComponent.hpp>
-#include <CameraComponent.hpp>
-#include <MeshRenderingComponent.hpp>
-#include <FreeFloatMovementComponent.hpp>
-#include <Physics2DColliders.hpp>
-#include <Rigidbody2DComponent.hpp>
-#include <PostprocessSettingsComponent.hpp>
+#include <Time/TimeWorldComponent.hpp>
+#include <Rendering/Camera/CameraComponent.hpp>
+#include <Rendering/MeshRenderingComponent.hpp>
+#include <Movement/FreeFloatMovementComponent.hpp>
+#include <Physics2D/Physics2DColliders.hpp>
+#include <Physics2D/Rigidbody2DComponent.hpp>
+#include <Rendering/PostprocessSettingsComponent.hpp>
 #include <Core.hpp>
-#include <DeferredTaskSystem.hpp>
-#include <SoundResource.hpp>
+#include <ECS/DeferredTaskSystem.hpp>
+#include <Resources/SoundResource.hpp>
 
-#include "ViewportWorldComponent.hpp"
+#include "Rendering/ViewportWorldComponent.hpp"
 #include "GameManagerWorldComponent.hpp"
 #include "GameManagerSystem.hpp"
 #include "Level.hpp"
