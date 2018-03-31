@@ -2,8 +2,8 @@
 
 #include <functional>
 
-#include <World.hpp>
-#include <OrderedMap.hpp>
+#include <ECS/World.hpp>
+#include <Collections/OrderedMap.hpp>
 
 using namespace Poly;
 

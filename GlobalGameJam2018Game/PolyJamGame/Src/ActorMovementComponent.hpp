@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ComponentBase.hpp>
+#include <ECS/ComponentBase.hpp>
 
 class GAME_DLLEXPORT ActorMovementComponent : public Poly::ComponentBase 
 {

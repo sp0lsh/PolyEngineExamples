@@ -1,21 +1,20 @@
 #include "GameManagerSystem.hpp"
 
-#include <MeshRenderingComponent.hpp>
-#include <Collider3DComponent.hpp>
-#include <Rigidbody3DComponent.hpp>
-#include <ConfigBase.hpp>
-#include <FreeFloatMovementComponent.hpp>
-#include <LightSourceComponent.hpp>
-#include <CameraComponent.hpp>
-#include <ViewportWorldComponent.hpp>
+#include <Rendering/MeshRenderingComponent.hpp>
+#include <Physics3D/Collider3DComponent.hpp>
+#include <Physics3D/Rigidbody3DComponent.hpp>
+#include <Configs/ConfigBase.hpp>
+#include <Movement/FreeFloatMovementComponent.hpp>
+#include <Rendering/Lighting/LightSourceComponent.hpp>
+#include <Rendering/Camera/CameraComponent.hpp>
+#include <Rendering/ViewportWorldComponent.hpp>
 #include <ActorMovementComponent.hpp>
-#include <Rigidbody2DComponent.hpp>
-#include <PostprocessSettingsComponent.hpp>
-#include <DebugDrawComponents.hpp>
-#include <ResourceManager.hpp>
-#include <MeshResource.hpp>
-#include <DebugDrawSystem.hpp>
-#include <Physics3DShapes.hpp>
+#include <Rendering/PostprocessSettingsComponent.hpp>
+#include <Debugging/DebugDrawComponents.hpp>
+#include <Resources/ResourceManager.hpp>
+#include <Resources/MeshResource.hpp>
+#include <Debugging/DebugDrawSystem.hpp>
+#include <Physics3D/Physics3DShapes.hpp>
 
 #include "GameManagerWorldComponent.hpp"
 #include "ActorComponent.hpp"
@@ -29,9 +28,9 @@
 #include "GunComponent.hpp"
 #include "LevelComponent.hpp"
 
-#include "SkyboxWorldComponent.hpp"
-#include "ParticleComponent.hpp"
-#include "ParticleEmitter.hpp"
+#include "Rendering/SkyboxWorldComponent.hpp"
+#include "Rendering/Particles/ParticleComponent.hpp"
+#include "Rendering/Particles/ParticleEmitter.hpp"
 #include "NavGrid.hpp"
 
 using namespace Poly;

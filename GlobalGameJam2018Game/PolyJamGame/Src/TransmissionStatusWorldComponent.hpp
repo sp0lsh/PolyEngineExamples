@@ -1,8 +1,8 @@
 #pragma once
 
-#include "ComponentBase.hpp"
-#include <World.hpp>
-#include "TimeSystem.hpp"
+#include "ECS/ComponentBase.hpp"
+#include <ECS/World.hpp>
+#include "Time/TimeSystem.hpp"
 #include "TransmitterSystem.hpp"
 
 namespace GGJGame

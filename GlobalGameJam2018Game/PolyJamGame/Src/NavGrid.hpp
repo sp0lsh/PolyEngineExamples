@@ -2,11 +2,11 @@
 
 #include <functional>
 
-#include <World.hpp>
-#include <OrderedMap.hpp>
-#include <Vector2f.hpp>
-#include <PathfindingComponent.hpp>
-#include <Dynarray.hpp>
+#include <ECS/World.hpp>
+#include <Collections/OrderedMap.hpp>
+#include <Math/Vector2f.hpp>
+#include <AI/PathfindingComponent.hpp>
+#include <Collections/Dynarray.hpp>
 
 
 namespace GGJGame

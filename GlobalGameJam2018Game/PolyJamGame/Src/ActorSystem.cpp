@@ -1,10 +1,9 @@
 #include "ActorSystem.hpp"
 
-#include <TimeSystem.hpp>
-#include <Rigidbody3DComponent.hpp>
+#include <Time/TimeSystem.hpp>
+#include <Physics3D/Rigidbody3DComponent.hpp>
 
 #include "ActorComponent.hpp"
-#include "Rigidbody3DComponent.hpp"
 #include "GameManagerSystem.hpp"
 #include "GameManagerWorldComponent.hpp"
 

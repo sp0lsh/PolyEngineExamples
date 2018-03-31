@@ -2,8 +2,8 @@
 
 #include <Core.hpp>
 #include <Engine.hpp>
-#include <World.hpp>
-#include <SafePtr.hpp>
+#include <ECS/World.hpp>
+#include <Memory/SafePtr.hpp>
 
 DECLARE_GAME()
 

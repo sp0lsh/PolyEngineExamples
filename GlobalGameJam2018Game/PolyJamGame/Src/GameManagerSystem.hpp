@@ -1,12 +1,12 @@
 #pragma once
 
-#include <World.hpp>
-#include <String.hpp>
-#include <Vector.hpp>
-#include <EnumUtils.hpp>
+#include <ECS/World.hpp>
+#include <Collections/String.hpp>
+#include <Math/Vector.hpp>
+#include <Utils/EnumUtils.hpp>
 #include "TerrainComponent.hpp"
-#include <ConfigBase.hpp>
-#include <MeshRenderingComponent.hpp>
+#include <Configs/ConfigBase.hpp>
+#include <Rendering/MeshRenderingComponent.hpp>
 
 enum class eLevels
 {

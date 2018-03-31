@@ -6,8 +6,8 @@
 
 #include "LevelComponent.hpp"
 #include "ActorComponent.hpp"
-#include "ParticleEmitter.hpp"
-#include "ParticleComponent.hpp"
+#include "Rendering/Particles/ParticleEmitter.hpp"
+#include "Rendering/Particles/ParticleComponent.hpp"
 #include "GameManagerSystem.hpp"
 #include "NavGrid.hpp"
 

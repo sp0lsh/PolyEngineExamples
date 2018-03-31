@@ -1,7 +1,7 @@
 #include "EnginePCH.hpp"
 
 #include "ActorSystem.hpp"
-#include "PathfindingComponent.hpp"
+#include "AI/PathfindingComponent.hpp"
 #include "TransmitterComponent.hpp"
 #include "ActorComponent.hpp"
 #include "PlayerComponent.hpp"

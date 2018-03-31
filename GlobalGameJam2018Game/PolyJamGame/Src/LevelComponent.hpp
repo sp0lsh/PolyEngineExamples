@@ -1,9 +1,9 @@
 #pragma once
 
-#include <ComponentBase.hpp>
-#include <Vector2f.hpp>
-#include <PathfindingComponent.hpp>
-#include <SafePtr.hpp>
+#include <ECS/ComponentBase.hpp>
+#include <Math/Vector2f.hpp>
+#include <AI/PathfindingComponent.hpp>
+#include <Memory/SafePtr.hpp>
 #include "NavGrid.hpp"
 
 using namespace Poly;

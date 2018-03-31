@@ -4,8 +4,8 @@
 #include "GameManagerWorldComponent.hpp"
 #include "ActorComponent.hpp"
 #include "LevelComponent.hpp"
-#include "ParticleComponent.hpp"
-#include "ParticleEmitter.hpp"
+#include "Rendering/Particles/ParticleComponent.hpp"
+#include "Rendering/Particles/ParticleEmitter.hpp"
 #include "GameManagerSystem.hpp"
 
 using namespace GGJGame;

@@ -1,17 +1,17 @@
 #include "PlayerSystem.hpp"
 
-#include <TimeSystem.hpp>
-#include <InputWorldComponent.hpp>
-#include <Rigidbody3DComponent.hpp>
-#include <SoundEmitterComponent.hpp>
+#include <Time/TimeSystem.hpp>
+#include <Input/InputWorldComponent.hpp>
+#include <Physics3D/Rigidbody3DComponent.hpp>
+#include <Audio/SoundEmitterComponent.hpp>
 
 #include "PlayerComponent.hpp"
 #include "ReceiverComponent.hpp"
 #include "ActorComponent.hpp"
 #include "GameManagerWorldComponent.hpp"
 #include "GunComponent.hpp"
-#include "ParticleComponent.hpp"
-#include "ParticleEmitter.hpp"
+#include "Rendering/Particles/ParticleComponent.hpp"
+#include "Rendering/Particles/ParticleEmitter.hpp"
 #include "GameManagerSystem.hpp"
 
 #include "ActorSystem.hpp"

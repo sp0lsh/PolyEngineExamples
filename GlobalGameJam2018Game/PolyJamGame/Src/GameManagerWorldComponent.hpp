@@ -1,9 +1,9 @@
 #pragma once
 
-#include <World.hpp>
-#include <String.hpp>
-#include <Vector.hpp>
-#include <PathfindingComponent.hpp>
+#include <ECS/World.hpp>
+#include <Collections/String.hpp>
+#include <Math/Vector.hpp>
+#include <AI/PathfindingComponent.hpp>
 
 using namespace Poly;
 
