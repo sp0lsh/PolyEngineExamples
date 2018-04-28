@@ -15,7 +15,7 @@ namespace GameManagerSystem
 
 	float Random();
 	float Random(float min, float max);
-	void AddPointLights(World* world, int Quata);
+	void AddPointLights(World* world, int quota, float radius);
 	void CreatePointLight(World* world, float Range);
 	void CreateSpotLight(World * world, float Range);
 }
