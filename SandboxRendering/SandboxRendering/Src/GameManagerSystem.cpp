@@ -30,6 +30,8 @@ void GameManagerSystem::CreateScene(World* world)
 	DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(world, Camera, 10.0f, 0.003f);
 	EntityTransform& cameraTrans = Camera->GetTransform();
 	cameraTrans.SetLocalTranslation(Vector(0.0f, 5.0f, 15.0f));
+	
+	world->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, world->GetComponent<CameraComponent>(Camera));
 
 	Entity* Plane = DeferredTaskSystem::SpawnEntityImmediate(world);
 	EntityTransform& planeTrans = Plane->GetTransform();
@@ -57,42 +59,6 @@ void GameManagerSystem::Deinit(World* world)
 	gConsole.LogInfo("GameManagerSystem::Cleanup");
 }
 
-void GameManagerSystem::CreateSponzaScene(World* world)
-{
-	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
-
-	world->GetWorldComponent<AmbientLightWorldComponent>()->SetColor(Color(0.2f, 0.5f, 1.0f));
-	world->GetWorldComponent<AmbientLightWorldComponent>()->SetIntensity(0.05f);
-
-	// Dir Light 0
-	Quaternion DirLightRot = Quaternion(Vector::UNIT_Y, -45_deg) * Quaternion(Vector::UNIT_X, -35_deg);
-	Entity* KeyDirLight = DeferredTaskSystem::SpawnEntityImmediate(world);
-	DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(world, KeyDirLight, Color(1.0f, 0.9f, 0.8f), 0.8f);
-	EntityTransform& dirLightTrans = KeyDirLight->GetTransform();
-	dirLightTrans.SetLocalRotation(DirLightRot);
-	GameMgrCmp->KeyDirLight = KeyDirLight;
-
-	// Point Lights
-	CreatePointLight(world, 20.0f);
-	CreatePointLight(world, 20.0f);
-	CreatePointLight(world, 20.0f);
-	CreatePointLight(world, 20.0f);
-
-	// AddPointLights(world, 3, 20.0f);
-
-	// CreateSpotLight(world, 10.0f);
-
-	// Entity* Sponza = DeferredTaskSystem::SpawnEntityImmediate(world);
-	// DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, Sponza, "Models/Sponza/sponza.obj", eResourceSource::GAME);
-	// EntityTransform& groundTrans = Sponza->GetTransform();
-	// MeshRenderingComponent* sponzaMesh = world->GetComponent<MeshRenderingComponent>(Sponza);
-	// for (int i = 0; i < sponzaMesh->GetMesh()->GetSubMeshes().GetSize(); ++i)
-	// {
-	// 	sponzaMesh->SetMaterial(i, PhongMaterial(Color(1.0f, 1.0f, 1.0f), Color(1.0f, 1.0f, 1.0f), Color(1.0f, 1.0f, 1.0f), 8.0f));
-	// }
-	// GameMgrCmp->GameEntities.PushBack(Sponza);
-}
-
 void GameManagerSystem::AddPointLights(World* world, int quota, float radius)
 {
 	for (int i = 0; i < quota; ++i)
@@ -115,10 +81,7 @@ void GameManagerSystem::CreatePointLight(World* world, float Range)
 
 	MeshRenderingComponent* PointLightMesh = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, PointLight, "Models/Primitives/Sphere_LowPoly.obj", eResourceSource::GAME);
 	PointLightMesh->SetShadingModel(eShadingModel::UNLIT);
-	PointLightMesh->SetMaterial(0, PhongMaterial(LightColor, LightColor, LightColor, 8.0f));	
-	
-	GameMgrCmp->PointLights.PushBack(PointLightCmp);
-	GameMgrCmp->PointLightPositions.PushBack(PointLightPos);
+	PointLightMesh->SetMaterial(0, PhongMaterial(LightColor, LightColor, LightColor, 8.0f));
 }
 
 void GameManagerSystem::CreateSpotLight(World* world, float Range)

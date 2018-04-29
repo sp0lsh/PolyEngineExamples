@@ -12,13 +12,13 @@ class GAME_DLLEXPORT GameManagerWorldComponent : public ComponentBase
 {
 public:
 	SafePtr<Entity> Camera;
-	SafePtr<Entity> KeyDirLight;
-	Dynarray<SafePtr<Entity>> DirLights;
-	Dynarray<PointLightComponent*> PointLights;
-	Dynarray<Vector> PointLightPositions;
-	Dynarray<SafePtr<Entity>> SpotLights;
-	Dynarray<MeshRenderingComponent*> DebugMeshes;
 	bool IsDrawingDebugMeshes = true;
-
 	Dynarray<SafePtr<Entity>> GameEntities;
+
+	// Dynarray<Vector> PointLightPositions;
+	// Dynarray<SafePtr<Entity>> SpotLights;
+	// Dynarray<SafePtr<Entity>> DirLights;
+	// Dynarray<PointLightComponent*> PointLights;
+	// Dynarray<MeshRenderingComponent*> DebugMeshes;
+	// SafePtr<Entity> KeyDirLight;
 };
