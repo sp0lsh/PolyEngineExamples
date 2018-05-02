@@ -35,7 +35,6 @@ void GameManagerSystem::CreateScene(World* world)
 
 	Entity* Plane = DeferredTaskSystem::SpawnEntityImmediate(world);
 	EntityTransform& planeTrans = Plane->GetTransform();
-	// planeTrans.SetLocalScale(1000.0f);
 	DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, Plane, "Models/plane/plane.obj", eResourceSource::GAME);
 	MeshRenderingComponent* planeMesh = world->GetComponent<MeshRenderingComponent>(Plane);
 	planeMesh->SetMaterial(0, PhongMaterial(Color(1.0f, 1.0f, 1.0f), Color(1.0f, 1.0f, 0.0f), Color(1.0f, 1.0f, 0.5f), 8.0f));
