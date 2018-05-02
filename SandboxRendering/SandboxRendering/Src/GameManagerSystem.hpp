@@ -12,9 +12,11 @@ namespace GameManagerSystem
 	void Update(World* world);
 	void Deinit(World* world);
 
+	void CreateTestLights(World* world, int quota);
+	void UpdateTestLights(World* world);
+	Entity* CreatePointLight(World* world, Vector& position, float Range);
+
 	float Random();
 	float Random(float min, float max);
-	void AddPointLights(World* world, int quota, float radius);
-	void CreatePointLight(World* world, float Range);
 	void CreateSpotLight(World * world, float Range);
 }

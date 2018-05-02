@@ -15,10 +15,6 @@ public:
 	bool IsDrawingDebugMeshes = true;
 	Dynarray<SafePtr<Entity>> GameEntities;
 
-	// Dynarray<Vector> PointLightPositions;
-	// Dynarray<SafePtr<Entity>> SpotLights;
-	// Dynarray<SafePtr<Entity>> DirLights;
-	// Dynarray<PointLightComponent*> PointLights;
-	// Dynarray<MeshRenderingComponent*> DebugMeshes;
-	// SafePtr<Entity> KeyDirLight;
+	Dynarray<Vector> LightsStartPositions;
+	Dynarray<Entity*> PointLightEntities;
 };
