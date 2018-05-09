@@ -23,30 +23,50 @@ void GameManagerSystem::CreateScene(World* world)
 
 	srand(42);
 
+	CreateSponzaSample(world);
+}
+
+void GameManagerSystem::CreateSponza(World* world)
+{
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
 	Entity* Camera = DeferredTaskSystem::SpawnEntityImmediate(world);
-	DeferredTaskSystem::AddComponentImmediate<CameraComponent>(world, Camera, 90_deg, 1.0f, 1000.f);
+	DeferredTaskSystem::AddComponentImmediate<CameraComponent>(world, Camera, 90_deg, 1.0f, 5000.f);
 	DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(world, Camera, 10.0f, 0.003f);
 	EntityTransform& cameraTrans = Camera->GetTransform();
-	cameraTrans.SetLocalTranslation(Vector(0.0f, 5.0f, 15.0f));
-	
+	cameraTrans.SetGlobalTranslation(Vector(800.0f, 180.0f, 0.0f));
+	cameraTrans.SetGlobalRotation(Quaternion(Vector::UNIT_Y, 90.0_deg));
+
 	world->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, world->GetComponent<CameraComponent>(Camera));
 
-	Entity* Plane = DeferredTaskSystem::SpawnEntityImmediate(world);
-	EntityTransform& planeTrans = Plane->GetTransform();
-	DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, Plane, "Models/plane/plane.obj", eResourceSource::GAME);
-	MeshRenderingComponent* planeMesh = world->GetComponent<MeshRenderingComponent>(Plane);
-	planeMesh->SetMaterial(0, PhongMaterial(Color(1.0f, 1.0f, 1.0f), Color(1.0f, 1.0f, 0.0f), Color(1.0f, 1.0f, 0.5f), 8.0f));
-	GameMgrCmp->GameEntities.PushBack(Plane);
+	Entity* Sponza = DeferredTaskSystem::SpawnEntityImmediate(world);
+	DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, Sponza, "Models/Sponza/sponza.obj", eResourceSource::GAME);
+	GameMgrCmp->GameEntities.PushBack(Sponza);
 
-	Entity* Monkey = DeferredTaskSystem::SpawnEntityImmediate(world);
-	EntityTransform& monkeyTrans = Monkey->GetTransform();
-	DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, Monkey, "Models/plane/monkey2.obj", eResourceSource::GAME);
-	MeshRenderingComponent* monkeyMesh = world->GetComponent<MeshRenderingComponent>(Monkey);
-	GameMgrCmp->GameEntities.PushBack(Monkey);
+	CreatePointLights(world, 400);
+}
 
-	CreateTestLights(world, 1024);
+void GameManagerSystem::CreateSponzaSample(World* world)
+{
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
+	Entity* Camera = DeferredTaskSystem::SpawnEntityImmediate(world);
+	DeferredTaskSystem::AddComponentImmediate<CameraComponent>(world, Camera, 40_deg, 1.0f, 5000.f);
+	DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(world, Camera, 10.0f, 0.003f);
+	EntityTransform& cameraTrans = Camera->GetTransform();
+	cameraTrans.SetGlobalTranslation(Vector(300.0f, 0.0f, 0.0f));
+	cameraTrans.SetGlobalRotation(Quaternion(Vector::UNIT_Y, 90.0_deg));
+
+	world->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, world->GetComponent<CameraComponent>(Camera));
+
+	Entity* Sponza = DeferredTaskSystem::SpawnEntityImmediate(world);
+	DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, Sponza, "Models/Sponza/sponza_lion.obj", eResourceSource::GAME);
+	GameMgrCmp->GameEntities.PushBack(Sponza);
+
+	Vector LightPosition = Vector(50.0f, 0.0f, 50.0f);
+	Entity* LightEntity = CreatePointLight(world, LightPosition, 10000.f);
+	GameMgrCmp->LightsStartPositions.PushBack(LightPosition);
+	GameMgrCmp->PointLightEntities.PushBack(LightEntity);
 }
 
 void GameManagerSystem::Update(World* world)
@@ -54,7 +74,7 @@ void GameManagerSystem::Update(World* world)
 	float Time = (float)(world->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
-	UpdateTestLights(world);
+	UpdateLights(world);
 }
 
 void GameManagerSystem::Deinit(World* world)
@@ -62,7 +82,7 @@ void GameManagerSystem::Deinit(World* world)
 	gConsole.LogInfo("GameManagerSystem::Cleanup");
 }
 
-void GameManagerSystem::CreateTestLights(World* world, int quota)
+void GameManagerSystem::CreatePointLights(World* world, int quota)
 {
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
@@ -70,15 +90,15 @@ void GameManagerSystem::CreateTestLights(World* world, int quota)
 
 	for (int i = 0; i < quota; ++i)
 	{
-		float rotationRadius = 100.0f;
-		Vector position = Vector(Random(-1.0f, 1.0f)*rotationRadius, 0.0f, Random(-1.0f, 1.0f)*rotationRadius);
-		Entity* lightEntity = CreatePointLight(world, position, 10.0f);
+		float Range = Random(50.0f, 100.0f) * 1000.0f;
+		Vector position = Vector(Random(-1.0f, 1.0f)*1000.0f, Random(0.0f, 800.0f), Random(-1.0f, 1.0f)*500.0f);
+		Entity* lightEntity = CreatePointLight(world, position, Range);
 
 		GameMgrCmp->LightsStartPositions.PushBack(position);
 		GameMgrCmp->PointLightEntities.PushBack(lightEntity);
 
-		gConsole.LogInfo("GameManagerSystem::CreateTestLights #{}: Positon: {}, Radius: {}",
-			i, position, 10.0f);
+		// gConsole.LogInfo("GameManagerSystem::CreateTestLights #{}: Positon: {}, Radius: {}",
+		// 	i, position, Range);
 	}
 
 	for (int i = 0; i < GameMgrCmp->PointLightEntities.GetSize(); ++i)
@@ -87,7 +107,7 @@ void GameManagerSystem::CreateTestLights(World* world, int quota)
 	}
 }
 
-void GameManagerSystem::UpdateTestLights(World* world)
+void GameManagerSystem::UpdateLights(World* world)
 {
 	float Time = (float)(world->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
@@ -96,11 +116,7 @@ void GameManagerSystem::UpdateTestLights(World* world)
 	{
 		Entity* PointLight = GameMgrCmp->PointLightEntities[i];
 		Vector StartPosition = GameMgrCmp->LightsStartPositions[i];
-		
-		float t = 2.0f * Time + StartPosition.X;
-		float s = Sin(1.0_rad * t);
-		float c = Cos(1.0_rad * t);
-		Vector Offset = Vector(c, 0.0f, s) * 20.0f;
+		Vector Offset = Vector::UNIT_Y * Sin(2.0_rad * Time + 1.0_rad * StartPosition.X) * 100.0f;
 		EntityTransform& PointLightTrans = PointLight->GetTransform();
 		PointLightTrans.SetGlobalTranslation(StartPosition + Offset);
 	}
@@ -111,7 +127,7 @@ Entity* GameManagerSystem::CreatePointLight(World* world, Vector& position, floa
 	Color LightColor = Color(1.0f, 0.5f, 0.0f) + Color(Random(0.0f, 1.0f), Random(0.0, 0.5f), Random(0.0f, 0.2f));
 
 	Entity* PointLight = DeferredTaskSystem::SpawnEntityImmediate(world);
-	PointLightComponent* PointLightCmp = DeferredTaskSystem::AddComponentImmediate<PointLightComponent>(world, PointLight, LightColor, 1.0f, Range);
+	PointLightComponent* PointLightCmp = DeferredTaskSystem::AddComponentImmediate<PointLightComponent>(world, PointLight, LightColor, 200.0f, Range);
 	EntityTransform& PointLightTrans = PointLight->GetTransform();
 	PointLightTrans.SetGlobalTranslation(position);
 
