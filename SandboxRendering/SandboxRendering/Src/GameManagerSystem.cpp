@@ -45,7 +45,7 @@ void GameManagerSystem::CreateSponza(World* world)
 	DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, Sponza, "Models/Sponza/sponza.obj", eResourceSource::GAME);
 	GameMgrCmp->GameEntities.PushBack(Sponza);
 
-	CreatePointLights(world, 200);
+	CreatePointLights(world, 1024);
 }
 
 void GameManagerSystem::CreateSponzaSample(World* world)
@@ -92,9 +92,9 @@ void GameManagerSystem::CreatePointLights(World* world, int quota)
 
 	for (int i = 0; i < quota; ++i)
 	{
-		float Range = Random(50.0f, 100.0f) * 1000.0f;
+		// float Range = Random(5.0f, 10.0f) *.0f;
 		Vector position = Vector(Random(-1.0f, 1.0f)*1000.0f, Random(0.0f, 800.0f), Random(-1.0f, 1.0f)*500.0f);
-		Entity* lightEntity = CreatePointLight(world, position, Range);
+		Entity* lightEntity = CreatePointLight(world, position, 300.0f);
 
 		GameMgrCmp->LightsStartPositions.PushBack(position);
 		GameMgrCmp->PointLightEntities.PushBack(lightEntity);
@@ -129,7 +129,7 @@ Entity* GameManagerSystem::CreatePointLight(World* world, Vector& position, floa
 	Color LightColor = Color(Random(0.0f, 1.0f), Random(0.0, 1.0f), Random(0.0f, 1.0f));
 
 	Entity* PointLight = DeferredTaskSystem::SpawnEntityImmediate(world);
-	PointLightComponent* PointLightCmp = DeferredTaskSystem::AddComponentImmediate<PointLightComponent>(world, PointLight, LightColor, 1000.0f, Range);
+	PointLightComponent* PointLightCmp = DeferredTaskSystem::AddComponentImmediate<PointLightComponent>(world, PointLight, LightColor, 500.0f, Range);
 	MeshRenderingComponent* MeshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, PointLight, "Models/Primitives/Sphere_LowPoly.obj", eResourceSource::GAME);
 	EntityTransform& PointLightTrans = PointLight->GetTransform();
 	PointLightTrans.SetGlobalScale(Vector::ONE * 5.0f);
