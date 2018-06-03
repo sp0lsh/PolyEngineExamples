@@ -44,15 +44,15 @@ void GameManagerSystem::CreateSponza(World* world)
 
 	Entity* Sponza = DeferredTaskSystem::SpawnEntityImmediate(world);
 	MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, Sponza, "Models/Sponza/sponza.obj", eResourceSource::GAME);
+	PhongMaterial material(
+		Color(0.0f, 0.0f, 0.0f, 0.0f),
+		Color(0.01f, 0.01f, 0.01f, 1.0f),
+		Color(1.0f, 1.0f, 1.0f, 1.0f),
+		32.0f);
 	int materialsNum = meshCmp->GetMesh()->GetSubMeshes().GetSize();
 	for (int i = 0; i < materialsNum; ++i)
 	{
-		meshCmp->SetMaterial(i, PhongMaterial(
-			Color(0.0f, 0.0f, 0.0f, 0.0f),
-			Color(0.01f, 0.01f, 0.01f, 1.0f),
-			Color(1.0f, 1.0f, 1.0f, 1.0f),
-			32.0f
-		));
+		meshCmp->SetMaterial(i, material);
 	}
 	GameMgrCmp->GameEntities.PushBack(Sponza);
 
