@@ -3,17 +3,17 @@
 #include "GameManagerWorldComponent.hpp"
 
 #include <Core.hpp>
-#include <ResourceManager.hpp>
-#include <DeferredTaskSystem.hpp>
-#include <MeshRenderingComponent.hpp>
-#include <CameraComponent.hpp>
-#include <FreeFloatMovementComponent.hpp>
-#include <LightSourceComponent.hpp>
-#include <PostprocessSettingsComponent.hpp>
-#include <ViewportWorldComponent.hpp>
-#include <TimeWorldComponent.hpp>
-#include <SkyboxWorldComponent.hpp>
-#include <InputWorldComponent.hpp>
+#include <ECS/DeferredTaskSystem.hpp>
+#include <Input/InputWorldComponent.hpp>
+#include <Movement/FreeFloatMovementComponent.hpp>
+#include <Rendering/MeshRenderingComponent.hpp>
+#include <Rendering/PostprocessSettingsComponent.hpp>
+#include <Rendering/SkyboxWorldComponent.hpp>
+#include <Rendering/ViewportWorldComponent.hpp>
+#include <Rendering/Camera/CameraComponent.hpp>
+#include <Rendering/Lighting/LightSourceComponent.hpp>
+#include <Resources/ResourceManager.hpp>
+#include <Time/TimeWorldComponent.hpp>
 
 using namespace Poly;
 

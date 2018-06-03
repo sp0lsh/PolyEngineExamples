@@ -1,10 +1,10 @@
 #pragma once
 
-#include <LightSourceComponent.hpp>
-#include <MeshRenderingComponent.hpp>
-#include <ComponentBase.hpp>
-#include <Dynarray.hpp>
 #include <UniqueID.hpp>
+#include <Collections/Dynarray.hpp>
+#include <ECS/ComponentBase.hpp>
+#include <Rendering/MeshRenderingComponent.hpp>
+#include <Rendering/Lighting/LightSourceComponent.hpp>
 
 using namespace Poly;
 

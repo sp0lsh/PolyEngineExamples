@@ -1,11 +1,11 @@
 #pragma once
 
-#include <CameraComponent.hpp>
-#include <MeshRenderingComponent.hpp>
-#include <FreeFloatMovementComponent.hpp>
 #include <Core.hpp>
 #include <Engine.hpp>
-#include <World.hpp>
+#include <ECS/World.hpp>
+#include <Movement/FreeFloatMovementComponent.hpp>
+#include <Rendering/Camera/CameraComponent.hpp>
+#include <Rendering/MeshRenderingComponent.hpp>
 
 using namespace Poly;
 
