@@ -35,6 +35,7 @@ void GameManagerSystem::CreateSponza(World* world)
 	Entity* Camera = DeferredTaskSystem::SpawnEntityImmediate(world);
 	DeferredTaskSystem::AddComponentImmediate<CameraComponent>(world, Camera, 50_deg, 1.0f, 5000.f);
 	DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(world, Camera, 10.0f, 0.003f);
+	DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(world, Camera);
 	EntityTransform& cameraTrans = Camera->GetTransform();
 	cameraTrans.SetGlobalTranslation(Vector(800.0f, 180.0f, 0.0f));
 	cameraTrans.SetGlobalRotation(Quaternion(Vector::UNIT_Y, 90.0_deg));
@@ -42,10 +43,20 @@ void GameManagerSystem::CreateSponza(World* world)
 	world->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, world->GetComponent<CameraComponent>(Camera));
 
 	Entity* Sponza = DeferredTaskSystem::SpawnEntityImmediate(world);
-	DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, Sponza, "Models/Sponza/sponza.obj", eResourceSource::GAME);
+	MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, Sponza, "Models/Sponza/sponza.obj", eResourceSource::GAME);
+	int materialsNum = meshCmp->GetMesh()->GetSubMeshes().GetSize();
+	for (int i = 0; i < materialsNum; ++i)
+	{
+		meshCmp->SetMaterial(i, PhongMaterial(
+			Color(0.0f, 0.0f, 0.0f, 0.0f),
+			Color(0.01f, 0.01f, 0.01f, 1.0f),
+			Color(1.0f, 1.0f, 1.0f, 1.0f),
+			32.0f
+		));
+	}
 	GameMgrCmp->GameEntities.PushBack(Sponza);
 
-	CreatePointLights(world, 1024);
+	CreatePointLights(world, 512);
 }
 
 void GameManagerSystem::CreateSponzaSample(World* world)
@@ -92,7 +103,6 @@ void GameManagerSystem::CreatePointLights(World* world, int quota)
 
 	for (int i = 0; i < quota; ++i)
 	{
-		// float Range = Random(5.0f, 10.0f) *.0f;
 		Vector position = Vector(Random(-1.0f, 1.0f)*1000.0f, Random(0.0f, 800.0f), Random(-1.0f, 1.0f)*500.0f);
 		Entity* lightEntity = CreatePointLight(world, position, 300.0f);
 
