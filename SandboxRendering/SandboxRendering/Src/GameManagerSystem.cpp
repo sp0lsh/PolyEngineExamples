@@ -39,6 +39,17 @@ void GameManagerSystem::CreateSponza(World* world)
 	EntityTransform& cameraTrans = Camera->GetTransform();
 	cameraTrans.SetGlobalTranslation(Vector(800.0f, 180.0f, 0.0f));
 	cameraTrans.SetGlobalRotation(Quaternion(Vector::UNIT_Y, 90.0_deg));
+	world->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, world->GetComponent<CameraComponent>(Camera));
+	EnumArray<String, eCubemapSide> miramar{
+		{ eCubemapSide::RIGHT, "Cubemaps/miramar/miramar_rt.jpg" },
+		{ eCubemapSide::LEFT , "Cubemaps/miramar/miramar_lt.jpg" },
+		{ eCubemapSide::TOP  , "Cubemaps/miramar/miramar_up.jpg" },
+		{ eCubemapSide::DOWN , "Cubemaps/miramar/miramar_dn.jpg" },
+		{ eCubemapSide::BACK , "Cubemaps/miramar/miramar_bk.jpg" },
+		{ eCubemapSide::FRONT, "Cubemaps/miramar/miramar_ft.jpg" }
+	};
+	DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(world, miramar);
+
 
 	world->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, world->GetComponent<CameraComponent>(Camera));
 
@@ -46,7 +57,7 @@ void GameManagerSystem::CreateSponza(World* world)
 	MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, Sponza, "Models/Sponza/sponza.obj", eResourceSource::GAME);
 	PhongMaterial material(
 		Color(0.0f, 0.0f, 0.0f, 0.0f),
-		Color(0.01f, 0.01f, 0.01f, 1.0f),
+		Color(1.0f, 1.0f, 1.0f, 1.0f),
 		Color(1.0f, 1.0f, 1.0f, 1.0f),
 		32.0f);
 	int materialsNum = meshCmp->GetMesh()->GetSubMeshes().GetSize();
