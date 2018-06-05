@@ -18,7 +18,5 @@ namespace GameManagerSystem
 	void UpdateLights(World* world);
 	Entity* CreatePointLight(World* world, Vector& position, float Range);
 
-	float Random();
-	float Random(float min, float max);
 	void CreateSpotLight(World * world, float Range);
 }
