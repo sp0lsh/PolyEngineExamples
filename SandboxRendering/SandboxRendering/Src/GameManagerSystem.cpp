@@ -23,9 +23,9 @@ void GameManagerSystem::CreateScene(World* world)
 
 	srand(42);
 
-	CreateBasic(world);
+	// CreateBasic(world);
 
-	// CreateSponza(world);
+	CreateSponza(world);
 
 	SpawnParticles(world);
 }
