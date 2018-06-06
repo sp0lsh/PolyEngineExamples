@@ -23,9 +23,49 @@ void GameManagerSystem::CreateScene(World* world)
 
 	srand(42);
 
-	// CreateSponzaSample(world);
+	CreateBasic(world);
 
-	CreateSponza(world);
+	// CreateSponza(world);
+
+	SpawnParticles(world);
+}
+
+void GameManagerSystem::CreateBasic(World * world)
+{
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
+	Entity* Camera = DeferredTaskSystem::SpawnEntityImmediate(world);
+	DeferredTaskSystem::AddComponentImmediate<CameraComponent>(world, Camera, 50_deg, 1.0f, 5000.f);
+	DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(world, Camera, 10.0f, 0.003f);
+	DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(world, Camera);
+	// EntityTransform& cameraTrans = Camera->GetTransform();
+	// cameraTrans.SetGlobalTranslation(Vector(800.0f, 180.0f, 0.0f));
+	// cameraTrans.SetGlobalRotation(Quaternion(Vector::UNIT_Y, 90.0_deg));
+	world->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, world->GetComponent<CameraComponent>(Camera));
+
+	// EnumArray<String, eCubemapSide> miramar{
+	// 	{ eCubemapSide::RIGHT, "Cubemaps/miramar/miramar_rt.jpg" },
+	// 	{ eCubemapSide::LEFT , "Cubemaps/miramar/miramar_lt.jpg" },
+	// 	{ eCubemapSide::TOP  , "Cubemaps/miramar/miramar_up.jpg" },
+	// 	{ eCubemapSide::DOWN , "Cubemaps/miramar/miramar_dn.jpg" },
+	// 	{ eCubemapSide::BACK , "Cubemaps/miramar/miramar_bk.jpg" },
+	// 	{ eCubemapSide::FRONT, "Cubemaps/miramar/miramar_ft.jpg" }
+	// };
+	// DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(world, miramar);
+
+	Entity* Ground = DeferredTaskSystem::SpawnEntityImmediate(world);
+	MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, Ground, "Models/Ground/Ground.fbx", eResourceSource::GAME);
+	// PhongMaterial material(
+	// 	Color(0.0f, 0.0f, 0.0f, 0.0f),
+	// 	Color(1.0f, 1.0f, 1.0f, 1.0f),
+	// 	Color(1.0f, 1.0f, 1.0f, 1.0f),
+	// 	32.0f);
+	// int materialsNum = meshCmp->GetMesh()->GetSubMeshes().GetSize();
+	// for (int i = 0; i < materialsNum; ++i)
+	// {
+	// 	meshCmp->SetMaterial(i, material);
+	// }
+	GameMgrCmp->GameEntities.PushBack(Ground);
 }
 
 void GameManagerSystem::CreateSponza(World* world)
@@ -49,9 +89,6 @@ void GameManagerSystem::CreateSponza(World* world)
 		{ eCubemapSide::FRONT, "Cubemaps/miramar/miramar_ft.jpg" }
 	};
 	DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(world, miramar);
-
-
-	world->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, world->GetComponent<CameraComponent>(Camera));
 
 	Entity* Sponza = DeferredTaskSystem::SpawnEntityImmediate(world);
 	MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, Sponza, "Models/Sponza/sponza.obj", eResourceSource::GAME);
@@ -97,6 +134,8 @@ void GameManagerSystem::Update(World* world)
 {
 	float Time = (float)(world->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
+	UpdateParticles(world);
 
 	UpdateLights(world);
 }
@@ -182,8 +221,6 @@ void GameManagerSystem::CreateSpotLight(World* world, float Range)
 	SpotLightDebugSourceTrans.SetLocalTranslation(Vector(0.0f, 0.0f, 0.0f));
 }
 
-/*/
-
 void GameManagerSystem::UpdateParticles(World* world)
 {
 	float time = (float)(world->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
@@ -245,7 +282,7 @@ void GameManagerSystem::SpawnParticles(World* world)
 	// SpawnHeartSystem(world);
 }
 
-void GameManagerSystem::SpawnSpritesSheets(Poly::World * world)
+void GameManagerSystem::SpawnSpritesSheets(World* world)
 {
 	Vector spritesheetsPosition = Vector(-15.0f, 0.0f, 0.0f);
 	SpawnSpritesheet11(world, spritesheetsPosition + Vector(-5.0f, 4.0f, 0.0f));
@@ -354,7 +391,7 @@ void GameManagerSystem::SpawnSpritesheet44(World* world, Vector pos)
 	SpritesheetSettings settings;
 	settings.SubImages = Vector2f(4.0f, 4.0f);
 	settings.SpritePath = "Textures/test_4_4.png";
-	settings.Color = Color(0.0f, 1.0f, 0.0f, 0.5f);
+	settings.SpriteColor = Color(0.0f, 1.0f, 0.0f, 0.5f);
 	DeferredTaskSystem::AddComponentImmediate<SpritesheetComponent>(world, SpriteSheetEnt, settings);
 	SpritesheetComponent* SpritesheetComp = world->GetComponent<SpritesheetComponent>(SpriteSheetEnt);
 	GameMgrCmp->GameEntities.PushBack(SpriteSheetEnt);
@@ -387,7 +424,7 @@ void GameManagerSystem::SpawnSpritesheet41(World* world, Vector pos)
 	SpritesheetSettings settings;
 	settings.SubImages = Vector2f(4.0f, 1.0f);
 	settings.SpritePath = "Textures/test_4_1.png";
-	settings.Color = Color::RED;
+	settings.SpriteColor = Color::RED;
 	DeferredTaskSystem::AddComponentImmediate<SpritesheetComponent>(world, SpriteSheetEnt, settings);
 	SpritesheetComponent* SpritesheetComp = world->GetComponent<SpritesheetComponent>(SpriteSheetEnt);
 	GameMgrCmp->GameEntities.PushBack(SpriteSheetEnt);
@@ -446,13 +483,17 @@ ParticleComponent* GameManagerSystem::SpawnEmitterDefault(World* world, Vector p
 
 	ParticleEmitter::Settings settings;
 	settings.MaxSize = 20;
+	settings.BurstSizeMin = 5;
+	settings.BurstSizeMax = 5;
+	settings.BurstTimeMax = 0.01f;
+	settings.BurstTimeMin = 0.01f;
 	settings.SpritesheetSettings = spriteSettings;
 	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::LOCAL_SPACE;
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
-		p->Position += RandomVectorRange(-1.0f, 1.0f);
-		p->Velocity = RandomVectorRange(0.5f, 1.0f) * 0.001f;
-		p->LifeTime = RandomRange(1.0f, 5.0f);
-		p->Scale = Vector::ONE * RandomRange(1.0f, 2.0f);
+		p->Position += RandomVectorRange(-10.0f, 10.0f);
+		p->Velocity = Vector(0.0f, 0.0f, 0.0f);
+		p->LifeTime = RandomRange(1.0f, 1.0f);
+		p->Scale = Vector::ONE * RandomRange(10.0f, 10.0f);
 	};
 
 	GameMgrCmp->GameEntities.PushBack(ParticlesEnt);
@@ -542,7 +583,7 @@ ParticleComponent* GameManagerSystem::SpawnEmitterAmbient(World* world, Vector p
 	settings.BurstTimeMax = 2.0f;
 	settings.BurstSizeMin = 10;
 	settings.BurstSizeMax = 20;
-	settings.Color = Color(1.0f, 1.0f, 1.0f, 0.5f);
+	settings.BaseColor = Color(1.0f, 1.0f, 1.0f, 0.5f);
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
 		p->Position += RandomVectorRange(-1.0f, 1.0f) * 10.0f;
 		p->Velocity = RandomVectorRange(-1.0f, 1.0f) * 0.001f;
@@ -577,7 +618,7 @@ ParticleComponent* GameManagerSystem::SpawnEmitterAmbientWind(World* world, Vect
 	settings.BurstTimeMax = 2.0f;
 	settings.BurstSizeMin = 200;
 	settings.BurstSizeMax = 400;
-	settings.Color = Color(1.0f, 1.0f, 1.0f, 0.1f);
+	settings.BaseColor = Color(1.0f, 1.0f, 1.0f, 0.1f);
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
 		p->Position += Vector(-20.0f, 2.0f, 0.0f) + RandomVectorRange(-1.0f, 1.0f) * 10.0f;
 		p->Velocity = Vector(RandomRange(0.75f, 1.0f) * 0.5f, 0.0f, 0.0f);
@@ -606,7 +647,7 @@ ParticleComponent* GameManagerSystem::SpawnEmitterHeart(World* world, Vector pos
 
 	ParticleEmitter::Settings settings;
 	settings.MaxSize = 1000;
-	settings.Color = Color(1.2f, 0.8f, 0.8f, 0.5f);
+	settings.BaseColor = Color(1.2f, 0.8f, 0.8f, 0.5f);
 	settings.BurstTimeMin = 0.01f;
 	settings.BurstTimeMax = 0.05f;
 	settings.BurstSizeMin = 10;
@@ -646,7 +687,7 @@ ParticleComponent* GameManagerSystem::SpawnEmitterHeartImpact(World* world, Vect
 
 	ParticleEmitter::Settings settings;
 	settings.MaxSize = 1000;
-	settings.Color = Color(1.5f, 1.0f, 1.0f, 0.95f);
+	settings.BaseColor = Color(1.5f, 1.0f, 1.0f, 0.95f);
 	settings.BurstTimeMin = 0.1f;
 	settings.BurstTimeMax = 0.5f;
 	settings.BurstSizeMin = 10;
@@ -692,7 +733,7 @@ ParticleComponent* GameManagerSystem::SpawnEmitterHeartImpact2(World* world, Vec
 
 	ParticleEmitter::Settings settings;
 	settings.MaxSize = 1000;
-	settings.Color = Color(2.0f, 0.5f, 0.5f, 0.2f);
+	settings.BaseColor = Color(2.0f, 0.5f, 0.5f, 0.2f);
 	settings.BurstTimeMin = 1.0f;
 	settings.BurstTimeMax = 1.0f;
 	settings.BurstSizeMin = 200;
@@ -737,4 +778,3 @@ void GameManagerSystem::SpawnHeartSystem(World* world)
 }
 
 #pragma endregion
-*/

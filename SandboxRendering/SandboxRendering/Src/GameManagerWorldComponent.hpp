@@ -14,6 +14,18 @@ public:
 	SafePtr<Entity> Camera;
 	bool IsDrawingDebugMeshes = true;
 	Dynarray<SafePtr<Entity>> GameEntities;
+	Entity* KeyDirLight;
+
+	ParticleComponent* particleDefault;
+	ParticleComponent* particleAmbient;
+	ParticleComponent* particleAmbientWind;
+	ParticleComponent* particleLocalSpace;
+	ParticleComponent* particleWorldSpace;
+
+	ParticleComponent* particleHeart;
+	ParticleComponent* particleHeartImpact0;
+	ParticleComponent* particleHeartImpact1;
+	ParticleComponent* particleHeartImpact2;
 
 	Dynarray<Vector> LightsStartPositions;
 	Dynarray<Entity*> PointLightEntities;
