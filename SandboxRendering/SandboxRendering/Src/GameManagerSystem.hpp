@@ -15,16 +15,18 @@ using namespace Poly;
 namespace GameManagerSystem
 {
 	void CreateScene(World* world);
+	
 	void CreateBasic(World* world);
+	void CreateTranslucent(World* world);
 	void CreateSponza(World* world);
 	void CreateSponzaSample(World* world);
+	
 	void CreatePointLights(World* world, int quota);
 	Entity* CreatePointLight(World* world, Vector& position, float Range);
 	void CreateSpotLight(World* world, float Range);
 	void SpawnParticles(World* world);
 	void SpawnSpritesSheets(World* world);
 	void SpawnShaderball(World* world);
-	void SpawnSponzaScene(World* world);
 
 	void SpawnSpritesheet11(World* world, Vector pos);
 	void SpawnSpritesheet22(World* world, Vector pos);

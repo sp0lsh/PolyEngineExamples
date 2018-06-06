@@ -27,6 +27,8 @@ void GameManagerSystem::CreateScene(World* world)
 
 	CreateSponza(world);
 
+	CreateTranslucent(world);
+
 	SpawnParticles(world);
 }
 
@@ -68,6 +70,29 @@ void GameManagerSystem::CreateBasic(World * world)
 	GameMgrCmp->GameEntities.PushBack(Ground);
 }
 
+void GameManagerSystem::CreateTranslucent(World * world)
+{
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
+	Entity* Translucent = DeferredTaskSystem::SpawnEntityImmediate(world);
+	EntityTransform& translucentTrans = Translucent->GetTransform();
+	translucentTrans.SetGlobalTranslation(Vector(0.0f, 200.0f, 0.0f));
+	translucentTrans.SetLocalScale(Vector(100.0f, 100.0f, 100.0f));
+	MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, Translucent, "Models/Primitives/Sphere_LowPoly.obj", eResourceSource::GAME);
+	PhongMaterial material(
+		Color(0.01f, 0.01f, 0.01f, 1.0f),
+		Color(1.0f, 0.5f, 0.5f, 0.75f),
+		Color(1.0f, 1.0f, 1.0f, 1.0f),
+		8.0f);
+	int materialsNum = meshCmp->GetMesh()->GetSubMeshes().GetSize();
+	for (int i = 0; i < materialsNum; ++i)
+	{
+		meshCmp->SetMaterial(i, material);
+	}
+
+	GameMgrCmp->GameEntities.PushBack(Translucent);
+}
+
 void GameManagerSystem::CreateSponza(World* world)
 {
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
@@ -89,6 +114,12 @@ void GameManagerSystem::CreateSponza(World* world)
 		{ eCubemapSide::FRONT, "Cubemaps/miramar/miramar_ft.jpg" }
 	};
 	DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(world, miramar);
+
+	Entity* KeyDirLight = DeferredTaskSystem::SpawnEntityImmediate(world);
+	DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(world, KeyDirLight, Color(1.0f, 0.9f, 0.8f), 0.8f);
+	EntityTransform& dirLightTrans = KeyDirLight->GetTransform();
+	dirLightTrans.SetLocalRotation(Quaternion(Vector::UNIT_Y, -45_deg) * Quaternion(Vector::UNIT_X, 65_deg));
+	GameMgrCmp->GameEntities.PushBack(KeyDirLight);
 
 	Entity* Sponza = DeferredTaskSystem::SpawnEntityImmediate(world);
 	MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, Sponza, "Models/Sponza/sponza.obj", eResourceSource::GAME);
@@ -307,42 +338,6 @@ void GameManagerSystem::SpawnShaderball(World* world)
 	ballMesh->SetMaterial(1, PhongMaterial(Color(1.0f, 1.0f, 1.0f), Color(0.4f, 0.4f, 0.4f), Color(1.0f, 1.0f, 0.5f), 16.0f));
 	shaderballTrans.SetLocalScale(0.1f);
 	GameMgrCmp->GameEntities.PushBack(Shaderball);
-}
-
-void GameManagerSystem::SpawnSponzaScene(World* world)
-{
-	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
-
-	world->GetWorldComponent<AmbientLightWorldComponent>()->SetColor(Color(0.2f, 0.5f, 1.0f));
-	world->GetWorldComponent<AmbientLightWorldComponent>()->SetIntensity(0.05f);
-
-	// Dir Light 0
-	Quaternion DirLightRot = Quaternion(Vector::UNIT_Y, -45_deg) * Quaternion(Vector::UNIT_X, -35_deg);
-	Entity* KeyDirLight = DeferredTaskSystem::SpawnEntityImmediate(world);
-	DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(world, KeyDirLight, Color(1.0f, 0.9f, 0.8f), 0.8f);
-	EntityTransform& dirLightTrans = KeyDirLight->GetTransform();
-	dirLightTrans.SetLocalRotation(DirLightRot);
-	GameMgrCmp->KeyDirLight = KeyDirLight;
-
-	// Point Lights
-	// CreatePointLight(world, 100.0f);
-
-	// AddPointLights(world, 7);
-
-	// CreateSpotLight(world, 200.0f);
-
-
-	Entity* Ground = DeferredTaskSystem::SpawnEntityImmediate(world);
-	DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, Ground, "Models/Sponza/sponza.obj", eResourceSource::GAME);
-	EntityTransform& groundTrans = Ground->GetTransform();
-	MeshRenderingComponent* sponzaMesh = world->GetComponent<MeshRenderingComponent>(Ground);
-	for (int i = 0; i < sponzaMesh->GetMesh()->GetSubMeshes().GetSize(); ++i)
-	{
-		sponzaMesh->SetMaterial(i, PhongMaterial(Color(1.0f, 1.0f, 1.0f), Color(1.0f, 1.0f, 1.0f), Color(1.0f, 1.0f, 1.0f), 8.0f));
-	}
-	GameMgrCmp->GameEntities.PushBack(Ground);
-
-	// CreateShaderball(world, GameMgrCmp);
 }
 
 

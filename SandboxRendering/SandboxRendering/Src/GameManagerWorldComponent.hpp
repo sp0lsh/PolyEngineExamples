@@ -14,7 +14,6 @@ public:
 	SafePtr<Entity> Camera;
 	bool IsDrawingDebugMeshes = true;
 	Dynarray<SafePtr<Entity>> GameEntities;
-	Entity* KeyDirLight;
 
 	ParticleComponent* particleDefault;
 	ParticleComponent* particleAmbient;
