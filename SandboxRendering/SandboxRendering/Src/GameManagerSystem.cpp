@@ -32,7 +32,7 @@ void GameManagerSystem::CreateScene(World* world)
 	SpawnParticles(world);
 }
 
-void GameManagerSystem::CreateBasic(World * world)
+void GameManagerSystem::CreateBasic(World* world)
 {
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
@@ -70,27 +70,33 @@ void GameManagerSystem::CreateBasic(World * world)
 	GameMgrCmp->GameEntities.PushBack(Ground);
 }
 
-void GameManagerSystem::CreateTranslucent(World * world)
+void GameManagerSystem::CreateTranslucent(World* world)
 {
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
-	Entity* Translucent = DeferredTaskSystem::SpawnEntityImmediate(world);
-	EntityTransform& translucentTrans = Translucent->GetTransform();
-	translucentTrans.SetGlobalTranslation(Vector(0.0f, 200.0f, 0.0f));
-	translucentTrans.SetLocalScale(Vector(100.0f, 100.0f, 100.0f));
-	MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, Translucent, "Models/Primitives/Sphere_LowPoly.obj", eResourceSource::GAME);
 	PhongMaterial material(
 		Color(0.01f, 0.01f, 0.01f, 1.0f),
 		Color(1.0f, 0.5f, 0.5f, 0.75f),
 		Color(1.0f, 1.0f, 1.0f, 1.0f),
-		8.0f);
-	int materialsNum = meshCmp->GetMesh()->GetSubMeshes().GetSize();
-	for (int i = 0; i < materialsNum; ++i)
-	{
-		meshCmp->SetMaterial(i, material);
-	}
+		8.0f
+	);
 
-	GameMgrCmp->GameEntities.PushBack(Translucent);
+	for (int i = 0; i < 8; ++i)
+	{
+		Entity* Translucent = DeferredTaskSystem::SpawnEntityImmediate(world);
+		EntityTransform& translucentTrans = Translucent->GetTransform();
+		Vector randomOffset = RandomVectorRange(-1.0f, 1.0f) * 200.0f;
+		translucentTrans.SetGlobalTranslation(Vector(0.0f, 200.0f, 0.0f) + randomOffset);
+		translucentTrans.SetLocalScale(Vector(100.0f, 100.0f, 100.0f));
+		MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, Translucent, "Models/Primitives/Sphere_HighPoly.obj", eResourceSource::GAME);
+		int materialsNum = meshCmp->GetMesh()->GetSubMeshes().GetSize();
+		for (int i = 0; i < materialsNum; ++i)
+		{
+			meshCmp->SetMaterial(i, material);
+		}
+
+		GameMgrCmp->GameEntities.PushBack(Translucent);
+	}
 }
 
 void GameManagerSystem::CreateSponza(World* world)
@@ -100,11 +106,20 @@ void GameManagerSystem::CreateSponza(World* world)
 	Entity* Camera = DeferredTaskSystem::SpawnEntityImmediate(world);
 	DeferredTaskSystem::AddComponentImmediate<CameraComponent>(world, Camera, 50_deg, 1.0f, 5000.f);
 	DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(world, Camera, 10.0f, 0.003f);
-	DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(world, Camera);
 	EntityTransform& cameraTrans = Camera->GetTransform();
 	cameraTrans.SetGlobalTranslation(Vector(800.0f, 180.0f, 0.0f));
 	cameraTrans.SetGlobalRotation(Quaternion(Vector::UNIT_Y, 90.0_deg));
 	world->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, world->GetComponent<CameraComponent>(Camera));
+
+	PostprocessSettingsComponent* postCmp = DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(world, Camera);
+	postCmp->Exposure = 2.0f;
+
+	Entity* KeyDirLight = DeferredTaskSystem::SpawnEntityImmediate(world);
+	DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(world, KeyDirLight, Color(1.0f, 0.95f, 0.75f), 2.0f);
+	EntityTransform& dirLightTrans = KeyDirLight->GetTransform();
+	dirLightTrans.SetLocalRotation(Quaternion(Vector::UNIT_Y, -45_deg) * Quaternion(Vector::UNIT_X, 65_deg));
+	GameMgrCmp->GameEntities.PushBack(KeyDirLight);
+
 	EnumArray<String, eCubemapSide> miramar{
 		{ eCubemapSide::RIGHT, "Cubemaps/miramar/miramar_rt.jpg" },
 		{ eCubemapSide::LEFT , "Cubemaps/miramar/miramar_lt.jpg" },
@@ -115,19 +130,13 @@ void GameManagerSystem::CreateSponza(World* world)
 	};
 	DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(world, miramar);
 
-	Entity* KeyDirLight = DeferredTaskSystem::SpawnEntityImmediate(world);
-	DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(world, KeyDirLight, Color(1.0f, 0.9f, 0.8f), 0.8f);
-	EntityTransform& dirLightTrans = KeyDirLight->GetTransform();
-	dirLightTrans.SetLocalRotation(Quaternion(Vector::UNIT_Y, -45_deg) * Quaternion(Vector::UNIT_X, 65_deg));
-	GameMgrCmp->GameEntities.PushBack(KeyDirLight);
-
 	Entity* Sponza = DeferredTaskSystem::SpawnEntityImmediate(world);
 	MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, Sponza, "Models/Sponza/sponza.obj", eResourceSource::GAME);
 	PhongMaterial material(
 		Color(0.0f, 0.0f, 0.0f, 0.0f),
 		Color(1.0f, 1.0f, 1.0f, 1.0f),
-		Color(1.0f, 1.0f, 1.0f, 1.0f),
-		32.0f);
+		Color(0.1f, 0.1f, 0.1f, 0.0f),
+		8.0f);
 	int materialsNum = meshCmp->GetMesh()->GetSubMeshes().GetSize();
 	for (int i = 0; i < materialsNum; ++i)
 	{
@@ -298,7 +307,6 @@ void GameManagerSystem::UpdateParticles(World* world)
 		GameMgrCmp->particleWorldSpace->GetTransform().SetGlobalTranslation(Vector(0.0f, 4.0f, 0.0f) + Vector(Cos(100.0_deg * time + 180.0_deg), 0.0f, Sin(100.0_deg * time + 180.0_deg)) * 6.0f);
 	}
 }
-
 
 void GameManagerSystem::SpawnParticles(World* world)
 {
@@ -474,14 +482,14 @@ ParticleComponent* GameManagerSystem::SpawnEmitterDefault(World* world, Vector p
 
 	SpritesheetSettings spriteSettings;
 	spriteSettings.SubImages = Vector2f(4.0f, 4.0f);
-	spriteSettings.SpritePath = "Textures/test_4_4.png";
+	spriteSettings.SpritePath = "Textures/none.png";
 
 	ParticleEmitter::Settings settings;
 	settings.MaxSize = 20;
-	settings.BurstSizeMin = 5;
+	settings.BurstSizeMin = 2;
 	settings.BurstSizeMax = 5;
-	settings.BurstTimeMax = 0.01f;
-	settings.BurstTimeMin = 0.01f;
+	settings.BurstTimeMax = 1.0f;
+	settings.BurstTimeMin = 5.0f;
 	settings.SpritesheetSettings = spriteSettings;
 	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::LOCAL_SPACE;
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
