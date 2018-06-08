@@ -5,11 +5,6 @@
 #include <Math/Vector.hpp>
 #include <Rendering/Particles/ParticleComponent.hpp>
 
-// class World;
-// class Vector;
-// class String;
-// class ParticleComponent;
-
 using namespace Poly;
 
 namespace GameManagerSystem
