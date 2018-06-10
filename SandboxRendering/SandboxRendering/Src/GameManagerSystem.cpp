@@ -25,11 +25,11 @@ void GameManagerSystem::CreateScene(World* world)
 
 	CreateBasic(world);
 
-	// CreateSponza(world);
+	CreateSponza(world);
 
 	// CreateTranslucent(world);
 
-	// CreatePointLights(world, 512);
+	CreatePointLights(world, 512);
 
 	// SpawnParticles(world);
 }
@@ -38,19 +38,19 @@ void GameManagerSystem::CreateBasic(World* world)
 {
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
-	Entity* Camera = DeferredTaskSystem::SpawnEntityImmediate(world);
-	DeferredTaskSystem::AddComponentImmediate<CameraComponent>(world, Camera, 50_deg, 1.0f, 5000.f);
-	DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(world, Camera, 10.0f, 0.003f);
-	DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(world, Camera);
-	EntityTransform& cameraTrans = Camera->GetTransform();
-	cameraTrans.SetGlobalTranslation(Vector(200.0f, 180.0f, 0.0f));
+	// Entity* Camera = DeferredTaskSystem::SpawnEntityImmediate(world);
+	// DeferredTaskSystem::AddComponentImmediate<CameraComponent>(world, Camera, 50_deg, 1.0f, 5000.f);
+	// DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(world, Camera, 10.0f, 0.003f);
+	// DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(world, Camera);
+	// EntityTransform& cameraTrans = Camera->GetTransform();
+	// cameraTrans.SetGlobalTranslation(Vector(800.0f, 180.0f, 0.0f));
 	// cameraTrans.SetGlobalRotation(Quaternion(Vector::UNIT_Y, 90.0_deg));
-	world->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, world->GetComponent<CameraComponent>(Camera));
+	// world->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, world->GetComponent<CameraComponent>(Camera));
 
-	Entity* KeyDirLight = DeferredTaskSystem::SpawnEntityImmediate(world);
-	DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(world, KeyDirLight, Color(1.0f, 1.0f, 1.0f), 1.0f);
-	KeyDirLight->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_Y, -45_deg) * Quaternion(Vector::UNIT_X, 65_deg));
-	GameMgrCmp->GameEntities.PushBack(KeyDirLight);
+	// Entity* KeyDirLight = DeferredTaskSystem::SpawnEntityImmediate(world);
+	// DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(world, KeyDirLight, Color(1.0f, 1.0f, 1.0f), 1.0f);
+	// KeyDirLight->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_Y, -45_deg) * Quaternion(Vector::UNIT_X, 65_deg));
+	// GameMgrCmp->GameEntities.PushBack(KeyDirLight);
 
 	// Entity* FillDirLight = DeferredTaskSystem::SpawnEntityImmediate(world);
 	// DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(world, FillDirLight, Color(0.75f, 0.95f, 1.0f), 0.1f);
@@ -82,8 +82,8 @@ void GameManagerSystem::CreateBasic(World* world)
 		{
 			Entity* Sphere = DeferredTaskSystem::SpawnEntityImmediate(world);
 			EntityTransform& sphereTrans = Sphere->GetTransform();
-			sphereTrans.SetGlobalTranslation(Vector(200.0f * y, 0.0f, 200.0f * z) - (Vector(200.0f * 5.0f, -100.0f, 200.0f * 5.0f) * 0.5f));
-			sphereTrans.SetLocalScale(Vector(1.0f, 1.0f, 1.0f) * 100.0f);
+			sphereTrans.SetGlobalTranslation(Vector(50.0f * y, 0.0f, 50.0f * z) - (Vector(50.0f * 5.0f, -100.0f, 50.0f * 5.0f) * 0.5f));
+			sphereTrans.SetLocalScale(Vector(1.0f, 1.0f, 1.0f) * 20.0f);
 			sphereTrans.SetLocalRotation(Quaternion(Vector::UNIT_Z, 90.0_deg));
 			MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, Sphere, "Models/Primitives/Sphere_HighPoly.obj", eResourceSource::GAME);
 			meshCmp->SetShadingModel(eShadingModel::PBR);
@@ -171,8 +171,8 @@ void GameManagerSystem::CreateSponza(World* world)
 	PBRMaterial material(
 		Color(0.0f, 0.0f, 0.0f, 0.0f),
 		Color(1.0f, 1.0f, 1.0f, 1.0f),
-		0.5f,	// Roughness
-		0.0f	// Metallic
+		1.0f,	// Roughness
+		1.0f	// Metallic
 	);
 	int materialsNum = meshCmp->GetMesh()->GetSubMeshes().GetSize();
 	for (int i = 0; i < materialsNum; ++i)
