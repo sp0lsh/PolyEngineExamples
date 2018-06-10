@@ -25,11 +25,11 @@ void GameManagerSystem::CreateScene(World* world)
 
 	CreateBasic(world);
 
-	CreateSponza(world);
+	// CreateSponza(world);
 
 	// CreateTranslucent(world);
 
-	CreatePointLights(world, 512);
+	// CreatePointLights(world, 512);
 
 	// SpawnParticles(world);
 }
@@ -43,8 +43,8 @@ void GameManagerSystem::CreateBasic(World* world)
 	DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(world, Camera, 10.0f, 0.003f);
 	DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(world, Camera);
 	EntityTransform& cameraTrans = Camera->GetTransform();
-	cameraTrans.SetGlobalTranslation(Vector(800.0f, 180.0f, 0.0f));
-	cameraTrans.SetGlobalRotation(Quaternion(Vector::UNIT_Y, 90.0_deg));
+	cameraTrans.SetGlobalTranslation(Vector(200.0f, 180.0f, 0.0f));
+	// cameraTrans.SetGlobalRotation(Quaternion(Vector::UNIT_Y, 90.0_deg));
 	world->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, world->GetComponent<CameraComponent>(Camera));
 
 	Entity* KeyDirLight = DeferredTaskSystem::SpawnEntityImmediate(world);
@@ -57,31 +57,24 @@ void GameManagerSystem::CreateBasic(World* world)
 	// FillDirLight->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_Y, -45_deg + 180_deg) * Quaternion(Vector::UNIT_X, 65_deg + 180_deg));
 	// GameMgrCmp->GameEntities.PushBack(FillDirLight);
 
-	// EnumArray<String, eCubemapSide> miramar{
-	// 	{ eCubemapSide::RIGHT, "Cubemaps/miramar/miramar_rt.jpg" },
-	// 	{ eCubemapSide::LEFT , "Cubemaps/miramar/miramar_lt.jpg" },
-	// 	{ eCubemapSide::TOP  , "Cubemaps/miramar/miramar_up.jpg" },
-	// 	{ eCubemapSide::DOWN , "Cubemaps/miramar/miramar_dn.jpg" },
-	// 	{ eCubemapSide::BACK , "Cubemaps/miramar/miramar_bk.jpg" },
-	// 	{ eCubemapSide::FRONT, "Cubemaps/miramar/miramar_ft.jpg" }
-	// };
-	// DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(world, miramar);
-
-	PhongMaterial material(
-		Color(0.0f, 0.0f, 0.0f, 0.0f),
-		Color(1.0f, 1.0f, 1.0f, 1.0f),
-		Color(1.0f, 1.0f, 1.0f, 1.0f),
-		12.0f
+	PBRMaterial material(
+		Color(0.01f, 0.01f, 0.01f, 0.0f),
+		Color(0.5f, 0.5f, 0.5f, 1.0f),
+		0.5f,
+		0.0f
 	);
 
-	Entity* Ground = DeferredTaskSystem::SpawnEntityImmediate(world);
-	MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, Ground, "Models/Ground/Ground.fbx", eResourceSource::GAME);
-	int materialsNum = meshCmp->GetMesh()->GetSubMeshes().GetSize();
-	for (int i = 0; i < materialsNum; ++i)
-	{
-		meshCmp->SetMaterial(i, material);
-	}
-	GameMgrCmp->GameEntities.PushBack(Ground);
+	// Entity* Ground = DeferredTaskSystem::SpawnEntityImmediate(world);
+	// EntityTransform& groundTrans = Ground->GetTransform();
+	// groundTrans.SetGlobalTranslation(Vector(0.0f, 0.0f, 0.0f));	
+	// MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, Ground, "Models/Ground/Ground.fbx", eResourceSource::GAME);
+	// meshCmp->SetShadingModel(eShadingModel::PBR);
+	// int materialsNum = meshCmp->GetMesh()->GetSubMeshes().GetSize();
+	// for (int i = 0; i < materialsNum; ++i)
+	// {
+	// 	meshCmp->SetPBRMaterial(i, material);
+	// }
+	// GameMgrCmp->GameEntities.PushBack(Ground);
 
 	for (int z = 0; z < 5; ++z)
 	{
@@ -89,16 +82,16 @@ void GameManagerSystem::CreateBasic(World* world)
 		{
 			Entity* Sphere = DeferredTaskSystem::SpawnEntityImmediate(world);
 			EntityTransform& sphereTrans = Sphere->GetTransform();
-			sphereTrans.SetGlobalTranslation(Vector(60.0f * y, 0.0f, 60.0f * z) - (Vector(60.0f * 5.0f, -30.0f, 60.0f * 5.0f) * 0.5f));
-			sphereTrans.SetLocalScale(Vector(1.0f, 1.0f, 1.0f) * 25.0f);
-			sphereTrans.SetLocalRotation(Quaternion(Vector::UNIT_X, 90.0_deg));
+			sphereTrans.SetGlobalTranslation(Vector(200.0f * y, 0.0f, 200.0f * z) - (Vector(200.0f * 5.0f, -100.0f, 200.0f * 5.0f) * 0.5f));
+			sphereTrans.SetLocalScale(Vector(1.0f, 1.0f, 1.0f) * 100.0f);
+			sphereTrans.SetLocalRotation(Quaternion(Vector::UNIT_Z, 90.0_deg));
 			MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, Sphere, "Models/Primitives/Sphere_HighPoly.obj", eResourceSource::GAME);
 			meshCmp->SetShadingModel(eShadingModel::PBR);
 			int materialsNum = meshCmp->GetMesh()->GetSubMeshes().GetSize();
 			for (int i = 0; i < materialsNum; ++i)
 			{
-				float Roughness	= ((1.0f + z) / 5.0f);
-				float Metallic	= ((1.0f + y) / 5.0f);
+				float Roughness	= ((0.01f + z) / 5.0f);
+				float Metallic	= ((0.01f + y) / 5.0f);
 				meshCmp->SetPBRMaterial(i, PBRMaterial(
 					Color(0.01f, 0.01f, 0.01f, 0.0f),
 					Color(0.5f, 0.5f, 0.5f, 1.0f),
@@ -157,20 +150,20 @@ void GameManagerSystem::CreateSponza(World* world)
 	postCmp->Exposure = 2.0f;
 
 	Entity* KeyDirLight = DeferredTaskSystem::SpawnEntityImmediate(world);
-	DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(world, KeyDirLight, Color(1.0f, 0.95f, 0.75f), 2.0f);
+	DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(world, KeyDirLight, Color(0.1f, 0.095f, 0.075f), 1.0f);
 	EntityTransform& dirLightTrans = KeyDirLight->GetTransform();
 	dirLightTrans.SetLocalRotation(Quaternion(Vector::UNIT_Y, -45_deg) * Quaternion(Vector::UNIT_X, 65_deg));
 	GameMgrCmp->GameEntities.PushBack(KeyDirLight);
 
-	EnumArray<String, eCubemapSide> miramar{
-		{ eCubemapSide::RIGHT, "Cubemaps/miramar/miramar_rt.jpg" },
-		{ eCubemapSide::LEFT , "Cubemaps/miramar/miramar_lt.jpg" },
-		{ eCubemapSide::TOP  , "Cubemaps/miramar/miramar_up.jpg" },
-		{ eCubemapSide::DOWN , "Cubemaps/miramar/miramar_dn.jpg" },
-		{ eCubemapSide::BACK , "Cubemaps/miramar/miramar_bk.jpg" },
-		{ eCubemapSide::FRONT, "Cubemaps/miramar/miramar_ft.jpg" }
-	};
-	DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(world, miramar);
+	// EnumArray<String, eCubemapSide> miramar{
+	// 	{ eCubemapSide::RIGHT, "Cubemaps/miramar/miramar_rt.jpg" },
+	// 	{ eCubemapSide::LEFT , "Cubemaps/miramar/miramar_lt.jpg" },
+	// 	{ eCubemapSide::TOP  , "Cubemaps/miramar/miramar_up.jpg" },
+	// 	{ eCubemapSide::DOWN , "Cubemaps/miramar/miramar_dn.jpg" },
+	// 	{ eCubemapSide::BACK , "Cubemaps/miramar/miramar_bk.jpg" },
+	// 	{ eCubemapSide::FRONT, "Cubemaps/miramar/miramar_ft.jpg" }
+	// };
+	// DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(world, miramar);
 
 	Entity* Sponza = DeferredTaskSystem::SpawnEntityImmediate(world);
 	MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, Sponza, "Models/Sponza/sponza.obj", eResourceSource::GAME);
@@ -178,8 +171,8 @@ void GameManagerSystem::CreateSponza(World* world)
 	PBRMaterial material(
 		Color(0.0f, 0.0f, 0.0f, 0.0f),
 		Color(1.0f, 1.0f, 1.0f, 1.0f),
-		1.0f,
-		0.0f
+		0.5f,	// Roughness
+		0.0f	// Metallic
 	);
 	int materialsNum = meshCmp->GetMesh()->GetSubMeshes().GetSize();
 	for (int i = 0; i < materialsNum; ++i)
