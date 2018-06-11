@@ -10,8 +10,11 @@ using namespace Poly;
 namespace GameManagerSystem
 {
 	void CreateScene(World* world);
+
+	Entity* CreateModel(World* world, String path);
 	
-	void CreateBasic(World* world);
+	void CreateCamera(Poly::World * world);
+	void CreatePBRShpereGrid(World* world);
 	void CreateTranslucent(World* world);
 	void CreateSponza(World* world);
 	void CreateSponzaSample(World* world);
@@ -44,6 +47,7 @@ namespace GameManagerSystem
 	void Update(World* world);
 	void UpdateParticles(World* world);
 	void UpdateLights(World* world);
+	void UpdateModel(World* world);
 	
 	void Deinit(World* world);
 }

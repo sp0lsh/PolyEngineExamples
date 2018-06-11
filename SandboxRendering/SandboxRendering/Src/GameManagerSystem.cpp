@@ -21,20 +21,72 @@ void GameManagerSystem::CreateScene(World* world)
 {
 	gConsole.LogInfo("GameManagerSystem::CreateScene");
 
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();	
+
 	srand(42);
+	
+	CreateCamera(world);
 
-	CreateBasic(world);
+	// GameMgrCmp->GameEntities.PushBack(CreateModel(world, "Models/Ground/Ground.fbx"));
+	GameMgrCmp->Model = CreateModel(world, "Models/leather_shoes/Leather_Shoes.obj");
+	// GameMgrCmp->GameEntities.PushBack(CreateModel(world, "Models/kv-2-heavy-tank-1940/model.obj"));
 
-	CreateSponza(world);
+	// CreatePBRShpereGrid(world);
+
+	// CreateSponza(world);
 
 	// CreateTranslucent(world);
 
-	CreatePointLights(world, 512);
+	// CreatePointLights(world, 512);
 
 	// SpawnParticles(world);
 }
 
-void GameManagerSystem::CreateBasic(World* world)
+Entity* GameManagerSystem::CreateModel(World* world, String path)
+{
+	PBRMaterial material(
+		Color(1.0f, 1.0f, 1.0f, 0.0f),
+		Color(1.0f, 1.0f, 1.0f, 1.0f),
+		1.0f,
+		1.0f
+	);
+
+	Entity* Model = DeferredTaskSystem::SpawnEntityImmediate(world);
+	EntityTransform& groundTrans = Model->GetTransform();
+	groundTrans.SetGlobalTranslation(Vector(0.0f, 0.0f, 0.0f));
+	MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, Model, path, eResourceSource::GAME);
+	meshCmp->SetShadingModel(eShadingModel::PBR);
+	int materialsNum = meshCmp->GetMesh()->GetSubMeshes().GetSize();
+	for (int i = 0; i < materialsNum; ++i)
+	{
+		meshCmp->SetPBRMaterial(i, material);
+	}
+
+	return Model;
+}
+
+void GameManagerSystem::CreateCamera(Poly::World* world)
+{
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
+	Entity* Camera = DeferredTaskSystem::SpawnEntityImmediate(world);
+	DeferredTaskSystem::AddComponentImmediate<CameraComponent>(world, Camera, 50_deg, 1.0f, 5000.f);
+	DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(world, Camera, 10.0f, 0.003f);
+	DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(world, Camera);
+	EntityTransform& cameraTrans = Camera->GetTransform();
+	cameraTrans.SetGlobalTranslation(Vector(-350.0f, 140.0f, 0.0f));
+	cameraTrans.SetGlobalRotation(Quaternion(Vector::UNIT_Y, -90.0_deg) * Quaternion(Vector::UNIT_X, -20.0_deg));
+	// cameraTrans.SetGlobalRotation(Quaternion(Matrix(cameraTrans.GetGlobalTranslation(), Vector(0.0f, 0.0f, 0.0f))));
+	world->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, world->GetComponent<CameraComponent>(Camera));
+	GameMgrCmp->Camera = Camera;
+
+	// Entity* KeyDirLight = DeferredTaskSystem::SpawnEntityImmediate(world);
+	// DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(world, KeyDirLight, Color(1.0f, 1.0f, 1.0f), 5.0f);
+	// KeyDirLight->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_Y, -45_deg) * Quaternion(Vector::UNIT_X, 65_deg));
+	// GameMgrCmp->GameEntities.PushBack(KeyDirLight);
+}
+
+void GameManagerSystem::CreatePBRShpereGrid(World* world)
 {
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
@@ -51,7 +103,6 @@ void GameManagerSystem::CreateBasic(World* world)
 	// DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(world, KeyDirLight, Color(1.0f, 1.0f, 1.0f), 1.0f);
 	// KeyDirLight->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_Y, -45_deg) * Quaternion(Vector::UNIT_X, 65_deg));
 	// GameMgrCmp->GameEntities.PushBack(KeyDirLight);
-
 	// Entity* FillDirLight = DeferredTaskSystem::SpawnEntityImmediate(world);
 	// DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(world, FillDirLight, Color(0.75f, 0.95f, 1.0f), 0.1f);
 	// FillDirLight->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_Y, -45_deg + 180_deg) * Quaternion(Vector::UNIT_X, 65_deg + 180_deg));
@@ -207,12 +258,11 @@ void GameManagerSystem::CreateSponzaSample(World* world)
 
 void GameManagerSystem::Update(World* world)
 {
-	float Time = (float)(world->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
-	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
-
 	UpdateParticles(world);
 
 	UpdateLights(world);
+
+	UpdateModel(world);
 }
 
 void GameManagerSystem::Deinit(World* world)
@@ -256,6 +306,17 @@ void GameManagerSystem::UpdateLights(World* world)
 		Vector Offset = Vector::UNIT_Y * Sin(2.0_rad * Time + 1.0_rad * StartPosition.X) * 100.0f;
 		EntityTransform& PointLightTrans = PointLight->GetTransform();
 		PointLightTrans.SetGlobalTranslation(StartPosition + Offset);
+	}
+}
+
+void GameManagerSystem::UpdateModel(World* world)
+{
+	float Time = (float)(world->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
+	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+	if (GameMgrCmp->Model)
+	{
+		EntityTransform& modelTrans = GameMgrCmp->Model->GetTransform();
+		modelTrans.SetLocalRotation(Quaternion(Vector::UNIT_Y, 10.0_deg * Time));
 	}
 }
 
