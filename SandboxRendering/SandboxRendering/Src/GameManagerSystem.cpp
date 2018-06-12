@@ -27,9 +27,15 @@ void GameManagerSystem::CreateScene(World* world)
 	
 	CreateCamera(world);
 
-	// GameMgrCmp->GameEntities.PushBack(CreateModel(world, "Models/Ground/Ground.fbx"));
-	GameMgrCmp->Model = CreateModel(world, "Models/leather_shoes/Leather_Shoes.obj");
-	// GameMgrCmp->GameEntities.PushBack(CreateModel(world, "Models/kv-2-heavy-tank-1940/model.obj"));
+	// GameMgrCmp->GameEntities.PushBack(Ground = CreateModel(world, "Models/Ground/Ground.fbx"));
+	
+	// GameMgrCmp->Model = CreateModel(world, "Models/leather_shoes/Leather_Shoes.obj");
+
+	GameMgrCmp->Model = CreateModel(world, "Models/kv-2-heavy-tank-1940/model.obj");
+	GameMgrCmp->Model->GetTransform().SetGlobalScale(Vector(5.0f, 5.0f, 5.0f));
+	GameMgrCmp->Model->GetTransform().SetGlobalTranslation(Vector(0.0f, 10.0f, 0.0f));
+
+	// GameMgrCmp->Model = CreateModel(world, "Models/leather_shoes/Leather_Shoes.obj");
 
 	// CreatePBRShpereGrid(world);
 
@@ -45,15 +51,13 @@ void GameManagerSystem::CreateScene(World* world)
 Entity* GameManagerSystem::CreateModel(World* world, String path)
 {
 	PBRMaterial material(
-		Color(1.0f, 1.0f, 1.0f, 0.0f),
+		Color(0.0f, 0.0f, 0.0f, 0.0f),
 		Color(1.0f, 1.0f, 1.0f, 1.0f),
 		1.0f,
 		1.0f
 	);
 
 	Entity* Model = DeferredTaskSystem::SpawnEntityImmediate(world);
-	EntityTransform& groundTrans = Model->GetTransform();
-	groundTrans.SetGlobalTranslation(Vector(0.0f, 0.0f, 0.0f));
 	MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, Model, path, eResourceSource::GAME);
 	meshCmp->SetShadingModel(eShadingModel::PBR);
 	int materialsNum = meshCmp->GetMesh()->GetSubMeshes().GetSize();
@@ -70,12 +74,12 @@ void GameManagerSystem::CreateCamera(Poly::World* world)
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
 	Entity* Camera = DeferredTaskSystem::SpawnEntityImmediate(world);
-	DeferredTaskSystem::AddComponentImmediate<CameraComponent>(world, Camera, 50_deg, 1.0f, 5000.f);
+	DeferredTaskSystem::AddComponentImmediate<CameraComponent>(world, Camera, 35_deg, 1.0f, 5000.f);
 	DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(world, Camera, 10.0f, 0.003f);
 	DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(world, Camera);
 	EntityTransform& cameraTrans = Camera->GetTransform();
-	cameraTrans.SetGlobalTranslation(Vector(-350.0f, 140.0f, 0.0f));
-	cameraTrans.SetGlobalRotation(Quaternion(Vector::UNIT_Y, -90.0_deg) * Quaternion(Vector::UNIT_X, -20.0_deg));
+	cameraTrans.SetGlobalTranslation(Vector(-550.0f, 180.0f, 0.0f));
+	cameraTrans.SetGlobalRotation(Quaternion(Vector::UNIT_Y, -90.0_deg) * Quaternion(Vector::UNIT_X, -10.0_deg));
 	// cameraTrans.SetGlobalRotation(Quaternion(Matrix(cameraTrans.GetGlobalTranslation(), Vector(0.0f, 0.0f, 0.0f))));
 	world->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, world->GetComponent<CameraComponent>(Camera));
 	GameMgrCmp->Camera = Camera;
@@ -262,7 +266,7 @@ void GameManagerSystem::Update(World* world)
 
 	UpdateLights(world);
 
-	UpdateModel(world);
+	// UpdateModel(world);
 }
 
 void GameManagerSystem::Deinit(World* world)
