@@ -12,6 +12,7 @@ class GAME_DLLEXPORT GameManagerWorldComponent : public ComponentBase
 {
 public:
 	SafePtr<Entity> Camera;
+	SafePtr<Entity> Model;
 	bool IsDrawingDebugMeshes = true;
 	Dynarray<SafePtr<Entity>> GameEntities;
 
