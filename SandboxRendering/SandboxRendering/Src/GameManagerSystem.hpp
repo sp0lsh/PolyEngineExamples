@@ -11,9 +11,11 @@ namespace GameManagerSystem
 {
 	void CreateScene(World* world);
 
+
 	Entity* CreateModel(World* world, String path);
 	
-	void CreateCamera(Poly::World * world);
+	void CreateTextUI(World* world);
+	void CreateCamera(World* world);
 	void CreatePBRShpereGrid(World* world);
 	void CreateTranslucent(World* world);
 	void CreateSponza(World* world);

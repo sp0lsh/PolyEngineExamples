@@ -11,6 +11,7 @@
 #include <Rendering/SkyboxWorldComponent.hpp>
 #include <Rendering/ViewportWorldComponent.hpp>
 #include <Rendering/Camera/CameraComponent.hpp>
+#include <UI/ScreenSpaceTextComponent.hpp>
 #include <Rendering/Lighting/LightSourceComponent.hpp>
 #include <Resources/ResourceManager.hpp>
 #include <Time/TimeWorldComponent.hpp>
@@ -25,27 +26,46 @@ void GameManagerSystem::CreateScene(World* world)
 
 	srand(42);
 	
-	CreateCamera(world);
+	// CreateCamera(world);
 
 	// GameMgrCmp->GameEntities.PushBack(Ground = CreateModel(world, "Models/Ground/Ground.fbx"));
 	
-	// GameMgrCmp->Model = CreateModel(world, "Models/leather_shoes/Leather_Shoes.obj");
+	GameMgrCmp->Model = CreateModel(world, "Models/leather_shoes/Leather_Shoes.obj");
 
-	GameMgrCmp->Model = CreateModel(world, "Models/kv-2-heavy-tank-1940/model.obj");
-	GameMgrCmp->Model->GetTransform().SetGlobalScale(Vector(5.0f, 5.0f, 5.0f));
-	GameMgrCmp->Model->GetTransform().SetGlobalTranslation(Vector(0.0f, 10.0f, 0.0f));
+	// GameMgrCmp->Model = CreateModel(world, "Models/kv-2-heavy-tank-1940/model.obj");
+	// GameMgrCmp->Model->GetTransform().SetGlobalScale(Vector(5.0f, 5.0f, 5.0f));
+	// GameMgrCmp->Model->GetTransform().SetGlobalTranslation(Vector(0.0f, 10.0f, 0.0f));
+
+	// GameMgrCmp->Model = CreateModel(world, "Models/1972-datsun-240k-gt/model.obj");
+	// GameMgrCmp->Model->GetTransform().SetGlobalScale(Vector::ONE * 20.0f);
 
 	// GameMgrCmp->Model = CreateModel(world, "Models/leather_shoes/Leather_Shoes.obj");
 
 	// CreatePBRShpereGrid(world);
 
-	// CreateSponza(world);
+	CreateSponza(world);
+
+	CreateTextUI(world);
 
 	// CreateTranslucent(world);
 
 	// CreatePointLights(world, 512);
 
 	// SpawnParticles(world);
+}
+
+void GameManagerSystem::CreateTextUI(World* world)
+{
+	Entity* Text = DeferredTaskSystem::SpawnEntityImmediate(world);
+	ScreenSpaceTextComponent* textCmp = DeferredTaskSystem::AddComponentImmediate<ScreenSpaceTextComponent>(
+		world,
+		Text,
+		Vector2i(50, 50),
+		"Fonts/Raleway/Raleway-Regular.ttf",
+		eResourceSource::ENGINE,
+		40.0f,
+		"powered by PolyEngine"
+	);
 }
 
 Entity* GameManagerSystem::CreateModel(World* world, String path)
@@ -202,13 +222,13 @@ void GameManagerSystem::CreateSponza(World* world)
 	world->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, world->GetComponent<CameraComponent>(Camera));
 
 	PostprocessSettingsComponent* postCmp = DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(world, Camera);
-	postCmp->Exposure = 2.0f;
+	postCmp->Exposure = 1.0f;
 
-	Entity* KeyDirLight = DeferredTaskSystem::SpawnEntityImmediate(world);
-	DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(world, KeyDirLight, Color(0.1f, 0.095f, 0.075f), 1.0f);
-	EntityTransform& dirLightTrans = KeyDirLight->GetTransform();
-	dirLightTrans.SetLocalRotation(Quaternion(Vector::UNIT_Y, -45_deg) * Quaternion(Vector::UNIT_X, 65_deg));
-	GameMgrCmp->GameEntities.PushBack(KeyDirLight);
+	// Entity* KeyDirLight = DeferredTaskSystem::SpawnEntityImmediate(world);
+	// DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(world, KeyDirLight, Color(0.1f, 0.095f, 0.075f), 1.0f);
+	// EntityTransform& dirLightTrans = KeyDirLight->GetTransform();
+	// dirLightTrans.SetLocalRotation(Quaternion(Vector::UNIT_Y, -45_deg) * Quaternion(Vector::UNIT_X, 65_deg));
+	// GameMgrCmp->GameEntities.PushBack(KeyDirLight);
 
 	// EnumArray<String, eCubemapSide> miramar{
 	// 	{ eCubemapSide::RIGHT, "Cubemaps/miramar/miramar_rt.jpg" },
