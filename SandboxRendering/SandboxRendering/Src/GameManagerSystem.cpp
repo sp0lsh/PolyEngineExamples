@@ -3,6 +3,8 @@
 #include "GameManagerWorldComponent.hpp"
 
 #include <Core.hpp>
+#include <Debugging/DebugDrawComponents.hpp>
+#include <Debugging/DebugDrawSystem.hpp>
 #include <ECS/DeferredTaskSystem.hpp>
 #include <Input/InputWorldComponent.hpp>
 #include <Movement/FreeFloatMovementComponent.hpp>
@@ -11,10 +13,10 @@
 #include <Rendering/SkyboxWorldComponent.hpp>
 #include <Rendering/ViewportWorldComponent.hpp>
 #include <Rendering/Camera/CameraComponent.hpp>
-#include <UI/ScreenSpaceTextComponent.hpp>
 #include <Rendering/Lighting/LightSourceComponent.hpp>
 #include <Resources/ResourceManager.hpp>
 #include <Time/TimeWorldComponent.hpp>
+#include <UI/ScreenSpaceTextComponent.hpp>
 
 using namespace Poly;
 
@@ -78,6 +80,7 @@ Entity* GameManagerSystem::CreateModel(World* world, String path)
 	);
 
 	Entity* Model = DeferredTaskSystem::SpawnEntityImmediate(world);
+	DebugDrawableComponent* debugCmp = DeferredTaskSystem::AddComponentImmediate<DebugDrawableComponent>(world, Model, eDebugDrawPreset::STATIC);
 	MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, Model, path, eResourceSource::GAME);
 	meshCmp->SetShadingModel(eShadingModel::PBR);
 	int materialsNum = meshCmp->GetMesh()->GetSubMeshes().GetSize();
@@ -214,7 +217,8 @@ void GameManagerSystem::CreateSponza(World* world)
 	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
 	Entity* Camera = DeferredTaskSystem::SpawnEntityImmediate(world);
-	DeferredTaskSystem::AddComponentImmediate<CameraComponent>(world, Camera, 50_deg, 1.0f, 5000.f);
+	CameraComponent* cameraCmp = DeferredTaskSystem::AddComponentImmediate<CameraComponent>(world, Camera, 50_deg, 1.0f, 5000.f);
+	cameraCmp->SetRenderingMode(eRenderingModeType::IMMEDIATE_DEBUG);
 	DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(world, Camera, 10.0f, 0.003f);
 	EntityTransform& cameraTrans = Camera->GetTransform();
 	cameraTrans.SetGlobalTranslation(Vector(800.0f, 180.0f, 0.0f));
@@ -287,6 +291,9 @@ void GameManagerSystem::Update(World* world)
 	UpdateLights(world);
 
 	// UpdateModel(world);
+
+	Poly::DebugDrawSystem::DrawLine(world, Vector::ZERO, Vector::UNIT_Y * 1000.0f, Color::RED);
+	Poly::DebugDrawSystem::DrawBox(world, Vector(-100.0f, 0.0f, -100.0f), Vector(100.0f, 200.0f, 100.0f), Color::RED);
 }
 
 void GameManagerSystem::Deinit(World* world)
