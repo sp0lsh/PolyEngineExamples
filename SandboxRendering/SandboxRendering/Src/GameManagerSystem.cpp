@@ -31,6 +31,9 @@ void GameManagerSystem::CreateScene(World* world)
 	// CreateCamera(world);
 
 	// gameMgrCmp->GameEntities.PushBack(Ground = CreateModel(world, "Models/Ground/Ground.fbx"));
+
+	// Preparation for loading HDR skyboxes
+	// DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(world, "HDR/HDR.hdr");
 	
 	gameMgrCmp->Model = CreateModel(world, "Models/leather_shoes/Leather_Shoes.obj");
 
@@ -233,16 +236,6 @@ void GameManagerSystem::CreateSponza(World* world)
 	// EntityTransform& dirLightTrans = keyDirLight->GetTransform();
 	// dirLightTrans.SetLocalRotation(Quaternion(Vector::UNIT_Y, -45_deg) * Quaternion(Vector::UNIT_X, 65_deg));
 	// gameMgrCmp->GameEntities.PushBack(keyDirLight);
-
-	// EnumArray<String, eCubemapSide> miramar{
-	// 	{ eCubemapSide::RIGHT, "Cubemaps/miramar/miramar_rt.jpg" },
-	// 	{ eCubemapSide::LEFT , "Cubemaps/miramar/miramar_lt.jpg" },
-	// 	{ eCubemapSide::TOP  , "Cubemaps/miramar/miramar_up.jpg" },
-	// 	{ eCubemapSide::DOWN , "Cubemaps/miramar/miramar_dn.jpg" },
-	// 	{ eCubemapSide::BACK , "Cubemaps/miramar/miramar_bk.jpg" },
-	// 	{ eCubemapSide::FRONT, "Cubemaps/miramar/miramar_ft.jpg" }
-	// };
-	// DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(world, miramar);
 
 	Entity* sponza = DeferredTaskSystem::SpawnEntityImmediate(world);
 	MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, sponza, "Models/Sponza/sponza.obj", eResourceSource::GAME);
