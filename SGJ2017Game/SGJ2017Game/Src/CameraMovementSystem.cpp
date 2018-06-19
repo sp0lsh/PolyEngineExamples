@@ -1,11 +1,11 @@
 #include "CameraMovementSystem.hpp"
 
-#include <World.hpp>
-#include <TimeSystem.hpp>
-#include <CameraComponent.hpp>
-#include "Rigidbody2DComponent.hpp"
+#include <ECS/World.hpp>
+#include <Time/TimeSystem.hpp>
+#include <Rendering/Camera/CameraComponent.hpp>
+#include "Physics2D/Rigidbody2DComponent.hpp"
 #include "CameraMovementComponent.hpp"
-#include <PostprocessSettingsComponent.hpp>
+#include <Rendering/PostprocessSettingsComponent.hpp>
 
 #include "GameManagerWorldComponent.hpp"
 

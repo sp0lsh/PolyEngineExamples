@@ -4,19 +4,19 @@
 #include "CameraMovementComponent.hpp"
 #include "Level.hpp"
 
-#include <DeferredTaskSystem.hpp>
-#include <Physics2DColliders.hpp>
-#include <Rigidbody2DComponent.hpp>
-#include <MeshRenderingComponent.hpp>
-#include <CameraComponent.hpp>
-#include <FreeFloatMovementComponent.hpp>
-#include <LightSourceComponent.hpp>
+#include <ECS/DeferredTaskSystem.hpp>
+#include <Physics2D/Physics2DColliders.hpp>
+#include <Physics2D/Rigidbody2DComponent.hpp>
+#include <Rendering/MeshRenderingComponent.hpp>
+#include <Rendering/Camera/CameraComponent.hpp>
+#include <Movement/FreeFloatMovementComponent.hpp>
+#include <Rendering/Lighting/LightSourceComponent.hpp>
 #include "TileComponent.hpp"
 #include "PlayerControllerComponent.hpp"
-#include "Physics2DWorldComponent.hpp"
-#include <SoundEmitterComponent.hpp>
-#include <DebugDrawComponents.hpp>
-#include <SoundSystem.hpp>
+#include "Physics2D/Physics2DWorldComponent.hpp"
+#include <Audio/SoundEmitterComponent.hpp>
+#include <Debugging/DebugDrawComponents.hpp>
+#include <Audio/SoundSystem.hpp>
 
 
 using namespace SGJ;
@@ -198,7 +198,6 @@ Entity* GameManagerSystem::SpawnPlayer(Poly::World* world, const Poly::Vector& p
 
 	Entity* playerFakeGlow = DeferredTaskSystem::SpawnEntityImmediate(world);
 	DeferredTaskSystem::AddComponentImmediate<DebugDrawableComponent>(world, playerFakeGlow, DebugDrawPreset::GFX);
-	EntityTransform& glowTrans = playerFakeGlow->GetTransform();
 	playerFakeGlow->SetParent(player);
 	Color playerLightColor = Color(0.0f, 1.0f, 0.0f, 0.5f);
 	DeferredTaskSystem::AddComponentImmediate<Poly::MeshRenderingComponent>(world, playerFakeGlow, "Quad.obj", eResourceSource::GAME);

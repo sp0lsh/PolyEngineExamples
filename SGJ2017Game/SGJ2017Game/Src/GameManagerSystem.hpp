@@ -1,8 +1,8 @@
 #pragma once
 
-#include <World.hpp>
-#include <String.hpp>
-#include <Vector.hpp>
+#include <ECS/World.hpp>
+#include <Collections/String.hpp>
+#include <Math/Vector.hpp>
 
 namespace SGJ {
 	enum class eTileType;
