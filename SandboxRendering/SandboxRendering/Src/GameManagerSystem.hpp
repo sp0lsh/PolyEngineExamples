@@ -50,6 +50,7 @@ namespace GameManagerSystem
 	void UpdateParticles(World* world);
 	void UpdateLights(World* world);
 	void UpdateModel(World* world);
+	void UpdatePostProcess(World* world);
 	
 	void Deinit(World* world);
 }

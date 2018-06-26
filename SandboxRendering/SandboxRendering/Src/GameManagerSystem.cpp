@@ -28,14 +28,14 @@ void GameManagerSystem::CreateScene(World* world)
 
 	srand(42);
 	
-	// CreateCamera(world);
+	CreateCamera(world);
 
 	// gameMgrCmp->GameEntities.PushBack(Ground = CreateModel(world, "Models/Ground/Ground.fbx"));
 
-	// Preparation for loading HDR skyboxes
-	// DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(world, "HDR/HDR.hdr");
+	DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(world, "HDR/HDR.hdr", eResourceSource::GAME);
 	
 	gameMgrCmp->Model = CreateModel(world, "Models/leather_shoes/Leather_Shoes.obj");
+	gameMgrCmp->Model->GetTransform().SetGlobalTranslation(Vector(500.0f, 0.0f, 0.0f));
 
 	// gameMgrCmp->Model = CreateModel(world, "Models/kv-2-heavy-tank-1940/model.obj");
 	// gameMgrCmp->Model->GetTransform().SetGlobalScale(Vector(5.0f, 5.0f, 5.0f));
@@ -46,15 +46,15 @@ void GameManagerSystem::CreateScene(World* world)
 
 	// gameMgrCmp->Model = CreateModel(world, "Models/leather_shoes/Leather_Shoes.obj");
 
-	// CreatePBRShpereGrid(world);
+	CreatePBRShpereGrid(world);
 
-	CreateSponza(world);
+	// CreateSponza(world);
 
 	CreateTextUI(world);
 
 	// CreateTranslucent(world);
 
-	// CreatePointLights(world, 512);
+	// CreatePointLights(world, 128);
 
 	// SpawnParticles(world);
 }
@@ -75,23 +75,9 @@ void GameManagerSystem::CreateTextUI(World* world)
 
 Entity* GameManagerSystem::CreateModel(World* world, String path)
 {
-	PBRMaterial material(
-		Color(0.0f, 0.0f, 0.0f, 0.0f),
-		Color(1.0f, 1.0f, 1.0f, 1.0f),
-		1.0f,
-		1.0f
-	);
-
 	Entity* model = DeferredTaskSystem::SpawnEntityImmediate(world);
 	DebugDrawableComponent* debugCmp = DeferredTaskSystem::AddComponentImmediate<DebugDrawableComponent>(world, model, eDebugDrawPreset::STATIC);
 	MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, model, path, eResourceSource::GAME);
-	meshCmp->SetShadingModel(eShadingModel::PBR);
-	int materialsNum = meshCmp->GetMesh()->GetSubMeshes().GetSize();
-	for (int i = 0; i < materialsNum; ++i)
-	{
-		meshCmp->SetPBRMaterial(i, material);
-	}
-
 	return model;
 }
 
@@ -102,7 +88,9 @@ void GameManagerSystem::CreateCamera(World* world)
 	Entity* camera = DeferredTaskSystem::SpawnEntityImmediate(world);
 	DeferredTaskSystem::AddComponentImmediate<CameraComponent>(world, camera, 35_deg, 1.0f, 5000.f);
 	DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(world, camera, 10.0f, 0.003f);
-	DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(world, camera);
+	PostprocessSettingsComponent* postCmp = DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(world, camera);
+	postCmp->Exposure = 1.0f;
+
 	EntityTransform& cameraTrans = camera->GetTransform();
 	cameraTrans.SetGlobalTranslation(Vector(-550.0f, 180.0f, 0.0f));
 	cameraTrans.SetGlobalRotation(Quaternion(Vector::UNIT_Y, -90.0_deg) * Quaternion(Vector::UNIT_X, -10.0_deg));
@@ -110,10 +98,11 @@ void GameManagerSystem::CreateCamera(World* world)
 	world->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, world->GetComponent<CameraComponent>(camera));
 	gameMgrCmp->Camera = camera;
 
-	// Entity* keyDirLight = DeferredTaskSystem::SpawnEntityImmediate(world);
-	// DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(world, keyDirLight, Color(1.0f, 1.0f, 1.0f), 5.0f);
-	// keyDirLight->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_Y, -45_deg) * Quaternion(Vector::UNIT_X, 65_deg));
-	// gameMgrCmp->GameEntities.PushBack(keyDirLight);
+	Entity* keyDirLight = DeferredTaskSystem::SpawnEntityImmediate(world);
+	DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(world, keyDirLight, Color(1.0f, 1.0f, 1.0f), 5.0f);
+	keyDirLight->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_Y, -45_deg) * Quaternion(Vector::UNIT_X, 65_deg));
+	gameMgrCmp->GameEntities.PushBack(keyDirLight);
+	
 }
 
 void GameManagerSystem::CreatePBRShpereGrid(World* world)
@@ -138,13 +127,6 @@ void GameManagerSystem::CreatePBRShpereGrid(World* world)
 	// fillDirLight->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_Y, -45_deg + 180_deg) * Quaternion(Vector::UNIT_X, 65_deg + 180_deg));
 	// gameMgrCmp->GameEntities.PushBack(fillDirLight);
 
-	PBRMaterial material(
-		Color(0.01f, 0.01f, 0.01f, 0.0f),
-		Color(0.5f, 0.5f, 0.5f, 1.0f),
-		0.5f,
-		0.0f
-	);
-
 	// Entity* ground = DeferredTaskSystem::SpawnEntityImmediate(world);
 	// EntityTransform& groundTrans = ground->GetTransform();
 	// groundTrans.SetGlobalTranslation(Vector(0.0f, 0.0f, 0.0f));	
@@ -167,17 +149,17 @@ void GameManagerSystem::CreatePBRShpereGrid(World* world)
 			sphereTrans.SetLocalScale(Vector(1.0f, 1.0f, 1.0f) * 20.0f);
 			sphereTrans.SetLocalRotation(Quaternion(Vector::UNIT_Z, 90.0_deg));
 			MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, sphere, "Models/Primitives/Sphere_HighPoly.obj", eResourceSource::GAME);
-			meshCmp->SetShadingModel(eShadingModel::PBR);
 			int materialsNum = meshCmp->GetMesh()->GetSubMeshes().GetSize();
 			for (int i = 0; i < materialsNum; ++i)
 			{
 				float Roughness	= ((0.01f + z) / 5.0f);
 				float Metallic	= ((0.01f + y) / 5.0f);
-				meshCmp->SetPBRMaterial(i, PBRMaterial(
-					Color(0.01f, 0.01f, 0.01f, 0.0f),
+				meshCmp->SetMaterial(i, Material(
+					Color(0.0f, 0.0f, 0.0f, 0.0f),
 					Color(0.5f, 0.5f, 0.5f, 1.0f),
 					Roughness,
-					Metallic
+					Metallic,
+					0.5f
 				));
 			}
 
@@ -190,11 +172,12 @@ void GameManagerSystem::CreateTranslucent(World* world)
 {
 	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
-	PhongMaterial material(
+	Material material(
 		Color(0.01f, 0.01f, 0.01f, 1.0f),
 		Color(1.0f, 0.5f, 0.5f, 0.75f),
-		Color(1.0f, 1.0f, 1.0f, 1.0f),
-		8.0f
+		1.0f,
+		1.0f,
+		0.5f
 	);
 
 	for (int i = 0; i < 8; ++i)
@@ -239,18 +222,7 @@ void GameManagerSystem::CreateSponza(World* world)
 
 	Entity* sponza = DeferredTaskSystem::SpawnEntityImmediate(world);
 	MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, sponza, "Models/Sponza/sponza.obj", eResourceSource::GAME);
-	meshCmp->SetShadingModel(eShadingModel::PBR);
-	PBRMaterial material(
-		Color(0.0f, 0.0f, 0.0f, 0.0f),
-		Color(1.0f, 1.0f, 1.0f, 1.0f),
-		1.0f,	// Roughness
-		1.0f	// Metallic
-	);
-	int materialsNum = meshCmp->GetMesh()->GetSubMeshes().GetSize();
-	for (int i = 0; i < materialsNum; ++i)
-	{
-		meshCmp->SetPBRMaterial(i, material);
-	}
+
 	gameMgrCmp->GameEntities.PushBack(sponza);
 }
 
@@ -287,6 +259,19 @@ void GameManagerSystem::Update(World* world)
 
 	DebugDrawSystem::DrawLine(world, Vector::ZERO, Vector::UNIT_Y * 1000.0f, Color::RED);
 	DebugDrawSystem::DrawBox(world, Vector(-100.0f, 0.0f, -100.0f), Vector(100.0f, 200.0f, 100.0f), Color::RED);
+
+	// UpdatePostProcess(world);
+}
+
+void GameManagerSystem::UpdatePostProcess(World* world)
+{
+	float time = (float)(world->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
+	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+	PostprocessSettingsComponent* postCmp = gameMgrCmp->Camera->GetComponent<PostprocessSettingsComponent>();
+	time *= 0.1f;
+	float exposure = 0.25f * floor(10.0f*4.0f * (time - floor(time)));
+	postCmp->Exposure = exposure;
+	gConsole.LogInfo("GameManagerSystem::Update exposure: {}", exposure);
 }
 
 void GameManagerSystem::Deinit(World* world)
@@ -303,7 +288,8 @@ void GameManagerSystem::CreatePointLights(World* world, int quota)
 	for (int i = 0; i < quota; ++i)
 	{
 		Vector position = Vector(RandomRange(-1.0f, 1.0f)*1000.0f, RandomRange(0.0f, 800.0f), RandomRange(-1.0f, 1.0f)*500.0f);
-		Entity* lightEntity = CreatePointLight(world, position, 300.0f);
+		float range = 500.0f; // +1000.0f * RandomRange(0.0f, 1.0f);
+		Entity* lightEntity = CreatePointLight(world, position, range);
 
 		gameMgrCmp->LightsStartPositions.PushBack(position);
 		gameMgrCmp->PointLightEntities.PushBack(lightEntity);
@@ -349,10 +335,9 @@ Entity* GameManagerSystem::CreatePointLight(World* world, Vector& position, floa
 	Color lightColor = Color(RandomRange(0.0f, 1.0f), RandomRange(0.0f, 1.0f), RandomRange(0.0f, 1.0f));
 
 	Entity* pointLight = DeferredTaskSystem::SpawnEntityImmediate(world);
-	PointLightComponent* pointLightCmp = DeferredTaskSystem::AddComponentImmediate<PointLightComponent>(world, pointLight, lightColor, 500.0f, Range);
+	PointLightComponent* pointLightCmp = DeferredTaskSystem::AddComponentImmediate<PointLightComponent>(world, pointLight, lightColor, 100.0f * 1000.0f, Range);
 	MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, pointLight, "Models/Primitives/Sphere_LowPoly.obj", eResourceSource::GAME);
-	meshCmp->SetShadingModel(eShadingModel::PBR);
-	meshCmp->SetPBRMaterial(0, PBRMaterial(Color(0.0f, 0.0f, 0.0f, 0.0f), lightColor, 0.0f, 1.0f));
+	meshCmp->SetMaterial(0, Material(Color(0.0f, 0.0f, 0.0f, 0.0f), lightColor, 0.0f, 1.0f, 0.5f));
 	EntityTransform& pointLightTrans = pointLight->GetTransform();
 	pointLightTrans.SetGlobalScale(Vector::ONE * 5.0f);
 	pointLightTrans.SetGlobalTranslation(position);
@@ -375,8 +360,7 @@ void GameManagerSystem::CreateSpotLight(World* world, float Range)
 	Entity* spotLightDebugSource = DeferredTaskSystem::SpawnEntityImmediate(world);
 	DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, spotLightDebugSource, "Models/Primitives/Sphere_LowPoly.obj", eResourceSource::GAME);
 	MeshRenderingComponent* spotLightMesh = world->GetComponent<MeshRenderingComponent>(spotLightDebugSource);
-	spotLightMesh->SetShadingModel(eShadingModel::UNLIT);
-	spotLightMesh->SetMaterial(0, PhongMaterial(lightColor, lightColor, lightColor, 8.0f));
+	spotLightMesh->SetMaterial(0, Material(lightColor, lightColor, 1.0f, 1.0f, 0.5f));
 	EntityTransform& spotLightDebugSourceTrans = spotLightDebugSource->GetTransform();
 	spotLightDebugSource->SetParent(spotLight);
 	spotLightDebugSourceTrans.SetLocalScale(2.0f);
@@ -464,8 +448,8 @@ void GameManagerSystem::SpawnShaderball(World* world)
 	shaderballTrans.SetLocalTranslation(Vector(0.0f, 5.0f, 0.0f));
 	DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, shaderball, "Models/shaderball/PolyEngine_shaderball.fbx", eResourceSource::GAME);
 	MeshRenderingComponent* ballMesh = world->GetComponent<MeshRenderingComponent>(shaderball);
-	ballMesh->SetMaterial(0, PhongMaterial(Color(1.0f, 1.0f, 1.0f), Color(1.0f, 1.0f, 0.0f), Color(1.0f, 1.0f, 0.5f), 8.0f));
-	ballMesh->SetMaterial(1, PhongMaterial(Color(1.0f, 1.0f, 1.0f), Color(0.4f, 0.4f, 0.4f), Color(1.0f, 1.0f, 0.5f), 16.0f));
+	ballMesh->SetMaterial(0, Material(Color(1.0f, 1.0f, 1.0f), Color(1.0f, 1.0f, 0.0f), 1.0f, 1.0f, 0.5f));
+	ballMesh->SetMaterial(1, Material(Color(1.0f, 1.0f, 1.0f), Color(0.4f, 0.4f, 0.4f), 1.0f, 1.0f, 0.5f));
 	shaderballTrans.SetLocalScale(0.1f);
 	gameMgrCmp->GameEntities.PushBack(shaderball);
 }
@@ -612,7 +596,7 @@ ParticleComponent* GameManagerSystem::SpawnEmitterDefault(World* world, Vector p
 	settings.BurstSizeMax = 5;
 	settings.BurstTimeMax = 1.0f;
 	settings.BurstTimeMin = 5.0f;
-	settings.SpritesheetSettings = spriteSettings;
+	settings.Spritesheet = spriteSettings;
 	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::LOCAL_SPACE;
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
 		p->Position += RandomVectorRange(-10.0f, 10.0f);
@@ -641,7 +625,7 @@ ParticleComponent* GameManagerSystem::SpawnEmitterWorldSpace(World* world, Vecto
 
 	ParticleEmitter::Settings settings;
 	settings.MaxSize = 50;
-	settings.SpritesheetSettings = spriteSettings;
+	settings.Spritesheet = spriteSettings;
 	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::WORLD_SPACE;
 	settings.BurstTimeMin = 0.05f;
 	settings.BurstTimeMax = 0.20f;
@@ -672,7 +656,7 @@ ParticleComponent* GameManagerSystem::SpawnEmitterLocalSpace(World* world, Vecto
 
 	ParticleEmitter::Settings settings;
 	settings.MaxSize = 20;
-	settings.SpritesheetSettings = spriteSettings;
+	settings.Spritesheet = spriteSettings;
 	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::LOCAL_SPACE;
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
 		p->Position = RandomVectorRange(-1.0f, 1.0f);
@@ -702,7 +686,7 @@ ParticleComponent* GameManagerSystem::SpawnEmitterAmbient(World* world, Vector p
 	ParticleEmitter::Settings settings;
 	settings.MaxSize = 500;
 	settings.InitialSize = 500;
-	settings.SpritesheetSettings = spriteSettings;
+	settings.Spritesheet = spriteSettings;
 	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::WORLD_SPACE;
 	settings.BurstTimeMin = 1.0f;
 	settings.BurstTimeMax = 2.0f;
@@ -737,7 +721,7 @@ ParticleComponent* GameManagerSystem::SpawnEmitterAmbientWind(World* world, Vect
 	ParticleEmitter::Settings settings;
 	settings.MaxSize = 200;
 	settings.InitialSize = 0;
-	settings.SpritesheetSettings = spriteSettings;
+	settings.Spritesheet = spriteSettings;
 	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::WORLD_SPACE;
 	settings.BurstTimeMin = 1.0f;
 	settings.BurstTimeMax = 2.0f;
@@ -777,7 +761,7 @@ ParticleComponent* GameManagerSystem::SpawnEmitterHeart(World* world, Vector pos
 	settings.BurstTimeMax = 0.05f;
 	settings.BurstSizeMin = 10;
 	settings.BurstSizeMax = 30;
-	settings.SpritesheetSettings = spriteSettings;
+	settings.Spritesheet = spriteSettings;
 	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::LOCAL_SPACE;
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
 		Vector rnd = RandomVectorRange(-1.0f, 1.0f);
@@ -817,7 +801,7 @@ ParticleComponent* GameManagerSystem::SpawnEmitterHeartImpact(World* world, Vect
 	settings.BurstTimeMax = 0.5f;
 	settings.BurstSizeMin = 10;
 	settings.BurstSizeMax = 30;
-	settings.SpritesheetSettings = spriteSettings;
+	settings.Spritesheet = spriteSettings;
 	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::LOCAL_SPACE;
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
 		Vector rndPos = RandomVectorRange(-1.0f, 1.0f);
@@ -863,7 +847,7 @@ ParticleComponent* GameManagerSystem::SpawnEmitterHeartImpact2(World* world, Vec
 	settings.BurstTimeMax = 1.0f;
 	settings.BurstSizeMin = 200;
 	settings.BurstSizeMax = 200;
-	settings.SpritesheetSettings = spriteSettings;
+	settings.Spritesheet = spriteSettings;
 	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::LOCAL_SPACE;
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
 		Vector rndPos = RandomVectorRange(-1.0f, 1.0f);
