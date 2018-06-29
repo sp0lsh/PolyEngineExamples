@@ -62,7 +62,7 @@ void GameManagerSystem::CreateScene(World* world)
 void GameManagerSystem::CreateTextUI(World* world)
 {
 	Entity* text = DeferredTaskSystem::SpawnEntityImmediate(world);
-	ScreenSpaceTextComponent* textCmp = DeferredTaskSystem::AddComponentImmediate<ScreenSpaceTextComponent>(
+	DeferredTaskSystem::AddComponentImmediate<ScreenSpaceTextComponent>(
 		world,
 		text,
 		Vector2i(50, 50),
@@ -76,8 +76,8 @@ void GameManagerSystem::CreateTextUI(World* world)
 Entity* GameManagerSystem::CreateModel(World* world, String path)
 {
 	Entity* model = DeferredTaskSystem::SpawnEntityImmediate(world);
-	DebugDrawableComponent* debugCmp = DeferredTaskSystem::AddComponentImmediate<DebugDrawableComponent>(world, model, eDebugDrawPreset::STATIC);
-	MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, model, path, eResourceSource::GAME);
+	DeferredTaskSystem::AddComponentImmediate<DebugDrawableComponent>(world, model, eDebugDrawPreset::STATIC);
+	DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, model, path, eResourceSource::GAME);
 	return model;
 }
 
@@ -221,7 +221,7 @@ void GameManagerSystem::CreateSponza(World* world)
 	// gameMgrCmp->GameEntities.PushBack(keyDirLight);
 
 	Entity* sponza = DeferredTaskSystem::SpawnEntityImmediate(world);
-	MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, sponza, "Models/Sponza/sponza.obj", eResourceSource::GAME);
+	DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, sponza, "Models/Sponza/sponza.obj", eResourceSource::GAME);
 
 	gameMgrCmp->GameEntities.PushBack(sponza);
 }
@@ -298,7 +298,7 @@ void GameManagerSystem::CreatePointLights(World* world, int quota)
 		// 	i, position, Range);
 	}
 
-	for (int i = 0; i < gameMgrCmp->PointLightEntities.GetSize(); ++i)
+	for (size_t i = 0; i < gameMgrCmp->PointLightEntities.GetSize(); ++i)
 	{
 		gameMgrCmp->GameEntities.PushBack(gameMgrCmp->PointLightEntities[i]);
 	}
@@ -370,7 +370,7 @@ void GameManagerSystem::CreateSpotLight(World* world, float Range)
 void GameManagerSystem::UpdateParticles(World* world)
 {
 	float time = (float)(world->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
-	float deltaTime = (float)(TimeSystem::GetTimerDeltaTime(world, Poly::eEngineTimer::GAMEPLAY));
+	// float deltaTime = (float)(TimeSystem::GetTimerDeltaTime(world, Poly::eEngineTimer::GAMEPLAY));
 
 	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
@@ -455,7 +455,7 @@ void GameManagerSystem::SpawnShaderball(World* world)
 }
 
 
-#pragma region Spritesheet examples
+// #pragma region Spritesheet examples
 
 void GameManagerSystem::SpawnSpritesheet11(World* world, Vector pos)
 {
@@ -469,7 +469,6 @@ void GameManagerSystem::SpawnSpritesheet11(World* world, Vector pos)
 	settings.SubImages = Vector2f(1.0f, 1.0f);
 	settings.SpritePath = "Textures/test_1_1.png";
 	DeferredTaskSystem::AddComponentImmediate<SpritesheetComponent>(world, spriteSheetEnt, settings);
-	SpritesheetComponent* SpritesheetComp = world->GetComponent<SpritesheetComponent>(spriteSheetEnt);
 	gameMgrCmp->GameEntities.PushBack(spriteSheetEnt);
 }
 
@@ -485,7 +484,6 @@ void GameManagerSystem::SpawnSpritesheet22(World* world, Vector pos)
 	settings.SubImages = Vector2f(2.0f, 2.0f);
 	settings.SpritePath = "Textures/test_2_2.png";
 	DeferredTaskSystem::AddComponentImmediate<SpritesheetComponent>(world, spriteSheetEnt, settings);
-	SpritesheetComponent* SpritesheetComp = world->GetComponent<SpritesheetComponent>(spriteSheetEnt);
 	gameMgrCmp->GameEntities.PushBack(spriteSheetEnt);
 }
 
@@ -502,7 +500,6 @@ void GameManagerSystem::SpawnSpritesheet44(World* world, Vector pos)
 	settings.SpritePath = "Textures/test_4_4.png";
 	settings.SpriteColor = Color(0.0f, 1.0f, 0.0f, 0.5f);
 	DeferredTaskSystem::AddComponentImmediate<SpritesheetComponent>(world, spriteSheetEnt, settings);
-	SpritesheetComponent* SpritesheetComp = world->GetComponent<SpritesheetComponent>(spriteSheetEnt);
 	gameMgrCmp->GameEntities.PushBack(spriteSheetEnt);
 }
 
@@ -518,7 +515,6 @@ void GameManagerSystem::SpawnSpritesheet42(World* world, Vector pos)
 	settings.SubImages = Vector2f(4.0f, 2.0f);
 	settings.SpritePath = "Textures/test_4_2.png";
 	DeferredTaskSystem::AddComponentImmediate<SpritesheetComponent>(world, spriteSheetEnt, settings);
-	SpritesheetComponent* SpritesheetComp = world->GetComponent<SpritesheetComponent>(spriteSheetEnt);
 	gameMgrCmp->GameEntities.PushBack(spriteSheetEnt);
 }
 
@@ -535,7 +531,6 @@ void GameManagerSystem::SpawnSpritesheet41(World* world, Vector pos)
 	settings.SpritePath = "Textures/test_4_1.png";
 	settings.SpriteColor = Color::RED;
 	DeferredTaskSystem::AddComponentImmediate<SpritesheetComponent>(world, spriteSheetEnt, settings);
-	SpritesheetComponent* SpritesheetComp = world->GetComponent<SpritesheetComponent>(spriteSheetEnt);
 	gameMgrCmp->GameEntities.PushBack(spriteSheetEnt);
 }
 
@@ -552,7 +547,6 @@ void GameManagerSystem::SpawnSpritesheet44Random(World* world, Vector pos)
 	settings.SpritePath = "Textures/test_4_4.png";
 	settings.IsRandomStartFrame = true;
 	DeferredTaskSystem::AddComponentImmediate<SpritesheetComponent>(world, spriteSheetEnt, settings);
-	SpritesheetComponent* SpritesheetComp = world->GetComponent<SpritesheetComponent>(spriteSheetEnt);
 	gameMgrCmp->GameEntities.PushBack(spriteSheetEnt);
 }
 
@@ -569,14 +563,13 @@ void GameManagerSystem::SpawnSpritesheetGandalf(World* world, Vector pos)
 	settings.SpritePath = "Textures/gandalf_anim.png";
 	settings.Speed = 0.2f;
 	DeferredTaskSystem::AddComponentImmediate<SpritesheetComponent>(world, spriteSheetEnt, settings);
-	SpritesheetComponent* SpritesheetComp = world->GetComponent<SpritesheetComponent>(spriteSheetEnt);
 	gameMgrCmp->GameEntities.PushBack(spriteSheetEnt);
 }
 
-#pragma endregion
+// #pragma endregion
 
 
-#pragma region Particle Examples
+// #pragma region Particle Examples
 
 ParticleComponent* GameManagerSystem::SpawnEmitterDefault(World* world, Vector pos)
 {
@@ -746,7 +739,7 @@ ParticleComponent* GameManagerSystem::SpawnEmitterHeart(World* world, Vector pos
 	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
 	Entity* particlesEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
-	EntityTransform& particlesTrans = particlesEnt->GetTransform();
+	// EntityTransform& particlesTrans = particlesEnt->GetTransform();
 	// particlesTrans.SetLocalTranslation(pos);
 
 	SpritesheetSettings spriteSettings;
@@ -833,7 +826,7 @@ ParticleComponent* GameManagerSystem::SpawnEmitterHeartImpact2(World* world, Vec
 	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
 	Entity* particlesEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
-	EntityTransform& particlesTrans = particlesEnt->GetTransform();
+	// EntityTransform& particlesTrans = particlesEnt->GetTransform();
 	// particlesTrans.SetLocalTranslation(pos);
 
 	SpritesheetSettings spriteSettings;
@@ -886,4 +879,4 @@ void GameManagerSystem::SpawnHeartSystem(World* world)
 	gameMgrCmp->particleHeartImpact2 = SpawnEmitterHeartImpact2(world, Vector(0.0f, 4.0f, 0.0f));
 }
 
-#pragma endregion
+// #pragma endregion
