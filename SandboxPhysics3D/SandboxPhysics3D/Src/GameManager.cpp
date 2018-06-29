@@ -109,7 +109,7 @@ void BT::GameManagerSystem::SpawnBullet(Poly::World * world)
 void BT::GameManagerSystem::Update(World* world)
 {
 	GameManagerWorldComponent* gameManager = Poly::gEngine->GetWorld()->GetWorldComponent<GameManagerWorldComponent>();
-	Physics3DWorldComponent* physicsWorldComponent = Poly::gEngine->GetWorld()->GetWorldComponent<Physics3DWorldComponent>();
+	// Physics3DWorldComponent* physicsWorldComponent = Poly::gEngine->GetWorld()->GetWorldComponent<Physics3DWorldComponent>();
 	InputWorldComponent* input = world->GetWorldComponent<InputWorldComponent>();
 
 	// for(auto tuple : world->IterateComponents<TransformComponent>())
@@ -134,14 +134,14 @@ void BT::GameManagerSystem::Update(World* world)
 		}
 	}
 
-	for (int i = 0; i < gameManager->Bullets.GetSize(); i++)
+	for (size_t i = 0; i < gameManager->Bullets.GetSize(); i++)
 	{
 		StatusFlagsComponent* bulletStatus = world->GetComponent<StatusFlagsComponent>(gameManager->Bullets[i]);
-		Rigidbody3DComponent* rigidbody = bulletStatus->GetSibling<Rigidbody3DComponent>();
+		// Rigidbody3DComponent* rigidbody = bulletStatus->GetSibling<Rigidbody3DComponent>();
 		if (!bulletStatus->PhysicsInitialized)
 		{
 			EntityTransform& transform = gameManager->Camera->GetTransform();
-			Vector direction = MovementSystem::GetGlobalForward(gameManager->Camera->GetTransform());
+			// Vector direction = MovementSystem::GetGlobalForward(gameManager->Camera->GetTransform());
 	
 			gameManager->Bullets[i]->GetTransform().SetLocalTranslation(transform.GetGlobalTranslation());
 	
