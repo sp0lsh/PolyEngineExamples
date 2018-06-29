@@ -50,8 +50,8 @@ void BT::GameManagerSystem::InitializeDemoWorld(World* world)
 	// create ground
 	gameManager->Ground = DeferredTaskSystem::SpawnEntityImmediate(gEngine->GetWorld());
 	MeshRenderingComponent* groundMesh = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, gameManager->Ground, "Models/Ground.fbx", eResourceSource::GAME);
-	groundMesh->SetMaterial(0, Material(Color(1, 0.5, 0.2), Color(1, 0.5, 0.2), 1.0f, 1.0f, 0.5f));
-	groundMesh->SetShadingModel(eShadingModel::PBR);
+	groundMesh->SetMaterial(0, PhongMaterial(Color(1, 0.5, 0.2), Color(1, 0.5, 0.2), Color(1, 0.5, 0.2), 8.0f));
+	groundMesh->SetShadingModel(eShadingModel::LIT);
 	gameManager->Ground->GetTransform().SetLocalTranslation(Vector(0, 0, 0));
 	gameManager->Ground->GetTransform().SetLocalRotation(Quaternion({ -90_deg, 0_deg, 0_deg }));
 	
@@ -78,8 +78,8 @@ void BT::GameManagerSystem::InitializeDemoWorld(World* world)
 			rigidbodyTemplate->Mass = 10;
 			DeferredTaskSystem::AddComponentImmediate<Rigidbody3DComponent>(gEngine->GetWorld(), brick, gEngine->GetWorld(), *rigidbodyTemplate);
 			MeshRenderingComponent* brickMesh = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, brick, "Models/Cube.fbx", eResourceSource::GAME);
-			brickMesh->SetMaterial(0, Material(Color(1, 0, 0.2), Color(1, 0, 0.2), 1.0f, 1.0f, 0.5f));
-			brickMesh->SetShadingModel(eShadingModel::PBR);
+			brickMesh->SetMaterial(0, PhongMaterial(Color(1.0f, 0.0f, 0.2f), Color(1.0f, 0.0f, 0.2f), Color(1.0f, 0.0f, 0.2f), 8.0f));
+			brickMesh->SetShadingModel(eShadingModel::LIT);
 		}
 	}
 }
@@ -102,8 +102,8 @@ void BT::GameManagerSystem::SpawnBullet(Poly::World * world)
 	DeferredTaskSystem::AddComponentImmediate<Rigidbody3DComponent>(gEngine->GetWorld(), bullet, gEngine->GetWorld(), *rigidbodyTemplate);
 	DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, bullet, "Models/Sphere.fbx", eResourceSource::GAME);
 	
-	world->GetComponent<MeshRenderingComponent>(bullet)->SetMaterial(0, Material(Color(1, 0.2, 0), Color(1, 0.2, 0), 1.0f, 1.0f, 0.5f));
-	world->GetComponent<MeshRenderingComponent>(bullet)->SetShadingModel(eShadingModel::PBR);
+	world->GetComponent<MeshRenderingComponent>(bullet)->SetMaterial(0, PhongMaterial(Color(1.0f, 0.2f, 0.0f), Color(1.0f, 0.2f, 0.0f), Color(1.0f, 0.2f, 0.0f), 8.0f));
+	world->GetComponent<MeshRenderingComponent>(bullet)->SetShadingModel(eShadingModel::LIT);
 }
 
 void BT::GameManagerSystem::Update(World* world)
