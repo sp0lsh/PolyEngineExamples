@@ -309,7 +309,7 @@ void GameManagerSystem::UpdateLights(World* world)
 	float time = (float)(world->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
 	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
-	for (int i = 0; i < gameMgrCmp->LightsStartPositions.GetSize(); ++i)
+	for (size_t i = 0; i < gameMgrCmp->LightsStartPositions.GetSize(); ++i)
 	{
 		Entity* pointLight = gameMgrCmp->PointLightEntities[i];
 		Vector startPosition = gameMgrCmp->LightsStartPositions[i];
@@ -780,7 +780,7 @@ ParticleComponent* GameManagerSystem::SpawnEmitterHeartImpact(World* world, Vect
 	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
 	Entity* particlesEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
-	EntityTransform& particlesTrans = particlesEnt->GetTransform();
+	// EntityTransform& particlesTrans = particlesEnt->GetTransform();
 	// particlesTrans.SetLocalTranslation(pos);
 
 	SpritesheetSettings spriteSettings;
