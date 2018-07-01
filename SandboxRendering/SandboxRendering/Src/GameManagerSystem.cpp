@@ -48,11 +48,11 @@ void GameManagerSystem::CreateScene(World* world)
 
 	CreatePBRShpereGrid(world);
 
-	// CreateSponza(world);
+	CreateSponza(world);
 
 	CreateTextUI(world);
 
-	// CreateTranslucent(world);
+	CreateTranslucent(world);
 
 	// CreatePointLights(world, 128);
 
@@ -188,10 +188,11 @@ void GameManagerSystem::CreateTranslucent(World* world)
 		translucentTrans.SetGlobalTranslation(Vector(0.0f, 200.0f, 0.0f) + randomOffset);
 		translucentTrans.SetLocalScale(Vector(100.0f, 100.0f, 100.0f));
 		MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, translucent, "Models/Primitives/Sphere_HighPoly.obj", eResourceSource::GAME);
-		int materialsNum = meshCmp->GetMesh()->GetSubMeshes().GetSize();
-		for (int i = 0; i < materialsNum; ++i)
+		size_t materialsNum = meshCmp->GetMesh()->GetSubMeshes().GetSize();
+		for (size_t i = 0; i < materialsNum; ++i)
 		{
 			meshCmp->SetMaterial(i, material);
+			meshCmp->SetBlendingMode(eBlendingMode::TRANSLUCENT);
 		}
 
 		gameMgrCmp->GameEntities.PushBack(translucent);
