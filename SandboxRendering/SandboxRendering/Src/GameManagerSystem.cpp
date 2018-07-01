@@ -46,9 +46,11 @@ void GameManagerSystem::CreateScene(World* world)
 
 	// gameMgrCmp->Model = CreateModel(world, "Models/leather_shoes/Leather_Shoes.obj");
 
-	CreatePBRShpereGrid(world);
+	CreatePBRShpereGrid(world, Vector(0.0f, 0.0f, 0.0f), Color(0.0f, 0.0f, 0.0f, 1.0f));
+	CreatePBRShpereGrid(world, Vector(-300.0f, 0.0f, 0.0f), Color(0.5f, 0.5f, 0.5f, 1.0f));
+	CreatePBRShpereGrid(world, Vector(-600.0f, 0.0f, 0.0f), Color(1.0f, 1.0f, 1.0f, 1.0f));
 
-	// CreateSponza(world);
+	CreateSponza(world);
 
 	CreateTextUI(world);
 
@@ -87,9 +89,9 @@ void GameManagerSystem::CreateCamera(World* world)
 
 	Entity* camera = DeferredTaskSystem::SpawnEntityImmediate(world);
 	DeferredTaskSystem::AddComponentImmediate<CameraComponent>(world, camera, 35_deg, 1.0f, 5000.f);
-	DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(world, camera, 10.0f, 0.003f);
-	PostprocessSettingsComponent* postCmp = DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(world, camera);
-	postCmp->Exposure = 1.0f;
+	DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(world, camera, 100.0f, 0.003f, 10.0f);
+	gameMgrCmp->PostCmp = DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(world, camera);
+	gameMgrCmp->PostCmp->Exposure = 3.0f;
 
 	EntityTransform& cameraTrans = camera->GetTransform();
 	cameraTrans.SetGlobalTranslation(Vector(-550.0f, 180.0f, 0.0f));
@@ -105,7 +107,7 @@ void GameManagerSystem::CreateCamera(World* world)
 	
 }
 
-void GameManagerSystem::CreatePBRShpereGrid(World* world)
+void GameManagerSystem::CreatePBRShpereGrid(World* world, Vector pos, Color albedo)
 {
 	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
@@ -145,7 +147,7 @@ void GameManagerSystem::CreatePBRShpereGrid(World* world)
 		{
 			Entity* sphere = DeferredTaskSystem::SpawnEntityImmediate(world);
 			EntityTransform& sphereTrans = sphere->GetTransform();
-			sphereTrans.SetGlobalTranslation(Vector(50.0f * y, 0.0f, 50.0f * z) - (Vector(50.0f * 5.0f, -100.0f, 50.0f * 5.0f) * 0.5f));
+			sphereTrans.SetGlobalTranslation(pos + Vector(50.0f * y, 0.0f, 50.0f * z) - (Vector(50.0f * 5.0f, -100.0f, 50.0f * 5.0f) * 0.5f));
 			sphereTrans.SetLocalScale(Vector(1.0f, 1.0f, 1.0f) * 20.0f);
 			sphereTrans.SetLocalRotation(Quaternion(Vector::UNIT_Z, 90.0_deg));
 			MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, sphere, "Models/Primitives/Sphere_HighPoly.obj", eResourceSource::GAME);
@@ -156,7 +158,7 @@ void GameManagerSystem::CreatePBRShpereGrid(World* world)
 				float Metallic	= ((0.01f + y) / 5.0f);
 				meshCmp->SetMaterial(i, Material(
 					Color(0.0f, 0.0f, 0.0f, 0.0f),
-					Color(0.5f, 0.5f, 0.5f, 1.0f),
+					albedo,
 					Roughness,
 					Metallic,
 					0.5f
@@ -202,17 +204,14 @@ void GameManagerSystem::CreateSponza(World* world)
 {
 	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
-	Entity* camera = DeferredTaskSystem::SpawnEntityImmediate(world);
-	CameraComponent* cameraCmp = DeferredTaskSystem::AddComponentImmediate<CameraComponent>(world, camera, 50_deg, 1.0f, 5000.f);
-	cameraCmp->SetRenderingMode(eRenderingModeType::IMMEDIATE_DEBUG);
-	DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(world, camera, 10.0f, 0.003f);
-	EntityTransform& cameraTrans = camera->GetTransform();
-	cameraTrans.SetGlobalTranslation(Vector(800.0f, 180.0f, 0.0f));
-	cameraTrans.SetGlobalRotation(Quaternion(Vector::UNIT_Y, 90.0_deg));
-	world->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, world->GetComponent<CameraComponent>(camera));
-
-	PostprocessSettingsComponent* postCmp = DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(world, camera);
-	postCmp->Exposure = 1.0f;
+	// Entity* camera = DeferredTaskSystem::SpawnEntityImmediate(world);
+	// CameraComponent* cameraCmp = DeferredTaskSystem::AddComponentImmediate<CameraComponent>(world, camera, 50_deg, 1.0f, 5000.f);
+	// cameraCmp->SetRenderingMode(eRenderingModeType::IMMEDIATE_DEBUG);
+	// DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(world, camera, 10.0f, 0.003f);
+	// EntityTransform& cameraTrans = camera->GetTransform();
+	// cameraTrans.SetGlobalTranslation(Vector(800.0f, 180.0f, 0.0f));
+	// cameraTrans.SetGlobalRotation(Quaternion(Vector::UNIT_Y, 90.0_deg));
+	// world->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, world->GetComponent<CameraComponent>(camera));
 
 	// Entity* keyDirLight = DeferredTaskSystem::SpawnEntityImmediate(world);
 	// DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(world, keyDirLight, Color(0.1f, 0.095f, 0.075f), 1.0f);
@@ -257,8 +256,9 @@ void GameManagerSystem::Update(World* world)
 
 	// UpdateModel(world);
 
-	DebugDrawSystem::DrawLine(world, Vector::ZERO, Vector::UNIT_Y * 1000.0f, Color::RED);
-	DebugDrawSystem::DrawBox(world, Vector(-100.0f, 0.0f, -100.0f), Vector(100.0f, 200.0f, 100.0f), Color::RED);
+	Vector offset = Vector(800.0f, 0.0f, 0.0f);
+	DebugDrawSystem::DrawLine(world, offset, offset + Vector::UNIT_Y * 1000.0f, Color::RED);
+	DebugDrawSystem::DrawBox(world, offset + Vector(-100.0f, 0.0f, -100.0f), offset + Vector(100.0f, 200.0f, 100.0f), Color::RED);
 
 	// UpdatePostProcess(world);
 }
@@ -267,11 +267,10 @@ void GameManagerSystem::UpdatePostProcess(World* world)
 {
 	float time = (float)(world->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
 	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
-	PostprocessSettingsComponent* postCmp = gameMgrCmp->Camera->GetComponent<PostprocessSettingsComponent>();
 	time *= 0.1f;
 	float exposure = 0.25f * floor(10.0f*4.0f * (time - floor(time)));
-	postCmp->Exposure = exposure;
-	gConsole.LogInfo("GameManagerSystem::Update exposure: {}", exposure);
+	gameMgrCmp->PostCmp->Exposure = exposure;
+	gConsole.LogInfo("GameManagerSystem::Update exposure: {}", gameMgrCmp->PostCmp->Exposure);
 }
 
 void GameManagerSystem::Deinit(World* world)

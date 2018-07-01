@@ -16,7 +16,7 @@ namespace GameManagerSystem
 	
 	void CreateTextUI(World* world);
 	void CreateCamera(World* world);
-	void CreatePBRShpereGrid(World* world);
+	void CreatePBRShpereGrid(World* world, Vector pos, Color albedo);
 	void CreateTranslucent(World* world);
 	void CreateSponza(World* world);
 	void CreateSponzaSample(World* world);
