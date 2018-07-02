@@ -44,8 +44,6 @@ void GameManagerSystem::CreateScene(Scene* scene)
 	// gameMgrCmp->Model = CreateModel(scene, "Models/1972-datsun-240k-gt/model.obj");
 	// gameMgrCmp->Model->GetTransform().SetGlobalScale(Vector::ONE * 20.0f);
 
-	// gameMgrCmp->Model = CreateModel(scene, "Models/leather_shoes/Leather_Shoes.obj");
-
 	CreatePBRShpereGrid(scene, Vector(0.0f, 0.0f, 0.0f), Color(0.0f, 0.0f, 0.0f, 1.0f));
 	CreatePBRShpereGrid(scene, Vector(-300.0f, 0.0f, 0.0f), Color(0.5f, 0.5f, 0.5f, 1.0f));
 	CreatePBRShpereGrid(scene, Vector(-600.0f, 0.0f, 0.0f), Color(1.0f, 1.0f, 1.0f, 1.0f));
@@ -58,7 +56,7 @@ void GameManagerSystem::CreateScene(Scene* scene)
 
 	CreatePointLights(scene, 128);
 
-	// SpawnParticles(scene);
+	CreateParticles(scene);
 }
 
 void GameManagerSystem::CreateTextUI(Scene* scene)
@@ -92,6 +90,10 @@ void GameManagerSystem::CreateCamera(Scene* scene)
 	DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(scene, camera, 100.0f, 0.003f, 10.0f);
 	gameMgrCmp->PostCmp = DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(scene, camera);
 	gameMgrCmp->PostCmp->Exposure = 3.0f;
+	// gameMgrCmp->PostCmp->DOFShow = 1.0f;
+	gameMgrCmp->PostCmp->DOFSize = 0.4f;
+	gameMgrCmp->PostCmp->DOFPoint = 200.0f;
+	gameMgrCmp->PostCmp->DOFRange = 200.0f;
 
 	EntityTransform& cameraTrans = camera->GetTransform();
 	cameraTrans.SetGlobalTranslation(Vector(-550.0f, 180.0f, 0.0f));
@@ -100,11 +102,10 @@ void GameManagerSystem::CreateCamera(Scene* scene)
 	scene->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, scene->GetComponent<CameraComponent>(camera));
 	gameMgrCmp->Camera = camera;
 
-	Entity* keyDirLight = DeferredTaskSystem::SpawnEntityImmediate(scene);
-	DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(scene, keyDirLight, Color(1.0f, 1.0f, 1.0f), 5.0f);
-	keyDirLight->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_Y, -45_deg) * Quaternion(Vector::UNIT_X, 65_deg));
-	gameMgrCmp->GameEntities.PushBack(keyDirLight);
-	
+	// Entity* keyDirLight = DeferredTaskSystem::SpawnEntityImmediate(scene);
+	// DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(scene, keyDirLight, Color(1.0f, 1.0f, 1.0f), 5.0f);
+	// keyDirLight->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_Y, -45_deg) * Quaternion(Vector::UNIT_X, 65_deg));
+	// gameMgrCmp->GameEntities.PushBack(keyDirLight);
 }
 
 void GameManagerSystem::CreatePBRShpereGrid(Scene* scene, Vector pos, Color albedo)
@@ -157,12 +158,13 @@ void GameManagerSystem::CreatePBRShpereGrid(Scene* scene, Vector pos, Color albe
 				float Roughness	= ((0.01f + z) / 5.0f);
 				float Metallic	= ((0.01f + y) / 5.0f);
 				meshCmp->SetMaterial(i, Material(
-					Color(0.0f, 0.0f, 0.0f, 0.0f),
+					Color(0.0f, 0.0f, 0.0f, 1.0f),
 					albedo,
 					Roughness,
 					Metallic,
 					0.5f
 				));
+				meshCmp->SetBlendingMode(eBlendingMode::OPAUQE);
 			}
 
 			gameMgrCmp->GameEntities.PushBack(sphere);
@@ -175,9 +177,9 @@ void GameManagerSystem::CreateTranslucent(Scene* scene)
 	GameManagerWorldComponent* gameMgrCmp = scene->GetWorldComponent<GameManagerWorldComponent>();
 
 	Material material(
-		Color(0.01f, 0.01f, 0.01f, 1.0f),
-		Color(1.0f, 0.5f, 0.5f, 0.75f),
-		1.0f,
+		Color(0.0f, 0.0f, 0.0f, 1.0f),
+		Color(1.0f, 1.0f, 1.0f, 0.5f),
+		0.1f,
 		1.0f,
 		0.5f
 	);
@@ -415,11 +417,11 @@ void GameManagerSystem::UpdateParticles(Scene* scene)
 	}
 }
 
-void GameManagerSystem::SpawnParticles(Scene* scene)
+void GameManagerSystem::CreateParticles(Scene* scene)
 {
 	GameManagerWorldComponent* gameMgrCmp = scene->GetWorldComponent<GameManagerWorldComponent>();
 	Vector particlesPosition = Vector(0.0f, 0.0f, 0.0f);
-	gameMgrCmp->particleDefault = SpawnEmitterDefault(scene, particlesPosition);
+	// gameMgrCmp->particleDefault = SpawnEmitterDefault(scene, particlesPosition);
 	gameMgrCmp->particleWorldSpace = SpawnEmitterWorldSpace(scene, particlesPosition);
 	gameMgrCmp->particleLocalSpace = SpawnEmitterLocalSpace(scene, particlesPosition);
 	gameMgrCmp->particleAmbient = SpawnEmitterAmbient(scene, particlesPosition);
@@ -675,23 +677,23 @@ ParticleComponent* GameManagerSystem::SpawnEmitterAmbient(Scene* scene, Vector p
 
 	SpritesheetSettings spriteSettings;
 	spriteSettings.SubImages = Vector2f(2.0f, 2.0f);
-	spriteSettings.SpritePath = "Textures/test_2_2.png";
+	spriteSettings.SpritePath = "Textures/strokes_2_2.png";
 
 	ParticleEmitter::Settings settings;
-	settings.MaxSize = 500;
-	settings.InitialSize = 500;
+	settings.MaxSize = 1000;
+	settings.InitialSize = 700;
 	settings.Spritesheet = spriteSettings;
 	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::WORLD_SPACE;
 	settings.BurstTimeMin = 1.0f;
 	settings.BurstTimeMax = 2.0f;
-	settings.BurstSizeMin = 10;
-	settings.BurstSizeMax = 20;
-	settings.BaseColor = Color(1.0f, 1.0f, 1.0f, 0.5f);
+	settings.BurstSizeMin = 100;
+	settings.BurstSizeMax = 200;
+	settings.BaseColor = Color(0.5f, 0.5f, 1.0f, 0.5f);
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
-		p->Position += RandomVectorRange(-1.0f, 1.0f) * 10.0f;
-		p->Velocity = RandomVectorRange(-1.0f, 1.0f) * 0.001f;
+		p->Position += RandomVectorRange(-1.0f, 1.0f) * 1000.0f;
+		p->Velocity = RandomVectorRange(-1.0f, 1.0f) * 1.0f;
 		p->LifeTime = RandomRange(5.0f, 10.0f);
-		p->Scale = Vector::ONE * RandomRange(0.025f, 0.05f);
+		p->Scale = Vector::ONE * RandomRange(5.0f, 15.0f);
 	};
 
 	gameMgrCmp->GameEntities.PushBack(particlesEnt);
