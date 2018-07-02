@@ -46,15 +46,15 @@ void GameManagerSystem::CreateScene(World* world)
 
 	// gameMgrCmp->Model = CreateModel(world, "Models/leather_shoes/Leather_Shoes.obj");
 
-	CreatePBRShpereGrid(world, Vector(0.0f, 0.0f, 0.0f), Color(0.0f, 0.0f, 0.0f, 1.0f));
-	CreatePBRShpereGrid(world, Vector(-300.0f, 0.0f, 0.0f), Color(0.5f, 0.5f, 0.5f, 1.0f));
-	CreatePBRShpereGrid(world, Vector(-600.0f, 0.0f, 0.0f), Color(1.0f, 1.0f, 1.0f, 1.0f));
+	CreatePBRShpereGrid(world, Vector(0.0f, 0.0f, 0.0f), Color(0.0f, 0.0f, 0.0f, 0.5f));
+	CreatePBRShpereGrid(world, Vector(-300.0f, 0.0f, 0.0f), Color(0.5f, 0.5f, 0.5f, 0.5f));
+	CreatePBRShpereGrid(world, Vector(-600.0f, 0.0f, 0.0f), Color(1.0f, 1.0f, 1.0f, 0.5f));
 
 	CreateSponza(world);
 
 	CreateTextUI(world);
 
-	CreateTranslucent(world);
+	// CreateTranslucent(world);
 
 	// CreatePointLights(world, 128);
 
@@ -163,6 +163,7 @@ void GameManagerSystem::CreatePBRShpereGrid(World* world, Vector pos, Color albe
 					Metallic,
 					0.5f
 				));
+				meshCmp->SetBlendingMode(eBlendingMode::TRANSLUCENT);
 			}
 
 			gameMgrCmp->GameEntities.PushBack(sphere);
