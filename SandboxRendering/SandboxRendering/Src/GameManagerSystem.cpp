@@ -56,7 +56,7 @@ void GameManagerSystem::CreateScene(World* world)
 
 	// CreateTranslucent(world);
 
-	// CreatePointLights(world, 128);
+	CreatePointLights(world, 128);
 
 	// SpawnParticles(world);
 }
@@ -287,7 +287,8 @@ void GameManagerSystem::CreatePointLights(World* world, int quota)
 	for (int i = 0; i < quota; ++i)
 	{
 		Vector position = Vector(RandomRange(-1.0f, 1.0f)*1000.0f, RandomRange(0.0f, 800.0f), RandomRange(-1.0f, 1.0f)*500.0f);
-		float range = 500.0f; // +1000.0f * RandomRange(0.0f, 1.0f);
+		float rangeRnd = pow(RandomRange(0.0f, 1.0f), 8.0f);
+		float range = 100.0f + rangeRnd * 2000.0f;
 		Entity* lightEntity = CreatePointLight(world, position, range);
 
 		gameMgrCmp->LightsStartPositions.PushBack(position);
