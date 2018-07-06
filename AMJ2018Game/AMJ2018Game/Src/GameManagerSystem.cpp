@@ -30,27 +30,11 @@ void GameManagerSystem::CreateScene(World* world)
 	
 	CreateCamera(world);
 
-	// gameMgrCmp->GameEntities.PushBack(Ground = CreateModel(world, "Models/Ground/Ground.fbx"));
-
 	DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(world, "HDR/HDR.hdr", eResourceSource::GAME);
 	
-	gameMgrCmp->Model = CreateModel(world, "Models/leather_shoes/Leather_Shoes.obj");
-	gameMgrCmp->Model->GetTransform().SetGlobalTranslation(Vector(500.0f, 0.0f, 0.0f));
-
-	// gameMgrCmp->Model = CreateModel(world, "Models/kv-2-heavy-tank-1940/model.obj");
-	// gameMgrCmp->Model->GetTransform().SetGlobalScale(Vector(5.0f, 5.0f, 5.0f));
-	// gameMgrCmp->Model->GetTransform().SetGlobalTranslation(Vector(0.0f, 10.0f, 0.0f));
-
-	// gameMgrCmp->Model = CreateModel(world, "Models/1972-datsun-240k-gt/model.obj");
-	// gameMgrCmp->Model->GetTransform().SetGlobalScale(Vector::ONE * 20.0f);
-
-	// gameMgrCmp->Model = CreateModel(world, "Models/leather_shoes/Leather_Shoes.obj");
-
 	CreatePBRShpereGrid(world, Vector(0.0f, 0.0f, 0.0f), Color(0.0f, 0.0f, 0.0f, 1.0f));
 	CreatePBRShpereGrid(world, Vector(-300.0f, 0.0f, 0.0f), Color(0.5f, 0.5f, 0.5f, 1.0f));
 	CreatePBRShpereGrid(world, Vector(-600.0f, 0.0f, 0.0f), Color(1.0f, 1.0f, 1.0f, 1.0f));
-
-	// CreateSponza(world);
 
 	CreateTextUI(world);
 
