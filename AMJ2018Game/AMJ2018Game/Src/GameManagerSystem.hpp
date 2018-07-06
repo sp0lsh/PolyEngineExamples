@@ -14,6 +14,10 @@ namespace GameManagerSystem
 
 	Entity* CreateModel(World* world, String path);
 	
+	void CreateAnimTrack(World* world);
+	Vector ReadVector3FromRow(String row);
+	Vector ReadVector4FromRow(String row);
+
 	void CreateTextUI(World* world);
 	void CreateCamera(World* world);
 	void CreatePBRShpereGrid(World* world, Vector pos, Color albedo);
