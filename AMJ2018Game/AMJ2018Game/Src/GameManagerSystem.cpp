@@ -32,13 +32,13 @@ void GameManagerSystem::CreateScene(World* world)
 
 	DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(world, "HDR/HDR.hdr", eResourceSource::GAME);
 	
-	CreatePBRShpereGrid(world, Vector(0.0f, 0.0f, 0.0f), Color(0.0f, 0.0f, 0.0f, 1.0f));
-	CreatePBRShpereGrid(world, Vector(-300.0f, 0.0f, 0.0f), Color(0.5f, 0.5f, 0.5f, 1.0f));
-	CreatePBRShpereGrid(world, Vector(-600.0f, 0.0f, 0.0f), Color(1.0f, 1.0f, 1.0f, 1.0f));
+	// CreatePBRShpereGrid(world, Vector(0.0f, 0.0f, 0.0f), Color(0.0f, 0.0f, 0.0f, 1.0f));
+	// CreatePBRShpereGrid(world, Vector(-300.0f, 0.0f, 0.0f), Color(0.5f, 0.5f, 0.5f, 1.0f));
+	// CreatePBRShpereGrid(world, Vector(-600.0f, 0.0f, 0.0f), Color(1.0f, 1.0f, 1.0f, 1.0f));
 
 	CreateTextUI(world);
 
-	// CreateTranslucent(world);
+	CreateTranslucent(world);
 
 	CreatePointLights(world, 128);
 
@@ -159,10 +159,10 @@ void GameManagerSystem::CreateTranslucent(World* world)
 	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
 	Material material(
-		Color(0.01f, 0.01f, 0.01f, 1.0f),
+		Color::BLACK,
 		Color(1.0f, 0.5f, 0.5f, 0.75f),
-		1.0f,
-		1.0f,
+		0.01f,
+		0.95f,
 		0.5f
 	);
 
@@ -174,6 +174,7 @@ void GameManagerSystem::CreateTranslucent(World* world)
 		translucentTrans.SetGlobalTranslation(Vector(0.0f, 200.0f, 0.0f) + randomOffset);
 		translucentTrans.SetLocalScale(Vector(100.0f, 100.0f, 100.0f));
 		MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, translucent, "Models/Primitives/Sphere_HighPoly.obj", eResourceSource::GAME);
+		meshCmp->SetBlendingMode(eBlendingMode::TRANSLUCENT);
 		int materialsNum = meshCmp->GetMesh()->GetSubMeshes().GetSize();
 		for (int i = 0; i < materialsNum; ++i)
 		{
