@@ -28,7 +28,6 @@ void GameManagerSystem::CreateScene(World* world)
 
 	srand(42);
 	
-	CreateCamera(world);
 
 	DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(world, "HDR/HDR.hdr", eResourceSource::GAME);
 	
