@@ -37,7 +37,6 @@ void AMJGame::Init()
 
 	DeferredTaskSystem::AddWorldComponentImmediate<GameManagerWorldComponent>(gEngine->GetWorld());
 
-	GameManagerSystem::CreateScene(gEngine->GetWorld());
 	ZimaSystem::Init(gEngine->GetWorld());
 
 	gDebugConfig.DisplayFPS = false;
@@ -49,12 +48,11 @@ void AMJGame::Init()
 	}
 	else
 	{
-		GameManagerSystem::CreateCamera(gEngine->GetWorld());
+		GameManagerSystem::CreateStartScene(gEngine->GetWorld());
 	}
 };
 
 void AMJGame::Deinit()
 {
 	GameManagerSystem::Deinit(gEngine->GetWorld());
-	ZimaSystem::Deinit(gEngine->GetWorld());
 };
