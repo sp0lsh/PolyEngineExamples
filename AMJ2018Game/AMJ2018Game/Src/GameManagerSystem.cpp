@@ -432,7 +432,7 @@ void GameManagerSystem::UpdatePostProcess(World* world)
 
 void GameManagerSystem::UpdateAnimTracks(World* world)
 {
-	gConsole.LogInfo("GameManagerSystem::UpdateAnimTracks");
+	// gConsole.LogInfo("GameManagerSystem::UpdateAnimTracks");
 
 	float time = (float)(world->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
 	float delta = (float)(TimeSystem::GetTimerDeltaTime(world, Poly::eEngineTimer::GAMEPLAY));
@@ -444,7 +444,7 @@ void GameManagerSystem::UpdateAnimTracks(World* world)
 
 	animTime += delta;
 	animTime = fmod(animTime, 4.0f);
-	gConsole.LogInfo("GameManagerSystem::UpdateAnimTracks AnimProgress: {}", animTime);
+	// gConsole.LogInfo("GameManagerSystem::UpdateAnimTracks AnimProgress: {}", animTime);
 
 	float keyDelta = animTime - floorf(animTime); // fract actually but simpler
 	size_t keyPrev = floorf(animTime);
@@ -453,7 +453,6 @@ void GameManagerSystem::UpdateAnimTracks(World* world)
 	float keyDeltaSmooth = SmoothStep(0.0f, 1.0f, keyDelta);
 	Vector position = Lerp(animKeys.Positions[keyPrev], animKeys.Positions[keyNext], keyDeltaSmooth);
 	Vector scale = Lerp(animKeys.Scales[keyPrev], animKeys.Scales[keyNext], keyDeltaSmooth);
-	// Vector Rtoation = Lerp(animKeys.Positions[keyPrev], animKeys.Positions[keyNext], keyDelta);
 	
 	gameMgrCmp->AminModel->GetTransform().SetGlobalTranslation(position);
 	gameMgrCmp->AminModel->GetTransform().SetGlobalScale(scale);
