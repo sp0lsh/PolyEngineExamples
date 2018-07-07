@@ -20,6 +20,9 @@
 #include "ZimaMovementComponent.hpp"
 #include "GameManagerWorldComponent.hpp"
 #include "ZimaGunComponent.hpp"
+#include "ZimaEnemyComponent.hpp"
+#include "ZimaBulletComponent.hpp"
+
 
 
 using namespace Poly;
@@ -29,15 +32,76 @@ void ZimaSystem::Init(World* world)
 	gConsole.LogInfo("ZimaSystem::CreateScene");
 
 	DeferredTaskSystem::AddWorldComponentImmediate<ZimaWorldComponent>(world);
-	ZimaWorldComponent* zimaCmp = world->GetWorldComponent<ZimaWorldComponent>();
+	ZimaWorldComponent* gameCmp = world->GetWorldComponent<ZimaWorldComponent>();
 
-	zimaCmp->Player = CreateActor(world, "Models/Primitives/Sphere_HighPoly.obj");
-	DeferredTaskSystem::AddComponentImmediate<ZimaGunComponent>(world, zimaCmp->Player.Get(), Vector(), Quaternion());
-	zimaCmp->Entities.PushBack(zimaCmp->Player);
+	gameCmp->Player = CreateActor(world, "Models/Drone/OBJ/Drone_00.obj");
+	DeferredTaskSystem::AddComponentImmediate<ZimaGunComponent>(world, gameCmp->Player.Get(), Vector(), Quaternion());
+	gameCmp->Entities.PushBack(gameCmp->Player);
+	EntityTransform& playerTransform = gameCmp->Player->GetTransform();
+	playerTransform.SetGlobalRotation(Quaternion(Vector::UNIT_Y, Angle::FromDegrees(-90.f)));
+	playerTransform.SetGlobalScale(Vector(3.f, 3.f, 3.f));
 
-	EntityTransform& playerTransform = zimaCmp->Player->GetTransform();
-	playerTransform.SetGlobalScale(Vector(30.f, 30.f, 3.f));
+	Dynarray<Vector> enemyTransforms
+	{
+		Vector(100.f, 0.f, 200.f),
+			Vector(100.f, 0.f,100.f),
+			Vector(100.f, 0.f, -100.f),
+			Vector(100.f, 0.f, -200.f)
+	};
 
+	for (int i = 0; i < enemyTransforms.GetSize(); i++)
+	{
+		Entity* actor = CreateActor(world, "Models/Primitives/Sphere_HighPoly.obj");
+		gameCmp->Entities.PushBack(actor);
+		gameCmp->Enemies.PushBack(actor);
+		DeferredTaskSystem::AddComponentImmediate<ZimaEnemyComponent>(world, actor, 20.f, 100.f);
+
+		EntityTransform& transform = actor->GetTransform();
+		transform.SetGlobalTranslation(enemyTransforms[i]);
+		transform.SetGlobalScale(Vector(6.f, 6.f, 6.f));
+		transform.SetGlobalRotation(Quaternion(Vector::UNIT_Y, Angle::FromDegrees(90.f)));
+	}
+}
+
+void ZimaSystem::Update(World* world)
+{
+	DebugDrawSystem::DrawSphere(world, Vector(-100.f, 0.f, 100.f), 10.f);
+
+	ZimaWorldComponent* gameCmp = world->GetWorldComponent<ZimaWorldComponent>();
+	for (auto enemy : gameCmp->Enemies)
+	{
+		if (enemy.Get())
+		{
+			for (auto bullet : gameCmp->Bullets)
+			{
+				if (bullet.Get())
+				{
+					if (IsColliding(bullet.Get(), 5.f, enemy.Get(), 10.f))
+					{
+						enemy.Get()->GetComponent<ZimaEnemyComponent>()->DamageToBeDealt = bullet.Get()->GetComponent<ZimaBulletComponent>()->Damage;
+						DeferredTaskSystem::DestroyEntity(world, bullet.Get());
+						bullet.Get()->GetComponent<ZimaBulletComponent>()->bDead = true;
+					}
+				}
+			}
+
+			if (gameCmp->Player.Get())
+			{
+				if (IsColliding(gameCmp->Player.Get(), 10.f, enemy.Get(), 10.f))
+				{
+					gConsole.LogInfo("ZimaSystem::Collision");
+					gameCmp->PlayerHealth -= enemy.Get()->GetComponent<ZimaEnemyComponent>()->DamageOnHit;
+
+					DeferredTaskSystem::DestroyEntity(world, enemy.Get());
+				}
+			}
+		}
+	}
+
+	if (gameCmp->PlayerHealth <= 0.f)
+	{
+		gConsole.LogInfo("PlayerDead");
+	}
 }
 
 void ZimaSystem::CreateCamera(World* world)
@@ -56,6 +120,7 @@ void ZimaSystem::CreateCamera(World* world)
 	// cameraTrans.SetGlobalRotation(Quaternion(Matrix(cameraTrans.GetGlobalTranslation(), Vector(0.0f, 0.0f, 0.0f))));
 	world->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, world->GetComponent<CameraComponent>(camera));
 	gameMgrCmp->Camera = camera;
+	world->GetComponent<CameraComponent>(camera)->SetRenderingMode(eRenderingModeType::IMMEDIATE_DEBUG);
 
 	Entity* keyDirLight = DeferredTaskSystem::SpawnEntityImmediate(world);
 	DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(world, keyDirLight, Color(1.0f, 1.0f, 1.0f), 5.0f);
@@ -77,11 +142,11 @@ Entity* ZimaSystem::CreateActor(World* world, String path)
 
 void ZimaSystem::Deinit(World* world)
 {
-	/*ZimaWorldComponent* zimaCmp = world->GetWorldComponent<ZimaWorldComponent>();
+	ZimaWorldComponent* zimaCmp = world->GetWorldComponent<ZimaWorldComponent>();
 	for (auto entit : zimaCmp->Entities)
 	{
-
-	}*/
+		DeferredTaskSystem::DestroyEntity(world, entit.Get());
+	}
 	gConsole.LogInfo("ZimaSystem::Cleanup");
 }
 

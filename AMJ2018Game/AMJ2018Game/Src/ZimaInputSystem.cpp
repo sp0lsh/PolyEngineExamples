@@ -5,9 +5,8 @@
 
 void ZimaInputSystem::Update(World* world)
 {
-	gConsole.LogInfo("ZimaSystem::Update");
 	float time = (float)(TimeSystem::GetTimerDeltaTime(world, Poly::eEngineTimer::GAMEPLAY));
-	float speed = 100.f;
+	float speed = 200.f;
 
 	InputWorldComponent* inputCmp = world->GetWorldComponent<InputWorldComponent>();
 	auto zimaComp = world->GetWorldComponent<ZimaWorldComponent>();

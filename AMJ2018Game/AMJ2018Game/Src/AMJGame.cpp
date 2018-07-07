@@ -6,6 +6,7 @@
 #include "ZimaInputSystem.hpp"
 #include "ZimaBulletSystem.hpp"
 #include "ZimaGunSystem.hpp"
+#include "ZimaEnemySystem.hpp"
 #include "GameManagerWorldComponent.hpp"
 
 #include <Core.hpp>
@@ -27,15 +28,19 @@ DEFINE_GAME(AMJGame)
 
 void AMJGame::Init()
 {
-	gEngine->RegisterGameUpdatePhase(GameManagerSystem::Update);
 	gEngine->RegisterGameUpdatePhase(ZimaInputSystem::Update);
+	gEngine->RegisterGameUpdatePhase(ZimaSystem::Update);
 	gEngine->RegisterGameUpdatePhase(ZimaGunSystem::Update);
 	gEngine->RegisterGameUpdatePhase(ZimaBulletSystem::Update);
+	gEngine->RegisterGameUpdatePhase(ZimaEnemySystem::Update);
+	gEngine->RegisterGameUpdatePhase(GameManagerSystem::Update);
 
 	DeferredTaskSystem::AddWorldComponentImmediate<GameManagerWorldComponent>(gEngine->GetWorld());
 
 	GameManagerSystem::CreateScene(gEngine->GetWorld());
 	ZimaSystem::Init(gEngine->GetWorld());
+
+	gDebugConfig.DisplayFPS = false;
 
 	bool bGameCamera = true;
 	if (bGameCamera)

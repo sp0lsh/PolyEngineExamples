@@ -15,24 +15,26 @@ void ZimaGunSystem::Update(World* world)
 		if (gunCmp->bSpawnBullet && gunCmp->TimeSinceLastBullet >= gunCmp->BulletSpawnInterval)
 		{
 			EntityTransform& gunTransform = gunCmp->GetOwner()->GetTransform();
-			SpawnBullet(world, gunTransform.GetGlobalTranslation() + gunCmp->LocalTranslation, gunTransform.GetGlobalRotation() * gunCmp->LocalRotation);
+			SpawnBullet(world, gunCmp, gunTransform.GetGlobalTranslation() + gunCmp->LocalTranslation, gunTransform.GetGlobalRotation() * gunCmp->LocalRotation);
 			gunCmp->TimeSinceLastBullet = 0.f;
 		}
 		gunCmp->bSpawnBullet = false;
 	}
 }
 
-void ZimaGunSystem::SpawnBullet(World* world, const Vector& translation, const Quaternion& quaternion)
+void ZimaGunSystem::SpawnBullet(World* world, ZimaGunComponent* gunCmp, const Vector& translation, const Quaternion& quaternion)
 {
 	Entity* actor = DeferredTaskSystem::SpawnEntityImmediate(world);
 	DeferredTaskSystem::AddComponentImmediate<DebugDrawableComponent>(world, actor, eDebugDrawPreset::STATIC);
 	DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, actor, "Models/Primitives/Sphere_HighPoly.obj", eResourceSource::GAME);
 	DeferredTaskSystem::AddComponentImmediate<ZimaBulletComponent>(world, actor);
+	actor->GetComponent<ZimaBulletComponent>()->Instigator = gunCmp->GetOwner();
 	EntityTransform& transform = actor->GetTransform();
 	transform.SetGlobalTranslation(translation);
 	transform.SetGlobalRotation(quaternion);
 	
 	world->GetWorldComponent<ZimaWorldComponent>()->Entities.PushBack(actor);
+	world->GetWorldComponent<ZimaWorldComponent>()->Bullets.PushBack(actor);
 
 }
 

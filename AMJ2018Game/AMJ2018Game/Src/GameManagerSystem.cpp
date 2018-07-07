@@ -38,7 +38,7 @@ void GameManagerSystem::CreateScene(World* world)
 
 	CreateTextUI(world);
 
-	CreateTranslucent(world);
+	//CreateTranslucent(world);
 
 	CreatePointLights(world, 128);
 
