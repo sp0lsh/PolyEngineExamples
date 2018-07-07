@@ -16,6 +16,7 @@ public:
 	void RegisterEngine(Engine* engine) override { Engine = engine; }
 	
 	void Init() override;
+	void InitCommon();
 	void Deinit() override;
 
 private:

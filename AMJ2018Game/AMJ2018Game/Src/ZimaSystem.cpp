@@ -29,7 +29,7 @@ using namespace Poly;
 
 void ZimaSystem::Init(World* world)
 {
-	gConsole.LogInfo("ZimaSystem::CreateScene");
+	gConsole.LogInfo("ZimaSystem::Init");
 
 	DeferredTaskSystem::AddWorldComponentImmediate<ZimaWorldComponent>(world);
 	ZimaWorldComponent* gameCmp = world->GetWorldComponent<ZimaWorldComponent>();
@@ -105,7 +105,9 @@ void ZimaSystem::Update(World* world)
 }
 
 void ZimaSystem::CreateCamera(World* world)
-{
+{	
+	gConsole.LogInfo("ZimaSystem::CreateCamera");
+
 	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
 	Entity* camera = DeferredTaskSystem::SpawnEntityImmediate(world);
