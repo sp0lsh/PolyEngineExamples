@@ -19,6 +19,7 @@
 #include <UI/ScreenSpaceTextComponent.hpp>
 #include "ZimaMovementComponent.hpp"
 #include "GameManagerWorldComponent.hpp"
+#include "ZimaGunComponent.hpp"
 
 
 using namespace Poly;
@@ -31,30 +32,12 @@ void ZimaSystem::Init(World* world)
 	ZimaWorldComponent* zimaCmp = world->GetWorldComponent<ZimaWorldComponent>();
 
 	zimaCmp->Player = CreateActor(world, "Models/Primitives/Sphere_HighPoly.obj");
+	DeferredTaskSystem::AddComponentImmediate<ZimaGunComponent>(world, zimaCmp->Player.Get(), Vector(), Quaternion());
 	zimaCmp->Entities.PushBack(zimaCmp->Player);
 
 	EntityTransform& playerTransform = zimaCmp->Player->GetTransform();
 	playerTransform.SetGlobalScale(Vector(30.f, 30.f, 3.f));
 
-	//GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();	
-
-	//srand(42);
-	//
-	//CreateCamera(world);
-
-	//DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(world, "HDR/HDR.hdr", eResourceSource::GAME);
-	//
-	//CreatePBRShpereGrid(world, Vector(0.0f, 0.0f, 0.0f), Color(0.0f, 0.0f, 0.0f, 1.0f));
-	//CreatePBRShpereGrid(world, Vector(-300.0f, 0.0f, 0.0f), Color(0.5f, 0.5f, 0.5f, 1.0f));
-	//CreatePBRShpereGrid(world, Vector(-600.0f, 0.0f, 0.0f), Color(1.0f, 1.0f, 1.0f, 1.0f));
-
-	//CreateTextUI(world);
-
-	//// CreateTranslucent(world);
-
-	//CreatePointLights(world, 128);
-
-	//// SpawnParticles(world);
 }
 
 void ZimaSystem::CreateCamera(World* world)
@@ -102,5 +85,269 @@ void ZimaSystem::Deinit(World* world)
 	gConsole.LogInfo("ZimaSystem::Cleanup");
 }
 
+//
+//void GameManagerSystem::Update(World* world)
+//{
+//	float time = (float)(world->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
+//	float deltaTime = (float)(TimeSystem::GetTimerDeltaTime(world, Poly::eEngineTimer::GAMEPLAY));
+//
+//	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+//	InputWorldComponent* inputCmp = world->GetWorldComponent<InputWorldComponent>();
+//
+//	UpdateCamera(world);
+//
+//	UpdateParticles(world);
+//
+//	if (inputCmp->IsReleased(eKey::RETURN))
+//	{
+//		GameMgrCmp->SetIsPaused(!GameMgrCmp->GetIsPaused());
+//	}
+//
+//	if (GameMgrCmp->GetIsPaused())
+//	{
+//		return;
+//	}
+//
+//	if (GameMgrCmp->GetNeedRestart())
+//	{
+//		RestartGame(world);
+//	}
+//
+//	UpdatePlayer(world);
+//
+//	UpdateEnemies(world);
+//
+//	UpdateCollision(world);
+//
+//	UpdateGameplay(world);
+//
+//	UpdatePostEffect(world);
+//}
+//
+//void GameManagerSystem::UpdateCollision(World* world)
+//{
+//	float time = (float)(world->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
+//	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+//	PostprocessSettingsComponent* PostCmp = GameMgrCmp->Camera->GetComponent<PostprocessSettingsComponent>();
+//
+//	for (SafePtr<Entity> Bomb : GameMgrCmp->BombEntities)
+//	{
+//		if (IsColliding(GameMgrCmp->PlayerShipCollision.Get(), 1.0f, Bomb.Get(), 1.0f))
+//		{
+//			Vector ExplosionPos = GameMgrCmp->PlayerShipCollision.Get()->GetTransform().GetGlobalTranslation();
+//			SpawnExplosionEmitterInWS(world, nullptr, ExplosionPos);
+//			SpawnExplosionEmitterInWS2(world, nullptr, ExplosionPos - Vector(0.01f, 0.0f, 0.01f));
+//			SpawnExplosionEmitterInWS3(world, nullptr, ExplosionPos - Vector(0.02f, 0.0f, 0.02f));
+//			SpawnExplosionEmitterInWS4(world, nullptr, ExplosionPos + Vector(0.02f, 0.0f, 0.02f));
+//
+//			GameMgrCmp->SetIsPaused(true);
+//			GameMgrCmp->SetNeedRestart(true);
+//			PostCmp->TimeOfDeath = time;
+//
+//			// DeferredTaskSystem::DestroyEntityImmediate(world, Bomb.Get());
+//		}
+//	}
+//
+//	for (SafePtr<Entity> Bomb : GameMgrCmp->BombEntities)
+//	{
+//		for (int i = 0; i < GameMgrCmp->EnemyShipCollision.GetSize(); ++i)
+//		{
+//			if (GameMgrCmp->EnemyShipCollision[i] == nullptr)
+//			{
+//				continue;
+//			}
+//
+//			Entity* EnemyCollision = GameMgrCmp->EnemyShipCollision[i].Get();
+//
+//			if (IsColliding(EnemyCollision, 1.0f, Bomb.Get(), 1.0f))
+//			{
+//				Vector ExplosionPos = EnemyCollision->GetTransform().GetGlobalTranslation();
+//				SpawnExplosionEmitterInWS(world, nullptr, ExplosionPos);
+//				SpawnExplosionEmitterInWS2(world, nullptr, ExplosionPos - Vector(0.01f, 0.0f, 0.01f));
+//				SpawnExplosionEmitterInWS3(world, nullptr, ExplosionPos - Vector(0.02f, 0.0f, 0.02f));
+//				SpawnExplosionEmitterInWS4(world, nullptr, ExplosionPos + Vector(0.02f, 0.0f, 0.02f));
+//
+//				PostCmp->TimeOfAction = time;
+//
+//				// DeferredTaskSystem::DestroyEntityImmediate(world, Bomb.Get());
+//				// DeferredTaskSystem::DestroyEntityImmediate(world, EnemyCollision);
+//				GameMgrCmp->EnemyShipCollision[i] = nullptr;
+//			}
+//		}
+//	}
+//
+//	for (int i = 0; i < GameMgrCmp->EnemyShipCollision.GetSize(); ++i)
+//	{
+//		if (GameMgrCmp->EnemyShipCollision[i] == nullptr)
+//		{
+//			continue;
+//		}
+//
+//		Entity* EnemyCollision = GameMgrCmp->EnemyShipCollision[i].Get();
+//		Entity* PlayerCollision = GameMgrCmp->PlayerShipCollision.Get();
+//
+//		if (IsColliding(EnemyCollision, 1.0f, PlayerCollision, 1.0f))
+//		{
+//			Vector ExplosionPos = EnemyCollision->GetTransform().GetGlobalTranslation();
+//			SpawnExplosionEmitterInWS(world, nullptr, ExplosionPos);
+//			SpawnExplosionEmitterInWS2(world, nullptr, ExplosionPos - Vector(0.01f, 0.0f, 0.01f));
+//			SpawnExplosionEmitterInWS3(world, nullptr, ExplosionPos - Vector(0.02f, 0.0f, 0.02f));
+//			SpawnExplosionEmitterInWS4(world, nullptr, ExplosionPos + Vector(0.02f, 0.0f, 0.02f));
+//
+//			GameMgrCmp->SetIsPaused(true);
+//			GameMgrCmp->SetNeedRestart(true);
+//
+//			PostCmp->TimeOfDeath = time;
+//		}
+//	}
+//
+//	for (int i = 0; i < GameMgrCmp->PlayerTorpedos.GetSize(); ++i)
+//	{
+//		if (GameMgrCmp->PlayerTorpedos[i] == nullptr)
+//		{
+//			continue;
+//		}
+//
+//		Entity* PlayerTorpedo = GameMgrCmp->PlayerTorpedos[i].Get();
+//
+//		for (int j = 0; j < GameMgrCmp->EnemyShipCollision.GetSize(); ++j)
+//		{
+//			if (GameMgrCmp->EnemyShipCollision[j] == nullptr)
+//			{
+//				continue;
+//			}
+//
+//			Entity* EnemyCollision = GameMgrCmp->EnemyShipCollision[j].Get();
+//
+//			if (IsColliding(EnemyCollision, 1.0f, PlayerTorpedo, 1.0f))
+//			{
+//				Vector ExplosionPos = EnemyCollision->GetTransform().GetGlobalTranslation();
+//				SpawnExplosionEmitterInWS(world, nullptr, ExplosionPos);
+//				SpawnExplosionEmitterInWS2(world, nullptr, ExplosionPos - Vector(0.01f, 0.0f, 0.01f));
+//				SpawnExplosionEmitterInWS3(world, nullptr, ExplosionPos - Vector(0.02f, 0.0f, 0.02f));
+//				SpawnExplosionEmitterInWS4(world, nullptr, ExplosionPos + Vector(0.02f, 0.0f, 0.02f));
+//
+//				PostCmp->TimeOfAction = time;
+//
+//				// DeferredTaskSystem::DestroyEntityImmediate(world, EnemyCollision);
+//				// DeferredTaskSystem::DestroyEntityImmediate(world, PlayerTorpedo);
+//				GameMgrCmp->EnemyShipCollision[j] = nullptr;
+//				GameMgrCmp->PlayerTorpedos[i] = nullptr;
+//			}
+//		}
+//	}
+//
+//	for (int i = 0; i < GameMgrCmp->EnemyTorpedos.GetSize(); ++i)
+//	{
+//		if (GameMgrCmp->EnemyTorpedos[i] == nullptr)
+//		{
+//			continue;
+//		}
+//
+//		Entity* EnemyTorpedo = GameMgrCmp->EnemyTorpedos[i].Get();
+//		Entity* PlayerCollision = GameMgrCmp->PlayerShipCollision.Get();
+//
+//		if (IsColliding(PlayerCollision, 1.0f, EnemyTorpedo, 1.0f))
+//		{
+//			Vector ExplosionPos = PlayerCollision->GetTransform().GetGlobalTranslation();
+//			SpawnExplosionEmitterInWS(world, nullptr, ExplosionPos);
+//			SpawnExplosionEmitterInWS2(world, nullptr, ExplosionPos - Vector(0.01f, 0.0f, 0.01f));
+//			SpawnExplosionEmitterInWS3(world, nullptr, ExplosionPos - Vector(0.02f, 0.0f, 0.02f));
+//			SpawnExplosionEmitterInWS4(world, nullptr, ExplosionPos + Vector(0.02f, 0.0f, 0.02f));
+//
+//			// DeferredTaskSystem::DestroyEntityImmediate(world, EnemyCollision);
+//			// DeferredTaskSystem::DestroyEntityImmediate(world, PlayerTorpedo);
+//
+//			GameMgrCmp->SetIsPaused(true);
+//			GameMgrCmp->SetNeedRestart(true);
+//			PostCmp->TimeOfDeath = time;
+//		}
+//	}
+//
+//	if (GameMgrCmp->GetIsBossEngaged())
+//	{
+//		for (int i = 0; i < GameMgrCmp->BossCollision.GetSize(); ++i)
+//		{
+//			Entity* SubmarineCollision = GameMgrCmp->BossCollision[i].Get();
+//			Entity* PlayerCollision = GameMgrCmp->PlayerShipCollision.Get();
+//
+//			if (IsColliding(PlayerCollision, 1.0f, SubmarineCollision, 3.0f))
+//			{
+//				Vector ExplosionPos = PlayerCollision->GetTransform().GetGlobalTranslation();
+//				SpawnExplosionEmitterInWS(world, nullptr, ExplosionPos);
+//				SpawnExplosionEmitterInWS2(world, nullptr, ExplosionPos - Vector(0.01f, 0.0f, 0.01f));
+//				SpawnExplosionEmitterInWS3(world, nullptr, ExplosionPos - Vector(0.02f, 0.0f, 0.02f));
+//				SpawnExplosionEmitterInWS4(world, nullptr, ExplosionPos + Vector(0.02f, 0.0f, 0.02f));
+//
+//				// DeferredTaskSystem::DestroyEntityImmediate(world, EnemyCollision);
+//				// DeferredTaskSystem::DestroyEntityImmediate(world, PlayerTorpedo);
+//
+//				SoundSystem::StopEmitter(world, GameMgrCmp->musicEmmiterEnt);
+//
+//				Entity* musicEmmiter = DeferredTaskSystem::SpawnEntityImmediate(world);
+//				DeferredTaskSystem::AddComponentImmediate<Poly::SoundEmitterComponent>(world, musicEmmiter, "Yellow_Submarine.ogg", eResourceSource::GAME);
+//				SoundSystem::SetEmitterFrequency(world, musicEmmiter, 1.0f);
+//				SoundSystem::SetEmitterGain(world, musicEmmiter, 1.0f);
+//				SoundSystem::PlayEmitter(world, musicEmmiter);
+//				SoundSystem::LoopEmitter(world, musicEmmiter);
+//				GameMgrCmp->submarineEmmiterEnt = musicEmmiter;
+//
+//				GameMgrCmp->SetIsPaused(true);
+//				GameMgrCmp->SetNeedRestart(true);
+//
+//				PostCmp->TimeOfDeath = time;
+//			}
+//		}
+//	}
+//}
+//
+//void GameManagerSystem::UpdateGameplay(World * world)
+//{
+//	GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+//	PostprocessSettingsComponent* PostCmp = GameMgrCmp->Camera->GetComponent<PostprocessSettingsComponent>();
+//
+//	gConsole.LogDebug("GameManagerSystem::UpdateGamplay IsBossEngaged: {}", GameMgrCmp->GetIsBossEngaged());
+//
+//	if (!GameMgrCmp->GetIsBossEngaged())
+//	{
+//		int EnemiesDestroyed = 0;
+//		for (int i = 0; i < GameMgrCmp->EnemyShipCollision.GetSize(); ++i)
+//		{
+//			gConsole.LogDebug("GameManagerSystem::UpdateGamplay EnemyId: {}, EnemyDead: {}, Score: {}/{}",
+//				i, GameMgrCmp->EnemyShipCollision[i] == nullptr, EnemiesDestroyed, GameMgrCmp->GetEnemiesCount()
+//			);
+//
+//			if (GameMgrCmp->EnemyShipCollision[i] == nullptr)
+//			{
+//				EnemiesDestroyed++;
+//			}
+//		}
+//
+//		if (GameMgrCmp->GetEnemiesCount() <= EnemiesDestroyed)
+//		{
+//			GameMgrCmp->SetIsBossEngaged(true);
+//
+//			SpawnBoss(world);
+//
+//			PostCmp->EnableBoss = true;
+//		}
+//	}
+//}
 
-// #pragma endregion
+bool ZimaSystem::IsColliding(Entity* EntityA, float RadiusA, Entity* EntityB, float RadiusB)
+{
+	EntityTransform& ShipTrans = EntityA->GetTransform();
+	Vector EntityAPosition = ShipTrans.GetGlobalTranslation();
+	EntityAPosition.Y = 0.0f;
+
+	EntityTransform& BombTrans = EntityB->GetTransform();
+	Vector EntityBPosition = BombTrans.GetGlobalTranslation();
+	EntityBPosition.Y = 0.0f;
+
+	float Distance = (EntityAPosition - EntityBPosition).Length();
+	// gConsole.LogInfo("GameManagerSystem::CollideWithBomb Distance: {}", Distance );
+	return Distance < (RadiusA + RadiusB);
+}
+
+
+

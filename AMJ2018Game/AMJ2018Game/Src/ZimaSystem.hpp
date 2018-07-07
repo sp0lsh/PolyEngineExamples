@@ -16,6 +16,8 @@ namespace ZimaSystem
 
 	void CreateCamera(World* world);
 
+	bool IsColliding(Entity* EntityA, float RadiusA, Entity* EntityB, float RadiusB);
+
 	void Update(World* world);
 	void Deinit(World* world);
 }

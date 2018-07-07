@@ -4,6 +4,8 @@
 #include "GameManagerSystem.hpp"
 #include "ZimaSystem.hpp"
 #include "ZimaInputSystem.hpp"
+#include "ZimaBulletSystem.hpp"
+#include "ZimaGunSystem.hpp"
 #include "GameManagerWorldComponent.hpp"
 
 #include <Core.hpp>
@@ -27,6 +29,8 @@ void AMJGame::Init()
 {
 	gEngine->RegisterGameUpdatePhase(GameManagerSystem::Update);
 	gEngine->RegisterGameUpdatePhase(ZimaInputSystem::Update);
+	gEngine->RegisterGameUpdatePhase(ZimaGunSystem::Update);
+	gEngine->RegisterGameUpdatePhase(ZimaBulletSystem::Update);
 
 	DeferredTaskSystem::AddWorldComponentImmediate<GameManagerWorldComponent>(gEngine->GetWorld());
 

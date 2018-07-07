@@ -24,7 +24,6 @@ namespace ZimaSystem
 #include <ECS/World.hpp>
 #include <Collections/String.hpp>
 #include <Math/Vector.hpp>
-#include <Rendering/Particles/ParticleComponent.hpp>
 
 using namespace Poly;
 
