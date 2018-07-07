@@ -24,7 +24,7 @@ namespace GameManagerSystem
 
 	void CreateTextUI(World* world);
 	void CreateCamera(World* world);
-	void CreateDroneGrid(World* world, Vector pos);
+	void CreateDrones(World* world, Vector pos);
 	void CreateLevel(World* world);
 	void CreatePBRShpereGrid(World* world, Vector pos, Color albedo);
 	void CreateTranslucent(World* world);
@@ -64,6 +64,7 @@ namespace GameManagerSystem
 	void UpdateAnimTracks(World* world);
 	void UpdateAnimDayNight(World* world);
 	void UpdateAnimDrones(World* world);
+	void UpdateDrones(World* world);
 	
 	void Deinit(World* world);
 }

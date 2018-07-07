@@ -52,6 +52,7 @@ public:
 	SafePtr<Entity> Camera;
 	PostprocessSettingsComponent* PostCmp;
 	SafePtr<Entity> Level;
+	SafePtr<Entity> TextFPS;
 	
 	Dynarray<DroneComponent*> Drones;
 	Dynarray<SafePtr<Entity>> GameEntities;

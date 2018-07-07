@@ -30,6 +30,8 @@ void GameManagerSystem::CreateStartScene(World* world)
 
 	srand(42);
 
+	gDebugConfig.DisplayFPS = true;
+
 	CreateCamera(world);
 
 	gameMgrCmp->AminModel = CreateModel(world, "Models/Drone/OBJ/Drone_00.obj");
@@ -39,7 +41,7 @@ void GameManagerSystem::CreateStartScene(World* world)
 	gameMgrCmp->AnimShapeCube = LoadAnimShape(world, "Shapes/Cube.obj");
 	gameMgrCmp->AnimShapeTorus = LoadAnimShape(world, "Shapes/Torus.obj");
 
-	CreateDroneGrid(world, Vector(-400.0f, 0.0f, -300.0f));
+	CreateDrones(world, Vector(-400.0f, 0.0f, -300.0f));
 
 	CreateLevel(world);
 
@@ -263,6 +265,8 @@ Vector GameManagerSystem::AnimShape_ReadVector3FromRow(String row)
 
 void GameManagerSystem::CreateTextUI(World* world)
 {
+	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
 	Entity* text = DeferredTaskSystem::SpawnEntityImmediate(world);
 	DeferredTaskSystem::AddComponentImmediate<ScreenSpaceTextComponent>(
 		world,
@@ -272,7 +276,21 @@ void GameManagerSystem::CreateTextUI(World* world)
 		eResourceSource::ENGINE,
 		40.0f,
 		"powered by PolyEngine"
-		);
+	);
+	gameMgrCmp->GameEntities.PushBack(text);
+
+	Entity* textFPS = DeferredTaskSystem::SpawnEntityImmediate(world);
+	DeferredTaskSystem::AddComponentImmediate<ScreenSpaceTextComponent>(
+		world,
+		textFPS,
+		Vector2i(50, 25),
+		"Fonts/Raleway/Raleway-Regular.ttf",
+		eResourceSource::ENGINE,
+		40.0f,
+		""
+	);
+	gameMgrCmp->GameEntities.PushBack(textFPS);
+	gameMgrCmp->TextFPS = textFPS;
 }
 
 Entity* GameManagerSystem::CreateModel(World* world, String path)
@@ -310,46 +328,75 @@ void GameManagerSystem::CreateCamera(World* world)
 
 }
 
-void GameManagerSystem::CreateDroneGrid(World* world, Vector pos)
+void GameManagerSystem::CreateDrones(World* world, Vector pos)
 {
 	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
-	for (int z = 0; z < 10; ++z)
+	for (int z = 0; z < 20; ++z)
 	{
-		for (int y = 0; y < 10; ++y)
+		for (int y = 0; y < 20; ++y)
 		{
-			Entity* drone = DeferredTaskSystem::SpawnEntityImmediate(world);
-			EntityTransform& sphereTrans = drone->GetTransform();
-			Vector rndPos = RandomVector() * 2.0f - 1.0f;
-			Vector randomOffset = Vector(rndPos.X * 1.0f, rndPos.Y * 0.1f, rndPos.Z * 1.0f) * 5.0f;
-			sphereTrans.SetGlobalTranslation(pos + Vector(100.0f * y, 0.0f, 100.0f * z) + randomOffset + Vector::UNIT_Y * 20.0f);
-			Vector rndRot = RandomVector() * 2.0f - 1.0f;
-			float rotMax = 5.0f;
-			Quaternion rotOffset = Quaternion(Vector::UNIT_X, 1.0_deg * rndRot.X * rotMax) * Quaternion(Vector::UNIT_Y, 1.0_deg * rndRot.Y * rotMax) * Quaternion(Vector::UNIT_Z, 1.0_deg * rndRot.Z * rotMax);
-			sphereTrans.SetGlobalRotation(rotOffset);
-			sphereTrans.SetLocalScale(Vector::ONE * 10.0f);
-			MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, drone, "Models/Drone/OBJ/Drone_00.obj", eResourceSource::GAME);
-			size_t materials = meshCmp->GetMesh()->GetSubMeshes().GetSize();
-			for (size_t i = 0; i < materials; ++i)
+			Entity* droneRoot = DeferredTaskSystem::SpawnEntityImmediate(world);
+
+			Entity* droneLOD0 = DeferredTaskSystem::SpawnEntityImmediate(world);
+			droneLOD0->SetParent(droneRoot);
+			MeshRenderingComponent* LOD0 = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, droneLOD0, "Models/Drone/OBJ/Drone_00.obj", eResourceSource::GAME);
+			size_t LOD0MaterialsLen = LOD0->GetMesh()->GetSubMeshes().GetSize();
+			for (size_t i = 0; i < LOD0MaterialsLen; ++i)
 			{
-				meshCmp->SetMaterial(i, Material(Color::WHITE * 1000.0f, Color::WHITE, 1.0f, 1.0f, 0.5f));
+				LOD0->SetMaterial(i, Material(Color::WHITE * 1000.0f, Color::WHITE, 1.0f, 1.0f, 0.5f));
 			}
-			DroneComponent* droneCmp = DeferredTaskSystem::AddComponentImmediate<DroneComponent>(world, drone);
-			droneCmp->InitPosition = drone->GetTransform().GetGlobalTranslation();
-			droneCmp->InitScale = drone->GetTransform().GetGlobalScale();
-			droneCmp->InitRotation = drone->GetTransform().GetGlobalRotation();
-			droneCmp->RestPostion = (RandomVector() * 2.0f - 1.0f) * 500.0f;
-			droneCmp->mesh = meshCmp;
+
+			Entity* droneLOD1 = DeferredTaskSystem::SpawnEntityImmediate(world);
+			droneLOD1->SetParent(droneRoot);
+			MeshRenderingComponent* LOD1 = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, droneLOD1, "Models/Drone/OBJ/Drone_01.obj", eResourceSource::GAME);
+			size_t LOD1MaterialsLen = LOD1->GetMesh()->GetSubMeshes().GetSize();
+			for (size_t i = 0; i < LOD1MaterialsLen; ++i)
+			{
+				LOD1->SetMaterial(i, Material(Color::WHITE * 1000.0f, Color::WHITE, 1.0f, 0.5f, 0.5f));
+			}
+
+			Entity* droneLOD2 = DeferredTaskSystem::SpawnEntityImmediate(world);
+			droneLOD2->SetParent(droneRoot);
+			MeshRenderingComponent* LOD2 = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, droneLOD2, "Models/Primitives/Sphere_LowPoly.obj", eResourceSource::GAME);
+			LOD2->GetTransform().SetLocalScale(Vector::ONE * 0.5f);
+			size_t LOD2MaterialsLen = LOD2->GetMesh()->GetSubMeshes().GetSize();
+			for (size_t i = 0; i < LOD2MaterialsLen; ++i)
+			{
+				LOD2->SetMaterial(i, Material(Color::WHITE * 1000.0f, Color::WHITE, 1.0f, 0.01f, 0.5f));
+			}
 
 			Entity* droneLight = DeferredTaskSystem::SpawnEntityImmediate(world);
-			droneLight->SetParent(drone);
+			droneLight->SetParent(droneRoot);
 			float range = Lerp(100.0f, 200.0f, Random());
 			PointLightComponent* pointLightCmp = DeferredTaskSystem::AddComponentImmediate<PointLightComponent>(world, droneLight, Color::WHITE, 0.0f, range);
 			droneLight->GetTransform().SetLocalTranslation(Vector::UNIT_Y * 10.0f);
-			droneCmp->light = pointLightCmp;
+
+
+			EntityTransform& droneTrans = droneRoot->GetTransform();
+			Vector rndPos = RandomVector() * 2.0f - 1.0f;
+			Vector randomOffset = Vector(rndPos.X * 1.0f, rndPos.Y * 0.1f, rndPos.Z * 1.0f) * 5.0f;
+			droneTrans.SetGlobalTranslation(pos + Vector(100.0f * y, 0.0f, 100.0f * z) + randomOffset + Vector::UNIT_Y * 20.0f);
+			Vector rndRot = RandomVector() * 2.0f - 1.0f;
+			float rotMax = 5.0f;
+			Quaternion rotOffset = Quaternion(Vector::UNIT_X, 1.0_deg * rndRot.X * rotMax) * Quaternion(Vector::UNIT_Y, 1.0_deg * rndRot.Y * rotMax) * Quaternion(Vector::UNIT_Z, 1.0_deg * rndRot.Z * rotMax);
+			droneTrans.SetGlobalRotation(rotOffset);
+			droneTrans.SetLocalScale(Vector::ONE * 10.0f);
+
+			DroneComponent* droneCmp = DeferredTaskSystem::AddComponentImmediate<DroneComponent>(world, droneRoot);
+			droneCmp->InitPosition = droneRoot->GetTransform().GetGlobalTranslation();
+			droneCmp->InitScale = droneRoot->GetTransform().GetGlobalScale();
+			droneCmp->InitRotation = droneRoot->GetTransform().GetGlobalRotation();
+			droneCmp->RestPostion = (RandomVector() * 2.0f - 1.0f) * 500.0f;
+			droneCmp->LOD0 = LOD0;
+			droneCmp->LOD1 = LOD1;
+			droneCmp->LOD2 = LOD2;
+			droneCmp->LOD1threshold = 500.0f;
+			droneCmp->LOD2threshold = 1000.0f;
+			droneCmp->Light = pointLightCmp;
 			droneCmp->random = Random();
 
 			gameMgrCmp->Drones.PushBack(droneCmp);
-			gameMgrCmp->GameEntities.PushBack(drone);
+			gameMgrCmp->GameEntities.PushBack(droneRoot);
 		}
 	}
 }
@@ -525,11 +572,17 @@ void GameManagerSystem::Update(World* world)
 
 	// UpdatePostProcess(world);
 
+	DebugWorldComponent* com = world->GetWorldComponent<DebugWorldComponent>();
+	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+	gameMgrCmp->TextFPS->GetComponent<ScreenSpaceTextComponent>()->SetText(String::From(com->GetFPSData().LastFPS));
+
 	UpdateAnimTracks(world);
 
 	UpdateAnimDayNight(world);
 
 	UpdateAnimDrones(world);
+
+	UpdateDrones(world);
 }
 
 void GameManagerSystem::UpdatePostProcess(World* world)
@@ -592,22 +645,22 @@ void GameManagerSystem::UpdateAnimDayNight(World* world)
 	SkyboxWorldComponent* skyboxCmp = world->GetWorldComponent<SkyboxWorldComponent>();
 	skyboxCmp->SetTint(Color::WHITE * Lerp(0.2f, 1.0f, animSmooth));
 
-	gConsole.LogInfo("GameManagerSystem::UpdateAnimDayNight time: {}, anim: {}", time, anim);
+	// gConsole.LogInfo("GameManagerSystem::UpdateAnimDayNight time: {}, anim: {}", time, anim);
 
 	for (auto drone : gameMgrCmp->Drones)
 	{
 		float animSmooth2 = SmoothStep(0.0f, 0.5f - Lerp(0.0f, 0.2f, drone->random), anim);
 		float intensity = Lerp(intensityNight, 0.0f, animSmooth2);
-		drone->light->SetIntensity(intensity);
+		drone->Light->SetIntensity(intensity);
 
 		Color emissive = Color::WHITE * Lerp(1000.0f, 0.0f, animSmooth2);
 		Color albedo = Color::WHITE * Lerp(0.1f, 1.0f, animSmooth2);
 		float roughness = Lerp(0.95f, 0.1f, animSmooth2);
 		float metallic = Lerp(0.95f, 0.1f, animSmooth2);
-		size_t materials = drone->mesh->GetMesh()->GetSubMeshes().GetSize();
+		size_t materials = drone->LOD0->GetMesh()->GetSubMeshes().GetSize();
 		for (size_t i = 0; i < materials; ++i)
 		{
-			drone->mesh->SetMaterial(i, Material(emissive, albedo, roughness, metallic, 0.5f));
+			drone->LOD0->SetMaterial(i, Material(emissive, albedo, roughness, metallic, 0.5f));
 		}
 	}
 }
@@ -618,16 +671,14 @@ void GameManagerSystem::UpdateAnimDrones(World* world)
 	float anim = SmoothStep(-0.5f, 0.5f, Sin(20.0_deg * time));
 	float animSmooth = SmoothStep(0.0f, 1.0f, anim);
 
-	gConsole.LogInfo("GameManagerSystem::UpdateAnimDrones time: {}, anim: {}", time);
+	// gConsole.LogInfo("GameManagerSystem::UpdateAnimDrones time: {}, anim: {}", time);
 	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
 	size_t dronesSize = gameMgrCmp->Drones.GetSize();
 	size_t shape0Size = gameMgrCmp->AnimShapeCube.ShapeSize;
 	size_t shape1Size = gameMgrCmp->AnimShapeTorus.ShapeSize;
-	gConsole.LogInfo("GameManagerSystem::UpdateAnimDrones droneSize: {}, shape0Size: {}, shape1Size: {}",
-		dronesSize, shape0Size, shape1Size);
-	// ASSERTE(shape0Size <= dronesSize, "Not enough drones to play shape");
-	// ASSERTE(shape1Size <= dronesSize, "Not enough drones to play shape");
+	// gConsole.LogInfo("GameManagerSystem::UpdateAnimDrones droneSize: {}, shape0Size: {}, shape1Size: {}",
+	// 	dronesSize, shape0Size, shape1Size);
 	size_t count = std::min(dronesSize, std::max(shape0Size, shape1Size));
 	for (size_t i = 0; i < count; ++i)
 	{
@@ -636,6 +687,37 @@ void GameManagerSystem::UpdateAnimDrones(World* world)
 		Vector pos1 = (i < shape1Size) ? gameMgrCmp->AnimShapeTorus.Positions[i] : Vector::UNIT_Y * 500.0f + drone->RestPostion;
 		Vector posAnim = Lerp(pos0, pos1, 1.0f - animSmooth);
 		drone->GetOwner()->GetTransform().SetGlobalTranslation(posAnim);
+	}
+}
+
+void GameManagerSystem::UpdateDrones(World* world)
+{
+	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+	Entity* camera = gameMgrCmp->Camera.Get();
+	Vector cameraPos = camera->GetTransform().GetGlobalTranslation();
+	for (auto drone : gameMgrCmp->Drones)
+	{
+		Vector dronePos = drone->GetTransform().GetGlobalTranslation();
+		float distToCamera = (dronePos - cameraPos).Length();
+		if (distToCamera < drone->LOD1threshold) 
+		{
+			drone->LOD0->SetShadingModel(eShadingMode::PBR);
+			drone->LOD1->SetShadingModel(eShadingMode::NONE);
+			drone->LOD2->SetShadingModel(eShadingMode::NONE);
+		}
+		else if (distToCamera > drone->LOD1threshold && distToCamera < drone->LOD2threshold) 
+		{
+			drone->LOD0->SetShadingModel(eShadingMode::NONE);
+			drone->LOD1->SetShadingModel(eShadingMode::PBR);
+			drone->LOD2->SetShadingModel(eShadingMode::NONE);
+		}
+		else if (distToCamera > drone->LOD2threshold)
+		{
+			drone->LOD0->SetShadingModel(eShadingMode::NONE);
+			drone->LOD1->SetShadingModel(eShadingMode::NONE);
+			drone->LOD2->SetShadingModel(eShadingMode::PBR);
+		}
+		drone->LastDistToCamera = distToCamera;
 	}
 }
 

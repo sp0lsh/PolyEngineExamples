@@ -30,10 +30,9 @@ void AMJGame::Init()
 {
 	InitCommon();
 
-	gDebugConfig.DisplayFPS = false;
 	DeferredTaskSystem::AddWorldComponentImmediate<GameManagerWorldComponent>(gEngine->GetWorld());	
 
-	bool bGameCamera = true;
+	bool bGameCamera = false;
 	if (bGameCamera)
 	{
 		gConsole.LogInfo("AMJGame::Init register update phases");

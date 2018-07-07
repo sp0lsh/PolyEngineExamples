@@ -16,6 +16,11 @@ public:
 	Vector InitScale;
 	Quaternion InitRotation;
 
-	PointLightComponent* light;
-	MeshRenderingComponent* mesh;
+	PointLightComponent* Light;
+	MeshRenderingComponent* LOD0;
+	MeshRenderingComponent* LOD1;
+	MeshRenderingComponent* LOD2;
+	float LOD1threshold;
+	float LOD2threshold;
+	float LastDistToCamera;
 };
