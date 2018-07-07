@@ -699,23 +699,26 @@ void GameManagerSystem::UpdateDrones(World* world)
 	{
 		Vector dronePos = drone->GetTransform().GetGlobalTranslation();
 		float distToCamera = (dronePos - cameraPos).Length();
-		if (distToCamera < drone->LOD1threshold) 
+		if (Abs(distToCamera - drone->LastDistToCamera) > 1.0f )
 		{
-			drone->LOD0->SetShadingModel(eShadingMode::PBR);
-			drone->LOD1->SetShadingModel(eShadingMode::NONE);
-			drone->LOD2->SetShadingModel(eShadingMode::NONE);
-		}
-		else if (distToCamera > drone->LOD1threshold && distToCamera < drone->LOD2threshold) 
-		{
-			drone->LOD0->SetShadingModel(eShadingMode::NONE);
-			drone->LOD1->SetShadingModel(eShadingMode::PBR);
-			drone->LOD2->SetShadingModel(eShadingMode::NONE);
-		}
-		else if (distToCamera > drone->LOD2threshold)
-		{
-			drone->LOD0->SetShadingModel(eShadingMode::NONE);
-			drone->LOD1->SetShadingModel(eShadingMode::NONE);
-			drone->LOD2->SetShadingModel(eShadingMode::PBR);
+			if (distToCamera < drone->LOD1threshold) 
+			{
+				drone->LOD0->SetShadingModel(eShadingMode::PBR);
+				drone->LOD1->SetShadingModel(eShadingMode::NONE);
+				drone->LOD2->SetShadingModel(eShadingMode::NONE);
+			}
+			else if (distToCamera > drone->LOD1threshold && distToCamera < drone->LOD2threshold) 
+			{
+				drone->LOD0->SetShadingModel(eShadingMode::NONE);
+				drone->LOD1->SetShadingModel(eShadingMode::PBR);
+				drone->LOD2->SetShadingModel(eShadingMode::NONE);
+			}
+			else if (distToCamera > drone->LOD2threshold)
+			{
+				drone->LOD0->SetShadingModel(eShadingMode::NONE);
+				drone->LOD1->SetShadingModel(eShadingMode::NONE);
+				drone->LOD2->SetShadingModel(eShadingMode::PBR);
+			}
 		}
 		drone->LastDistToCamera = distToCamera;
 	}
