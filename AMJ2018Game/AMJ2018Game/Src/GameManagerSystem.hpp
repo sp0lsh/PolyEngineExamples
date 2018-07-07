@@ -4,8 +4,10 @@
 #include <Collections/String.hpp>
 #include <Math/Vector.hpp>
 #include <Rendering/Particles/ParticleComponent.hpp>
+#include <GameManagerWorldComponent.hpp>
 
 using namespace Poly;
+using namespace AMJ;
 
 namespace GameManagerSystem
 {
@@ -14,6 +16,10 @@ namespace GameManagerSystem
 
 	Entity* CreateModel(World* world, String path);
 	
+	AnimKeys LoadAnimTrack(World* world, String path);
+	Vector ReadVector3FromRow(String row);
+	Quaternion ReadQuternion4FromRow(String row);
+
 	void CreateTextUI(World* world);
 	void CreateCamera(World* world);
 	void CreatePBRShpereGrid(World* world, Vector pos, Color albedo);
@@ -51,6 +57,7 @@ namespace GameManagerSystem
 	void UpdateLights(World* world);
 	void UpdateModel(World* world);
 	void UpdatePostProcess(World* world);
+	void UpdateAnimTracks(World* world);
 	
 	void Deinit(World* world);
 }

@@ -19,6 +19,7 @@
 #include <UI/ScreenSpaceTextComponent.hpp>
 
 using namespace Poly;
+using namespace AMJ;
 
 void GameManagerSystem::CreateScene(World* world)
 {
@@ -31,17 +32,186 @@ void GameManagerSystem::CreateScene(World* world)
 
 	DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(world, "HDR/HDR.hdr", eResourceSource::GAME);
 	
-	CreatePBRShpereGrid(world, Vector(0.0f, 0.0f, 0.0f), Color(0.0f, 0.0f, 0.0f, 1.0f));
-	CreatePBRShpereGrid(world, Vector(-300.0f, 0.0f, 0.0f), Color(0.5f, 0.5f, 0.5f, 1.0f));
-	CreatePBRShpereGrid(world, Vector(-600.0f, 0.0f, 0.0f), Color(1.0f, 1.0f, 1.0f, 1.0f));
+	gameMgrCmp->AminModel = CreateModel(world, String("Models/Drone/OBJ/Drone_00.obj"));
+
+	gameMgrCmp->AnimKeys = LoadAnimTrack(world, "Animations/cube0.x");
 
 	CreateTextUI(world);
 
-	// CreateTranslucent(world);
+	CreateTranslucent(world);
 
 	CreatePointLights(world, 128);
 
 	// SpawnParticles(world);
+}
+
+AnimKeys GameManagerSystem::LoadAnimTrack(World* world, String path)
+{
+	gConsole.LogInfo("GameManagerSystem::CreateAnimTrack");
+	String animSrc = LoadTextFileRelative(eResourceSource::GAME, path);
+	// gConsole.LogInfo("GameManagerSystem::CreateAnimTrack AnimSrc: {}", animSrc);
+	
+	Dynarray<Vector> positions;
+	Dynarray<Vector> scales;
+	Dynarray<Quaternion> rotations;
+
+	bool hasAnimationKey = false;
+	bool hasAnimationKeyRotation = false;
+	bool hasAnimationKeyScale = false;
+	bool hasAnimationKeyPosition = false;
+	int rowCounterRotation = 0;
+	int rowCounterScale = 0;
+	int rowCounterPosition = 0;
+
+	animSrc.Replace("\r\n", "\n");
+	animSrc.GetTrimmed();
+	Dynarray<String> rows = animSrc.Split('\n');
+	for (String row : rows)
+	{
+		if (row.IsEmpty())
+		{
+			continue;
+		}
+
+		if (row.Contains("AnimationKey"))
+		{
+			hasAnimationKey = true;
+		}
+
+		if (row.Contains("Rotation"))
+		{
+			hasAnimationKeyRotation = true;
+		}
+
+		if (row.Contains("Scale"))
+		{
+			hasAnimationKeyScale = true;
+		}
+
+		if (row.Contains("Position"))
+		{
+			hasAnimationKeyPosition = true;
+		}
+
+		if (row.Contains("}"))
+		{
+			hasAnimationKey = false;
+			hasAnimationKeyRotation = false;
+			hasAnimationKeyScale = false;
+			hasAnimationKeyPosition = false;
+		}
+
+		if (hasAnimationKey)
+		{
+			// gConsole.LogInfo("GameManagerSystem::CreateAnimTrack key: {}, R: {}, S: {}, T: {}, row: {}",
+			// 	hasAnimationKey, hasAnimationKeyRotation, hasAnimationKeyScale, hasAnimationKeyPosition, row);
+
+			if (hasAnimationKeyRotation)
+			{
+				if (rowCounterRotation == 1)
+				{
+					gConsole.LogInfo("GameManagerSystem::CreateAnimTrack TODO: read if rotation or track ID?, row: {}", row);
+				}
+
+				if (rowCounterRotation == 2)
+				{
+					gConsole.LogInfo("GameManagerSystem::CreateAnimTrack TODO: number of keyframes, row: {}", row);
+				}
+
+				if (rowCounterRotation > 2)
+				{
+					rotations.PushBack(ReadQuternion4FromRow(row));
+				}
+
+				rowCounterRotation++;
+			}
+
+			if (hasAnimationKeyScale)
+			{
+				if (rowCounterScale == 1)
+				{
+					gConsole.LogInfo("GameManagerSystem::CreateAnimTrack TODO: read if rotation or track ID?, row: {}", row);
+				}
+
+				if (rowCounterScale == 2)
+				{
+					gConsole.LogInfo("GameManagerSystem::CreateAnimTrack TODO: number of keyframes, row: {}", row);
+				}
+
+				if (rowCounterScale > 2)
+				{
+					scales.PushBack(ReadVector3FromRow(row));
+				}
+
+				rowCounterScale++;
+			}
+
+			if (hasAnimationKeyPosition)
+			{
+				if (rowCounterPosition == 1)
+				{
+					gConsole.LogInfo("GameManagerSystem::CreateAnimTrack TODO: read if rotation or track ID?, row: {}", row);
+				}
+
+				if (rowCounterPosition == 2)
+				{
+					gConsole.LogInfo("GameManagerSystem::CreateAnimTrack TODO: number of keyframes, row: {}", row);
+				}
+
+				if (rowCounterPosition > 2)
+				{
+					positions.PushBack(ReadVector3FromRow(row));
+				}
+
+				rowCounterPosition++;
+			}
+		}
+	}
+
+	gConsole.LogInfo("GameManagerSystem::CreateAnimTrack Print loaded rotations:");
+	for (size_t i = 0; i < rotations.GetSize(); ++i)
+	{
+		gConsole.LogInfo("GameManagerSystem::CreateAnimTrack rotation[{}]: {}", i, rotations[i]);
+	}
+
+	gConsole.LogInfo("GameManagerSystem::CreateAnimTrack Print loaded scales:");
+	for (size_t i = 0; i < scales.GetSize(); ++i)
+	{
+		gConsole.LogInfo("GameManagerSystem::CreateAnimTrack scale[{}]: {}", i, scales[i]);
+	}
+
+	gConsole.LogInfo("GameManagerSystem::CreateAnimTrack Print loaded positions:");
+	for (size_t i = 0; i < positions.GetSize(); ++i)
+	{
+		gConsole.LogInfo("GameManagerSystem::CreateAnimTrack position[{}]: {}", i, positions[i]);
+	}
+
+	// ASSERTE(false, "Stop at AnimTrack loading for easier debugging ;)");
+
+	return AnimKeys(positions, rotations, scales);
+}
+
+Vector GameManagerSystem::ReadVector3FromRow(String row)
+{
+	// 0;4;0.000000, 0.000000, 0.000000, 0.000000;;,	
+	Dynarray<String> tokens = row.Split(';'); // values are at token with index 2 
+	Dynarray<String> channels = tokens[2].Split(',');
+	float x = std::atof(channels[0].GetCStr());
+	float y = std::atof(channels[1].GetCStr());
+	float z = std::atof(channels[2].GetCStr());
+	return Vector(x, y, z);
+}
+
+Quaternion GameManagerSystem::ReadQuternion4FromRow(String row)
+{
+	// 0;4;0.000000, 0.000000, 0.000000, 0.000000;;,
+	Dynarray<String> tokens = row.Split(';'); // values are at token with index 2 
+	Dynarray<String> channels = tokens[2].Split(',');
+	float x = std::atof(channels[0].GetCStr());
+	float y = std::atof(channels[1].GetCStr());
+	float z = std::atof(channels[2].GetCStr());
+	float w = std::atof(channels[3].GetCStr());
+	return Quaternion(x, y, z, w);
 }
 
 void GameManagerSystem::CreateTextUI(World* world)
@@ -158,10 +328,10 @@ void GameManagerSystem::CreateTranslucent(World* world)
 	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
 	Material material(
-		Color(0.01f, 0.01f, 0.01f, 1.0f),
+		Color::BLACK,
 		Color(1.0f, 0.5f, 0.5f, 0.75f),
-		1.0f,
-		1.0f,
+		0.01f,
+		0.95f,
 		0.5f
 	);
 
@@ -173,6 +343,7 @@ void GameManagerSystem::CreateTranslucent(World* world)
 		translucentTrans.SetGlobalTranslation(Vector(0.0f, 200.0f, 0.0f) + randomOffset);
 		translucentTrans.SetLocalScale(Vector(100.0f, 100.0f, 100.0f));
 		MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, translucent, "Models/Primitives/Sphere_HighPoly.obj", eResourceSource::GAME);
+		meshCmp->SetBlendingMode(eBlendingMode::TRANSLUCENT);
 		int materialsNum = meshCmp->GetMesh()->GetSubMeshes().GetSize();
 		for (int i = 0; i < materialsNum; ++i)
 		{
@@ -244,6 +415,8 @@ void GameManagerSystem::Update(World* world)
 	DebugDrawSystem::DrawBox(world, offset + Vector(-100.0f, 0.0f, -100.0f), offset + Vector(100.0f, 200.0f, 100.0f), Color::RED);
 
 	// UpdatePostProcess(world);
+
+	UpdateAnimTracks(world);
 }
 
 void GameManagerSystem::UpdatePostProcess(World* world)
@@ -254,6 +427,38 @@ void GameManagerSystem::UpdatePostProcess(World* world)
 	float exposure = 0.25f * floor(10.0f*4.0f * (time - floor(time)));
 	gameMgrCmp->PostCmp->Exposure = exposure;
 	gConsole.LogInfo("GameManagerSystem::Update exposure: {}", gameMgrCmp->PostCmp->Exposure);
+}
+
+void GameManagerSystem::UpdateAnimTracks(World* world)
+{
+	// gConsole.LogInfo("GameManagerSystem::UpdateAnimTracks");
+
+	float time = (float)(world->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
+	float delta = (float)(TimeSystem::GetTimerDeltaTime(world, Poly::eEngineTimer::GAMEPLAY));
+	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
+	float animTime = gameMgrCmp->AnimProgress;
+	AnimKeys animKeys = gameMgrCmp->AnimKeys;
+	size_t animKeysSize = animKeys.Positions.GetSize();
+
+	animTime += delta;
+	animTime = fmod(animTime, 4.0f);
+	// gConsole.LogInfo("GameManagerSystem::UpdateAnimTracks AnimProgress: {}", animTime);
+
+	float keyDelta = animTime - floorf(animTime); // fract actually but simpler
+	size_t keyPrev = floorf(animTime);
+	size_t keyNext = keyPrev + 1 >= animKeysSize ? 0 : keyPrev + 1;
+
+	float keyDeltaSmooth = SmoothStep(0.0f, 1.0f, keyDelta);
+	Vector position = Lerp(animKeys.Positions[keyPrev], animKeys.Positions[keyNext], keyDeltaSmooth);
+	Vector scale = Lerp(animKeys.Scales[keyPrev], animKeys.Scales[keyNext], keyDeltaSmooth);
+	Quaternion rotation = Quaternion::Slerp(animKeys.Rotations[keyPrev], animKeys.Rotations[keyNext], keyDeltaSmooth);
+	
+	gameMgrCmp->AminModel->GetTransform().SetGlobalTranslation(position);
+	gameMgrCmp->AminModel->GetTransform().SetGlobalScale(scale);
+	gameMgrCmp->AminModel->GetTransform().SetGlobalRotation(rotation);
+
+	gameMgrCmp->AnimProgress = animTime;
 }
 
 void GameManagerSystem::Deinit(World* world)
@@ -306,9 +511,9 @@ void GameManagerSystem::UpdateModel(World* world)
 {
 	float time = (float)(world->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
 	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
-	if (gameMgrCmp->Model)
+	if (gameMgrCmp->AminModel)
 	{
-		EntityTransform& modelTrans = gameMgrCmp->Model->GetTransform();
+		EntityTransform& modelTrans = gameMgrCmp->AminModel->GetTransform();
 		modelTrans.SetLocalRotation(Quaternion(Vector::UNIT_Y, 10.0_deg * time));
 	}
 }
