@@ -40,7 +40,7 @@ void GameManagerSystem::CreateScene(World* world)
 
 	CreateTranslucent(world);
 
-	CreatePointLights(world, 128);
+	// CreatePointLights(world, 128);
 
 	// SpawnParticles(world);
 }

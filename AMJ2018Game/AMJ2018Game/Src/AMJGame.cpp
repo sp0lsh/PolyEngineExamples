@@ -33,7 +33,7 @@ void AMJGame::Init()
 	GameManagerSystem::CreateScene(gEngine->GetWorld());
 	ZimaSystem::Init(gEngine->GetWorld());
 
-	bool bGameCamera = true;
+	bool bGameCamera = false;
 	if (bGameCamera)
 	{
 		ZimaSystem::CreateCamera(gEngine->GetWorld());
