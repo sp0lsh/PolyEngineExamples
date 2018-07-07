@@ -18,7 +18,9 @@ namespace AMJ
 
 		AnimTrack(Dynarray<Vector>& positions, Dynarray<Vector>& rotations, Dynarray<Vector>& scales)
 			: Positions(positions), Rotations(rotations), Scales(scales)
-		{}
+		{
+			ASSERTE(Positions.GetSize() == Rotations.GetSize() && Positions.GetSize() == Scales.GetSize(), "size of key arrays missmatch!");
+		}
 
 		Dynarray<Vector> Positions;
 		Dynarray<Vector> Rotations;
@@ -32,11 +34,12 @@ class GAME_DLLEXPORT GameManagerWorldComponent : public ComponentBase
 public:
 	SafePtr<Entity> Camera;
 	PostprocessSettingsComponent* PostCmp;
-	SafePtr<Entity> Model;
 	bool IsDrawingDebugMeshes = true;
 	Dynarray<SafePtr<Entity>> GameEntities;
 
-	AMJ::AnimTrack TestAnim;
+	AMJ::AnimTrack AnimKeys;
+	SafePtr<Entity> AminModel;
+	float AnimProgress = 0;
 
 	ParticleComponent* particleDefault;
 	ParticleComponent* particleAmbient;

@@ -33,9 +33,9 @@ void GameManagerSystem::CreateScene(World* world)
 
 	DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(world, "HDR/HDR.hdr", eResourceSource::GAME);
 	
-	gameMgrCmp->Model = CreateModel(world, String("Models/Drone/OBJ/Drone_00.obj"));
+	gameMgrCmp->AminModel = CreateModel(world, String("Models/Drone/OBJ/Drone_00.obj"));
 
-	gameMgrCmp->TestAnim = CreateAnimTrack(world, "Animations/cube0.x");
+	gameMgrCmp->AnimKeys = LoadAnimTrack(world, "Animations/cube0.x");
 
 	CreateTextUI(world);
 
@@ -46,7 +46,7 @@ void GameManagerSystem::CreateScene(World* world)
 	// SpawnParticles(world);
 }
 
-AnimTrack GameManagerSystem::CreateAnimTrack(World* world, String path)
+AnimTrack GameManagerSystem::LoadAnimTrack(World* world, String path)
 {
 	gConsole.LogInfo("GameManagerSystem::CreateAnimTrack");
 	String animSrc = LoadTextFileRelative(eResourceSource::GAME, path);
@@ -416,6 +416,8 @@ void GameManagerSystem::Update(World* world)
 	DebugDrawSystem::DrawBox(world, offset + Vector(-100.0f, 0.0f, -100.0f), offset + Vector(100.0f, 200.0f, 100.0f), Color::RED);
 
 	// UpdatePostProcess(world);
+
+	UpdateAnimTracks(world);
 }
 
 void GameManagerSystem::UpdatePostProcess(World* world)
@@ -426,6 +428,26 @@ void GameManagerSystem::UpdatePostProcess(World* world)
 	float exposure = 0.25f * floor(10.0f*4.0f * (time - floor(time)));
 	gameMgrCmp->PostCmp->Exposure = exposure;
 	gConsole.LogInfo("GameManagerSystem::Update exposure: {}", gameMgrCmp->PostCmp->Exposure);
+}
+
+void GameManagerSystem::UpdateAnimTracks(World* world)
+{
+	gConsole.LogInfo("GameManagerSystem::UpdateAnimTracks");
+
+	float time = (float)(world->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
+	float delta = (float)(TimeSystem::GetTimerDeltaTime(world, Poly::eEngineTimer::GAMEPLAY));
+	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
+	gameMgrCmp->AnimProgress += delta;
+	gameMgrCmp->AnimProgress = fmod(gameMgrCmp->AnimProgress, 4.0f);
+	gConsole.LogInfo("GameManagerSystem::UpdateAnimTracks AnimProgress: {}", gameMgrCmp->AnimProgress);
+
+	AnimTrack track = gameMgrCmp->AnimKeys;
+	size_t size = track.Positions.GetSize();
+
+	// for (size_t i = 0; i < size; ++i)
+	// {
+	// }
 }
 
 void GameManagerSystem::Deinit(World* world)
@@ -478,9 +500,9 @@ void GameManagerSystem::UpdateModel(World* world)
 {
 	float time = (float)(world->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
 	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
-	if (gameMgrCmp->Model)
+	if (gameMgrCmp->AminModel)
 	{
-		EntityTransform& modelTrans = gameMgrCmp->Model->GetTransform();
+		EntityTransform& modelTrans = gameMgrCmp->AminModel->GetTransform();
 		modelTrans.SetLocalRotation(Quaternion(Vector::UNIT_Y, 10.0_deg * time));
 	}
 }

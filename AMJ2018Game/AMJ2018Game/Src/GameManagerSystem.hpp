@@ -16,7 +16,7 @@ namespace GameManagerSystem
 
 	Entity* CreateModel(World* world, String path);
 	
-	AnimTrack CreateAnimTrack(World* world, String path);
+	AnimTrack LoadAnimTrack(World* world, String path);
 	Vector ReadVector3FromRow(String row);
 	Vector ReadVector4FromRow(String row);
 
@@ -57,6 +57,7 @@ namespace GameManagerSystem
 	void UpdateLights(World* world);
 	void UpdateModel(World* world);
 	void UpdatePostProcess(World* world);
+	void UpdateAnimTracks(World* world);
 	
 	void Deinit(World* world);
 }
