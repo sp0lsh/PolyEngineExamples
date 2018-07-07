@@ -11,12 +11,12 @@ using namespace Poly;
 
 namespace AMJ
 {
-	struct AnimTrack : public BaseObject<>
+	struct AnimKeys : public BaseObject<>
 	{
-		AnimTrack()
+		AnimKeys()
 		{}
 
-		AnimTrack(Dynarray<Vector>& positions, Dynarray<Vector>& rotations, Dynarray<Vector>& scales)
+		AnimKeys(Dynarray<Vector>& positions, Dynarray<Vector>& rotations, Dynarray<Vector>& scales)
 			: Positions(positions), Rotations(rotations), Scales(scales)
 		{
 			ASSERTE(Positions.GetSize() == Rotations.GetSize() && Positions.GetSize() == Scales.GetSize(), "size of key arrays missmatch!");
@@ -37,7 +37,7 @@ public:
 	bool IsDrawingDebugMeshes = true;
 	Dynarray<SafePtr<Entity>> GameEntities;
 
-	AMJ::AnimTrack AnimKeys;
+	AMJ::AnimKeys AnimKeys;
 	SafePtr<Entity> AminModel;
 	float AnimProgress = 0;
 

@@ -16,7 +16,7 @@ namespace GameManagerSystem
 
 	Entity* CreateModel(World* world, String path);
 	
-	AnimTrack LoadAnimTrack(World* world, String path);
+	AnimKeys LoadAnimTrack(World* world, String path);
 	Vector ReadVector3FromRow(String row);
 	Vector ReadVector4FromRow(String row);
 

@@ -46,7 +46,7 @@ void GameManagerSystem::CreateScene(World* world)
 	// SpawnParticles(world);
 }
 
-AnimTrack GameManagerSystem::LoadAnimTrack(World* world, String path)
+AnimKeys GameManagerSystem::LoadAnimTrack(World* world, String path)
 {
 	gConsole.LogInfo("GameManagerSystem::CreateAnimTrack");
 	String animSrc = LoadTextFileRelative(eResourceSource::GAME, path);
@@ -189,7 +189,7 @@ AnimTrack GameManagerSystem::LoadAnimTrack(World* world, String path)
 
 	// ASSERTE(false, "Stop at AnimTrack loading for easier debugging ;)");
 
-	return AnimTrack(positions, rotations, scales);
+	return AnimKeys(positions, rotations, scales);
 }
 
 Vector GameManagerSystem::ReadVector3FromRow(String row)
@@ -438,16 +438,27 @@ void GameManagerSystem::UpdateAnimTracks(World* world)
 	float delta = (float)(TimeSystem::GetTimerDeltaTime(world, Poly::eEngineTimer::GAMEPLAY));
 	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
-	gameMgrCmp->AnimProgress += delta;
-	gameMgrCmp->AnimProgress = fmod(gameMgrCmp->AnimProgress, 4.0f);
-	gConsole.LogInfo("GameManagerSystem::UpdateAnimTracks AnimProgress: {}", gameMgrCmp->AnimProgress);
+	float animTime = gameMgrCmp->AnimProgress;
+	AnimKeys animKeys = gameMgrCmp->AnimKeys;
+	size_t animKeysSize = animKeys.Positions.GetSize();
 
-	AnimTrack track = gameMgrCmp->AnimKeys;
-	size_t size = track.Positions.GetSize();
+	animTime += delta;
+	animTime = fmod(animTime, 4.0f);
+	gConsole.LogInfo("GameManagerSystem::UpdateAnimTracks AnimProgress: {}", animTime);
 
-	// for (size_t i = 0; i < size; ++i)
-	// {
-	// }
+	float keyDelta = animTime - floorf(animTime); // fract actually but simpler
+	size_t keyPrev = floorf(animTime);
+	size_t keyNext = keyPrev + 1 >= animKeysSize ? 0 : keyPrev + 1;
+
+	float keyDeltaSmooth = SmoothStep(0.0f, 1.0f, keyDelta);
+	Vector position = Lerp(animKeys.Positions[keyPrev], animKeys.Positions[keyNext], keyDeltaSmooth);
+	Vector scale = Lerp(animKeys.Scales[keyPrev], animKeys.Scales[keyNext], keyDeltaSmooth);
+	// Vector Rtoation = Lerp(animKeys.Positions[keyPrev], animKeys.Positions[keyNext], keyDelta);
+	
+	gameMgrCmp->AminModel->GetTransform().SetGlobalTranslation(position);
+	gameMgrCmp->AminModel->GetTransform().SetGlobalScale(scale);
+
+	gameMgrCmp->AnimProgress = animTime;
 }
 
 void GameManagerSystem::Deinit(World* world)
