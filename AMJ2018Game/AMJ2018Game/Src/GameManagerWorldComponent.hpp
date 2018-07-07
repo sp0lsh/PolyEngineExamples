@@ -9,6 +9,24 @@
 
 using namespace Poly;
 
+namespace AMJ
+{
+	struct AnimTrack : public BaseObject<>
+	{
+		AnimTrack()
+		{}
+
+		AnimTrack(Dynarray<Vector>& positions, Dynarray<Vector>& rotations, Dynarray<Vector>& scales)
+			: Positions(positions), Rotations(rotations), Scales(scales)
+		{}
+
+		Dynarray<Vector> Positions;
+		Dynarray<Vector> Rotations;
+		Dynarray<Vector> Scales;
+	};
+}
+
+
 class GAME_DLLEXPORT GameManagerWorldComponent : public ComponentBase
 {
 public:
@@ -17,6 +35,8 @@ public:
 	SafePtr<Entity> Model;
 	bool IsDrawingDebugMeshes = true;
 	Dynarray<SafePtr<Entity>> GameEntities;
+
+	AMJ::AnimTrack TestAnim;
 
 	ParticleComponent* particleDefault;
 	ParticleComponent* particleAmbient;

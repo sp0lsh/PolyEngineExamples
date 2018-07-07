@@ -19,6 +19,7 @@
 #include <UI/ScreenSpaceTextComponent.hpp>
 
 using namespace Poly;
+using namespace AMJ;
 
 void GameManagerSystem::CreateScene(World* world)
 {
@@ -34,7 +35,7 @@ void GameManagerSystem::CreateScene(World* world)
 	
 	gameMgrCmp->Model = CreateModel(world, String("Models/Drone/OBJ/Drone_00.obj"));
 
-	CreateAnimTrack(world);
+	gameMgrCmp->TestAnim = CreateAnimTrack(world, "Animations/cube0.x");
 
 	CreateTextUI(world);
 
@@ -45,10 +46,9 @@ void GameManagerSystem::CreateScene(World* world)
 	// SpawnParticles(world);
 }
 
-void GameManagerSystem::CreateAnimTrack(World* world)
+AnimTrack GameManagerSystem::CreateAnimTrack(World* world, String path)
 {
 	gConsole.LogInfo("GameManagerSystem::CreateAnimTrack");
-	String path = "Animations/cube0.x";
 	String animSrc = LoadTextFileRelative(eResourceSource::GAME, path);
 	// gConsole.LogInfo("GameManagerSystem::CreateAnimTrack AnimSrc: {}", animSrc);
 	
@@ -188,6 +188,8 @@ void GameManagerSystem::CreateAnimTrack(World* world)
 	}
 
 	// ASSERTE(false, "Stop at AnimTrack loading for easier debugging ;)");
+
+	return AnimTrack(positions, rotations, scales);
 }
 
 Vector GameManagerSystem::ReadVector3FromRow(String row)
