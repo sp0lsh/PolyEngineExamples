@@ -16,14 +16,14 @@ namespace AMJ
 		AnimKeys()
 		{}
 
-		AnimKeys(Dynarray<Vector>& positions, Dynarray<Vector>& rotations, Dynarray<Vector>& scales)
+		AnimKeys(Dynarray<Vector>& positions, Dynarray<Quaternion>& rotations, Dynarray<Vector>& scales)
 			: Positions(positions), Rotations(rotations), Scales(scales)
 		{
 			ASSERTE(Positions.GetSize() == Rotations.GetSize() && Positions.GetSize() == Scales.GetSize(), "size of key arrays missmatch!");
 		}
 
 		Dynarray<Vector> Positions;
-		Dynarray<Vector> Rotations;
+		Dynarray<Quaternion> Rotations;
 		Dynarray<Vector> Scales;
 	};
 }

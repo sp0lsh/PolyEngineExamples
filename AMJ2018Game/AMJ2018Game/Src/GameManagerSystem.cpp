@@ -54,7 +54,7 @@ AnimKeys GameManagerSystem::LoadAnimTrack(World* world, String path)
 	
 	Dynarray<Vector> positions;
 	Dynarray<Vector> scales;
-	Dynarray<Vector> rotations;
+	Dynarray<Quaternion> rotations;
 
 	bool hasAnimationKey = false;
 	bool hasAnimationKeyRotation = false;
@@ -121,7 +121,7 @@ AnimKeys GameManagerSystem::LoadAnimTrack(World* world, String path)
 
 				if (rowCounterRotation > 2)
 				{
-					rotations.PushBack(ReadVector4FromRow(row));
+					rotations.PushBack(ReadQuternion4FromRow(row));
 				}
 
 				rowCounterRotation++;
@@ -203,16 +203,16 @@ Vector GameManagerSystem::ReadVector3FromRow(String row)
 	return Vector(x, y, z);
 }
 
-Vector GameManagerSystem::ReadVector4FromRow(String row)
+Quaternion GameManagerSystem::ReadQuternion4FromRow(String row)
 {
-	// 0;4;0.000000, 0.000000, 0.000000, 0.000000;;,	
+	// 0;4;0.000000, 0.000000, 0.000000, 0.000000;;,
 	Dynarray<String> tokens = row.Split(';'); // values are at token with index 2 
 	Dynarray<String> channels = tokens[2].Split(',');
 	float x = std::atof(channels[0].GetCStr());
 	float y = std::atof(channels[1].GetCStr());
 	float z = std::atof(channels[2].GetCStr());
 	float w = std::atof(channels[3].GetCStr());
-	return Vector(x, y, z, w);
+	return Quaternion(x, y, z, w);
 }
 
 void GameManagerSystem::CreateTextUI(World* world)
@@ -453,9 +453,11 @@ void GameManagerSystem::UpdateAnimTracks(World* world)
 	float keyDeltaSmooth = SmoothStep(0.0f, 1.0f, keyDelta);
 	Vector position = Lerp(animKeys.Positions[keyPrev], animKeys.Positions[keyNext], keyDeltaSmooth);
 	Vector scale = Lerp(animKeys.Scales[keyPrev], animKeys.Scales[keyNext], keyDeltaSmooth);
+	Quaternion rotation = Quaternion::Slerp(animKeys.Rotations[keyPrev], animKeys.Rotations[keyNext], keyDeltaSmooth);
 	
 	gameMgrCmp->AminModel->GetTransform().SetGlobalTranslation(position);
 	gameMgrCmp->AminModel->GetTransform().SetGlobalScale(scale);
+	gameMgrCmp->AminModel->GetTransform().SetGlobalRotation(rotation);
 
 	gameMgrCmp->AnimProgress = animTime;
 }

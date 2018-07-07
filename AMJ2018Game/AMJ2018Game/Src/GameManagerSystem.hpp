@@ -18,7 +18,7 @@ namespace GameManagerSystem
 	
 	AnimKeys LoadAnimTrack(World* world, String path);
 	Vector ReadVector3FromRow(String row);
-	Vector ReadVector4FromRow(String row);
+	Quaternion ReadQuternion4FromRow(String row);
 
 	void CreateTextUI(World* world);
 	void CreateCamera(World* world);
