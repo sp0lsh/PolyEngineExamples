@@ -7,6 +7,7 @@
 #include "ZimaBulletSystem.hpp"
 #include "ZimaGunSystem.hpp"
 #include "ZimaEnemySystem.hpp"
+#include "SpawnSystem.hpp"
 #include "GameManagerWorldComponent.hpp"
 
 #include <Core.hpp>
@@ -38,12 +39,17 @@ void AMJGame::Init()
 		gConsole.LogInfo("AMJGame::Init register update phases");
 		gEngine->RegisterGameUpdatePhase(ZimaInputSystem::Update);
 		gEngine->RegisterGameUpdatePhase(ZimaSystem::Update);
+
 		gEngine->RegisterGameUpdatePhase(ZimaGunSystem::Update);
 		gEngine->RegisterGameUpdatePhase(ZimaBulletSystem::Update);
+		gEngine->RegisterGameUpdatePhase(SpawnSystem::Update);
 		gEngine->RegisterGameUpdatePhase(ZimaEnemySystem::Update);
+		//gEngine->RegisterGameUpdatePhase(GameManagerSystem::Update);
 
 		ZimaSystem::CreateCamera(gEngine->GetWorld());
 		ZimaSystem::Init(gEngine->GetWorld());
+		SpawnSystem::Init(gEngine->GetWorld());
+
 	}
 	else
 	{
