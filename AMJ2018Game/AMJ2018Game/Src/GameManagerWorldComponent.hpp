@@ -55,6 +55,7 @@ public:
 	SafePtr<Entity> TextFPS;
 	
 	float AnimNight;
+	bool CanDestroyLights = false;
 
 	Dynarray<DroneComponent*> Drones;
 	Dynarray<SafePtr<Entity>> GameEntities;
@@ -62,6 +63,7 @@ public:
 	// shapes
 	float AnimShapeProgress;
 	Matrix ShapeBaseTransform;
+	AMJ::AnimShape AnimShape_dot;
 	AMJ::AnimShape AnimShape_cube;
 	AMJ::AnimShape AnimShape_torus;
 	AMJ::AnimShape AnimShape_logo_a;
