@@ -58,8 +58,17 @@ public:
 	Dynarray<SafePtr<Entity>> GameEntities;
 
 	// shapes
-	AMJ::AnimShape AnimShapeCube;
-	AMJ::AnimShape AnimShapeTorus;
+	Matrix ShapeTransform;
+	AMJ::AnimShape AnimShape_cube;
+	AMJ::AnimShape AnimShape_torus;
+	AMJ::AnimShape AnimShape_logo_am;
+	AMJ::AnimShape AnimShape_logo_dc;
+	AMJ::AnimShape AnimShape_logo_jjb;
+	AMJ::AnimShape AnimShape_logo_lg;
+	AMJ::AnimShape AnimShape_logo_pn;
+	AMJ::AnimShape AnimShape_logo_tl;
+	AMJ::AnimShape AnimShape_logo_vm;
+	Dynarray<AMJ::AnimShape> AnimShapes;
 
 	// keys
 	AMJ::AnimKeys AnimKeys;

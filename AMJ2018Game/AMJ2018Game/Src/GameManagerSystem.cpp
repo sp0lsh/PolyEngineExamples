@@ -38,8 +38,13 @@ void GameManagerSystem::CreateStartScene(World* world)
 	gameMgrCmp->AnimKeys = LoadAnimTrack(world, "Animations/cube0.x");
 	gameMgrCmp->GameEntities.PushBack(gameMgrCmp->AminModel);
 
-	gameMgrCmp->AnimShapeCube = LoadAnimShape(world, "Shapes/Cube.obj");
-	gameMgrCmp->AnimShapeTorus = LoadAnimShape(world, "Shapes/Torus.obj");
+	Matrix scale;	
+	scale.SetScale(Vector::ONE * 500.0f);
+	Matrix move;
+	move.SetTranslation(Vector::UNIT_Y * 500.0f);
+	gameMgrCmp->ShapeTransform = move * scale;
+	gameMgrCmp->AnimShape_cube = LoadAnimShape(world, "Shapes/sh_cube.obj");
+	gameMgrCmp->AnimShape_torus = LoadAnimShape(world, "Shapes/sh_torus.obj");
 
 	CreateDrones(world, Vector(-400.0f, 0.0f, -300.0f));
 
@@ -386,7 +391,7 @@ void GameManagerSystem::CreateDrones(World* world, Vector pos)
 			droneCmp->InitPosition = droneRoot->GetTransform().GetGlobalTranslation();
 			droneCmp->InitScale = droneRoot->GetTransform().GetGlobalScale();
 			droneCmp->InitRotation = droneRoot->GetTransform().GetGlobalRotation();
-			droneCmp->RestPostion = (RandomVector() * 2.0f - 1.0f) * 500.0f;
+			droneCmp->RestPostion = (RandomVector() * 2.0f - 1.0f);
 			droneCmp->LOD0 = LOD0;
 			droneCmp->LOD1 = LOD1;
 			droneCmp->LOD2 = LOD2;
@@ -673,19 +678,20 @@ void GameManagerSystem::UpdateAnimDrones(World* world)
 
 	// gConsole.LogInfo("GameManagerSystem::UpdateAnimDrones time: {}, anim: {}", time);
 	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+	Matrix shapeTransform = gameMgrCmp->ShapeTransform;
 
 	size_t dronesSize = gameMgrCmp->Drones.GetSize();
-	size_t shape0Size = gameMgrCmp->AnimShapeCube.ShapeSize;
-	size_t shape1Size = gameMgrCmp->AnimShapeTorus.ShapeSize;
+	size_t shape0Size = gameMgrCmp->AnimShape_cube.ShapeSize;
+	size_t shape1Size = gameMgrCmp->AnimShape_torus.ShapeSize;
 	// gConsole.LogInfo("GameManagerSystem::UpdateAnimDrones droneSize: {}, shape0Size: {}, shape1Size: {}",
 	// 	dronesSize, shape0Size, shape1Size);
 	size_t count = std::min(dronesSize, std::max(shape0Size, shape1Size));
 	for (size_t i = 0; i < count; ++i)
 	{
 		DroneComponent* drone = gameMgrCmp->Drones[i];
-		Vector pos0 = (i < shape0Size) ? gameMgrCmp->AnimShapeCube.Positions[i] : Vector::UNIT_Y * 500.0f + drone->RestPostion;
-		Vector pos1 = (i < shape1Size) ? gameMgrCmp->AnimShapeTorus.Positions[i] : Vector::UNIT_Y * 500.0f + drone->RestPostion;
-		Vector posAnim = Lerp(pos0, pos1, 1.0f - animSmooth);
+		Vector pos0 = (i < shape0Size) ? gameMgrCmp->AnimShape_cube.Positions[i] : drone->RestPostion;
+		Vector pos1 = (i < shape1Size) ? gameMgrCmp->AnimShape_torus.Positions[i] : drone->RestPostion;
+		Vector posAnim = shapeTransform * Lerp(pos0, pos1, 1.0f - animSmooth);
 		drone->GetOwner()->GetTransform().SetGlobalTranslation(posAnim);
 	}
 }
