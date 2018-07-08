@@ -11,17 +11,21 @@ using namespace AMJ;
 
 namespace GameManagerSystem
 {
-	void CreateScene(World* world);
+	void CreateStartScene(World* world);
 
 
 	Entity* CreateModel(World* world, String path);
 	
 	AnimKeys LoadAnimTrack(World* world, String path);
-	Vector ReadVector3FromRow(String row);
-	Quaternion ReadQuternion4FromRow(String row);
+	Vector AnimTrack_ReadVector3FromRow(String row);
+	Quaternion AnimTrack_ReadQuternion4FromRow(String row);
+	AnimShape LoadAnimShape(World* world, String path);
+	Vector AnimShape_ReadVector3FromRow(String row);
 
 	void CreateTextUI(World* world);
 	void CreateCamera(World* world);
+	void CreateDroneGrid(World* world, Vector pos);
+	void CreateLevel(World* world);
 	void CreatePBRShpereGrid(World* world, Vector pos, Color albedo);
 	void CreateTranslucent(World* world);
 	void CreateSponza(World* world);
@@ -58,6 +62,8 @@ namespace GameManagerSystem
 	void UpdateModel(World* world);
 	void UpdatePostProcess(World* world);
 	void UpdateAnimTracks(World* world);
+	void UpdateAnimDayNight(World* world);
+	void UpdateAnimDrones(World* world);
 	
 	void Deinit(World* world);
 }

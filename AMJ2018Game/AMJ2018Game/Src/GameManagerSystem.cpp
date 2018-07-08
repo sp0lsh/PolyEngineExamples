@@ -3,6 +3,7 @@
 #include "GameManagerWorldComponent.hpp"
 
 #include <Core.hpp>
+#include <DroneComponent.hpp>
 #include <Debugging/DebugDrawComponents.hpp>
 #include <Debugging/DebugDrawSystem.hpp>
 #include <ECS/DeferredTaskSystem.hpp>
@@ -21,36 +22,40 @@
 using namespace Poly;
 using namespace AMJ;
 
-void GameManagerSystem::CreateScene(World* world)
+void GameManagerSystem::CreateStartScene(World* world)
 {
 	gConsole.LogInfo("GameManagerSystem::CreateScene");
 
-	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();	
+	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
 	srand(42);
-	
 
-	DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(world, "HDR/HDR.hdr", eResourceSource::GAME);
-	
-	//gameMgrCmp->AminModel = CreateModel(world, String("Models/Drone/OBJ/Drone_00.obj"));
 
-	//gameMgrCmp->AnimKeys = LoadAnimTrack(world, "Animations/cube0.x");
+	CreateCamera(world);
 
-	//CreateTextUI(world);
+	gameMgrCmp->AminModel = CreateModel(world, "Models/Drone/OBJ/Drone_00.obj");
+	gameMgrCmp->AnimKeys = LoadAnimTrack(world, "Animations/cube0.x");
+	gameMgrCmp->GameEntities.PushBack(gameMgrCmp->AminModel);
 
-	//CreateTranslucent(world);
+	gameMgrCmp->AnimShapeCube = LoadAnimShape(world, "Shapes/Cube.obj");
+	gameMgrCmp->AnimShapeTorus = LoadAnimShape(world, "Shapes/Torus.obj");
 
-	//CreatePointLights(world, 128);
+	CreateDroneGrid(world, Vector(-400.0f, 0.0f, -300.0f));
 
-	// SpawnParticles(world);
+	CreateLevel(world);
+
+	CreateTextUI(world);
+
+	// gDebugConfig.DisplayFPS = true;
+	// gDebugConfig.DebugRender = true;
 }
 
 AnimKeys GameManagerSystem::LoadAnimTrack(World* world, String path)
 {
-	gConsole.LogInfo("GameManagerSystem::CreateAnimTrack");
+	gConsole.LogInfo("GameManagerSystem::LoadAnimTrack");
 	String animSrc = LoadTextFileRelative(eResourceSource::GAME, path);
 	// gConsole.LogInfo("GameManagerSystem::CreateAnimTrack AnimSrc: {}", animSrc);
-	
+
 	Dynarray<Vector> positions;
 	Dynarray<Vector> scales;
 	Dynarray<Quaternion> rotations;
@@ -120,7 +125,7 @@ AnimKeys GameManagerSystem::LoadAnimTrack(World* world, String path)
 
 				if (rowCounterRotation > 2)
 				{
-					rotations.PushBack(ReadQuternion4FromRow(row));
+					rotations.PushBack(AnimTrack_ReadQuternion4FromRow(row));
 				}
 
 				rowCounterRotation++;
@@ -140,7 +145,7 @@ AnimKeys GameManagerSystem::LoadAnimTrack(World* world, String path)
 
 				if (rowCounterScale > 2)
 				{
-					scales.PushBack(ReadVector3FromRow(row));
+					scales.PushBack(AnimTrack_ReadVector3FromRow(row));
 				}
 
 				rowCounterScale++;
@@ -160,7 +165,7 @@ AnimKeys GameManagerSystem::LoadAnimTrack(World* world, String path)
 
 				if (rowCounterPosition > 2)
 				{
-					positions.PushBack(ReadVector3FromRow(row));
+					positions.PushBack(AnimTrack_ReadVector3FromRow(row));
 				}
 
 				rowCounterPosition++;
@@ -191,7 +196,7 @@ AnimKeys GameManagerSystem::LoadAnimTrack(World* world, String path)
 	return AnimKeys(positions, rotations, scales);
 }
 
-Vector GameManagerSystem::ReadVector3FromRow(String row)
+Vector GameManagerSystem::AnimTrack_ReadVector3FromRow(String row)
 {
 	// 0;4;0.000000, 0.000000, 0.000000, 0.000000;;,	
 	Dynarray<String> tokens = row.Split(';'); // values are at token with index 2 
@@ -202,7 +207,7 @@ Vector GameManagerSystem::ReadVector3FromRow(String row)
 	return Vector(x, y, z);
 }
 
-Quaternion GameManagerSystem::ReadQuternion4FromRow(String row)
+Quaternion GameManagerSystem::AnimTrack_ReadQuternion4FromRow(String row)
 {
 	// 0;4;0.000000, 0.000000, 0.000000, 0.000000;;,
 	Dynarray<String> tokens = row.Split(';'); // values are at token with index 2 
@@ -212,6 +217,49 @@ Quaternion GameManagerSystem::ReadQuternion4FromRow(String row)
 	float z = std::atof(channels[2].GetCStr());
 	float w = std::atof(channels[3].GetCStr());
 	return Quaternion(x, y, z, w);
+}
+
+AnimShape GameManagerSystem::LoadAnimShape(World* world, String path)
+{
+	gConsole.LogInfo("GameManagerSystem::LoadAnimShape");
+	String animSrc = LoadTextFileRelative(eResourceSource::GAME, path);
+	// gConsole.LogInfo("GameManagerSystem::CreateAnimTrack AnimSrc: {}", animSrc);
+
+	Dynarray<Vector> positions;
+
+	animSrc.Replace("\r\n", "\n");
+	animSrc.GetTrimmed();
+	Dynarray<String> rows = animSrc.Split('\n');
+	for (String row : rows)
+	{
+		if (row.IsEmpty())
+		{
+			continue;
+		}
+
+		if (row.Contains("v"))
+		{
+			positions.PushBack(AnimShape_ReadVector3FromRow(row));
+		}
+	}
+
+	gConsole.LogInfo("GameManagerSystem::LoadAnimShape Print loaded rotations:");
+	for (size_t i = 0; i < positions.GetSize(); ++i)
+	{
+		gConsole.LogInfo("GameManagerSystem::CreateAnimShape positions[{}]: {}", i, positions[i]);
+	}
+
+	return AnimShape(positions, Random());
+}
+
+Vector GameManagerSystem::AnimShape_ReadVector3FromRow(String row)
+{
+	//v -1.000000 0.000000 1.000000
+	Dynarray<String> tokens = row.Split(' ');
+	float x = std::atof(tokens[1].GetTrimmed().GetCStr());
+	float y = std::atof(tokens[2].GetTrimmed().GetCStr());
+	float z = std::atof(tokens[3].GetTrimmed().GetCStr());
+	return Vector(x, y, z);
 }
 
 void GameManagerSystem::CreateTextUI(World* world)
@@ -225,7 +273,7 @@ void GameManagerSystem::CreateTextUI(World* world)
 		eResourceSource::ENGINE,
 		40.0f,
 		"powered by PolyEngine"
-	);
+		);
 }
 
 Entity* GameManagerSystem::CreateModel(World* world, String path)
@@ -241,23 +289,84 @@ void GameManagerSystem::CreateCamera(World* world)
 	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
 	Entity* camera = DeferredTaskSystem::SpawnEntityImmediate(world);
-	DeferredTaskSystem::AddComponentImmediate<CameraComponent>(world, camera, 35_deg, 1.0f, 5000.f);
+	CameraComponent* cameraCmp = DeferredTaskSystem::AddComponentImmediate<CameraComponent>(world, camera, 90_deg, 1.0f, 20000.f);
+	// cameraCmp->SetRenderingMode(eRenderingModeType::IMMEDIATE_DEBUG);
 	DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(world, camera, 100.0f, 0.003f, 10.0f);
 	gameMgrCmp->PostCmp = DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(world, camera);
-	gameMgrCmp->PostCmp->Exposure = 3.0f;
+	// gameMgrCmp->PostCmp->Exposure = 0.5f; // night
+	gameMgrCmp->PostCmp->Exposure = 10.0f; // day
 
 	EntityTransform& cameraTrans = camera->GetTransform();
-	cameraTrans.SetGlobalTranslation(Vector(-550.0f, 180.0f, 0.0f));
+	cameraTrans.SetGlobalTranslation(Vector(-200.0f, 180.0f, 0.0f));
 	cameraTrans.SetGlobalRotation(Quaternion(Vector::UNIT_Y, -90.0_deg) * Quaternion(Vector::UNIT_X, -10.0_deg));
 	// cameraTrans.SetGlobalRotation(Quaternion(Matrix(cameraTrans.GetGlobalTranslation(), Vector(0.0f, 0.0f, 0.0f))));
 	world->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, world->GetComponent<CameraComponent>(camera));
 	gameMgrCmp->Camera = camera;
+	gameMgrCmp->GameEntities.PushBack(camera);
 
-	Entity* keyDirLight = DeferredTaskSystem::SpawnEntityImmediate(world);
-	DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(world, keyDirLight, Color(1.0f, 1.0f, 1.0f), 5.0f);
-	keyDirLight->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_Y, -45_deg) * Quaternion(Vector::UNIT_X, 65_deg));
-	gameMgrCmp->GameEntities.PushBack(keyDirLight);
-	
+	// Entity* keyDirLight = DeferredTaskSystem::SpawnEntityImmediate(world);
+	// DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(world, keyDirLight, Color(1.0f, 1.0f, 1.0f), 5.0f);
+	// keyDirLight->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_Y, -45_deg) * Quaternion(Vector::UNIT_X, 65_deg));
+	// gameMgrCmp->GameEntities.PushBack(keyDirLight);
+
+}
+
+void GameManagerSystem::CreateDroneGrid(World* world, Vector pos)
+{
+	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+	for (int z = 0; z < 10; ++z)
+	{
+		for (int y = 0; y < 10; ++y)
+		{
+			Entity* drone = DeferredTaskSystem::SpawnEntityImmediate(world);
+			EntityTransform& sphereTrans = drone->GetTransform();
+			Vector rndPos = RandomVector() * 2.0f - 1.0f;
+			Vector randomOffset = Vector(rndPos.X * 1.0f, rndPos.Y * 0.1f, rndPos.Z * 1.0f) * 5.0f;
+			sphereTrans.SetGlobalTranslation(pos + Vector(100.0f * y, 0.0f, 100.0f * z) + randomOffset + Vector::UNIT_Y * 20.0f);
+			Vector rndRot = RandomVector() * 2.0f - 1.0f;
+			float rotMax = 5.0f;
+			Quaternion rotOffset = Quaternion(Vector::UNIT_X, 1.0_deg * rndRot.X * rotMax) * Quaternion(Vector::UNIT_Y, 1.0_deg * rndRot.Y * rotMax) * Quaternion(Vector::UNIT_Z, 1.0_deg * rndRot.Z * rotMax);
+			sphereTrans.SetGlobalRotation(rotOffset);
+			sphereTrans.SetLocalScale(Vector::ONE * 10.0f);
+			MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, drone, "Models/Drone/OBJ/Drone_00.obj", eResourceSource::GAME);
+			size_t materials = meshCmp->GetMesh()->GetSubMeshes().GetSize();
+			for (size_t i = 0; i < materials; ++i)
+			{
+				meshCmp->SetMaterial(i, Material(Color::WHITE * 1000.0f, Color::WHITE, 1.0f, 1.0f, 0.5f));
+			}
+			DroneComponent* droneCmp = DeferredTaskSystem::AddComponentImmediate<DroneComponent>(world, drone);
+			droneCmp->InitPosition = drone->GetTransform().GetGlobalTranslation();
+			droneCmp->InitScale = drone->GetTransform().GetGlobalScale();
+			droneCmp->InitRotation = drone->GetTransform().GetGlobalRotation();
+			droneCmp->RestPostion = (RandomVector() * 2.0f - 1.0f) * 500.0f;
+			droneCmp->mesh = meshCmp;
+
+			Entity* droneLight = DeferredTaskSystem::SpawnEntityImmediate(world);
+			droneLight->SetParent(drone);
+			float range = Lerp(100.0f, 200.0f, Random());
+			PointLightComponent* pointLightCmp = DeferredTaskSystem::AddComponentImmediate<PointLightComponent>(world, droneLight, Color::WHITE, 0.0f, range);
+			droneLight->GetTransform().SetLocalTranslation(Vector::UNIT_Y * 10.0f);
+			droneCmp->light = pointLightCmp;
+			droneCmp->random = Random();
+
+			gameMgrCmp->Drones.PushBack(droneCmp);
+			gameMgrCmp->GameEntities.PushBack(drone);
+		}
+	}
+}
+
+void GameManagerSystem::CreateLevel(World* world)
+{
+	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+	gameMgrCmp->Level = CreateModel(world, "Models/Level2/model_lowpoly.obj");
+	gameMgrCmp->Level->GetTransform().SetGlobalScale(Vector::ONE * 2000.0f);
+	gameMgrCmp->Level->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_Y, 90.0_deg));
+	gameMgrCmp->GameEntities.PushBack(gameMgrCmp->Level);
+
+	Entity* meterCube = CreateModel(world, "Models/Primitives/Cube_lowpoly.obj");
+	meterCube->GetTransform().SetGlobalTranslation(Vector::UNIT_Z * 1000.0f);
+	meterCube->GetTransform().SetGlobalScale(Vector::ONE * 100.0f);
+	gameMgrCmp->GameEntities.PushBack(meterCube);
 }
 
 void GameManagerSystem::CreatePBRShpereGrid(World* world, Vector pos, Color albedo)
@@ -307,8 +416,8 @@ void GameManagerSystem::CreatePBRShpereGrid(World* world, Vector pos, Color albe
 			int materialsNum = meshCmp->GetMesh()->GetSubMeshes().GetSize();
 			for (int i = 0; i < materialsNum; ++i)
 			{
-				float Roughness	= ((0.01f + z) / 5.0f);
-				float Metallic	= ((0.01f + y) / 5.0f);
+				float Roughness = ((0.01f + z) / 5.0f);
+				float Metallic = ((0.01f + y) / 5.0f);
 				meshCmp->SetMaterial(i, Material(
 					Color(0.0f, 0.0f, 0.0f, 0.0f),
 					albedo,
@@ -404,19 +513,24 @@ void GameManagerSystem::CreateSponzaSample(World* world)
 
 void GameManagerSystem::Update(World* world)
 {
-	//UpdateParticles(world);
+	// UpdateParticles(world);
 
-	//UpdateLights(world);
+	// UpdateLights(world);
 
 	// UpdateModel(world);
 
-	//Vector offset = Vector(800.0f, 0.0f, 0.0f);
-	//DebugDrawSystem::DrawLine(world, offset, offset + Vector::UNIT_Y * 1000.0f, Color::RED);
-	//DebugDrawSystem::DrawBox(world, offset + Vector(-100.0f, 0.0f, -100.0f), offset + Vector(100.0f, 200.0f, 100.0f), Color::RED);
+	// Vector offset = Vector(800.0f, 0.0f, 0.0f);
+	// DebugDrawSystem::DrawLine(world, offset, offset + Vector::UNIT_Y * 1000.0f, Color::RED);
+	// DebugDrawSystem::DrawBox(world, offset + Vector(-100.0f, 0.0f, -100.0f), offset + Vector(100.0f, 200.0f, 100.0f), Color::RED);
+	// DebugDrawSystem::DrawSphere(world, offset + Vector(-100.0f, 0.0f, -100.0f), 100.0f, Color::RED);
 
 	// UpdatePostProcess(world);
 
-	//UpdateAnimTracks(world);
+	UpdateAnimTracks(world);
+
+	UpdateAnimDayNight(world);
+
+	UpdateAnimDrones(world);
 }
 
 void GameManagerSystem::UpdatePostProcess(World* world)
@@ -424,9 +538,10 @@ void GameManagerSystem::UpdatePostProcess(World* world)
 	float time = (float)(world->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
 	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 	time *= 0.1f;
-	float exposure = 0.25f * floor(10.0f*4.0f * (time - floor(time)));
+	// float exposure = 0.25f * floor(10.0f*4.0f * (time - floor(time)));
+	float exposure = 0.25f + 10.0f * time;
 	gameMgrCmp->PostCmp->Exposure = exposure;
-	gConsole.LogInfo("GameManagerSystem::Update exposure: {}", gameMgrCmp->PostCmp->Exposure);
+	gConsole.LogInfo("GameManagerSystem::UpdatePostProcess exposure: {}", gameMgrCmp->PostCmp->Exposure);
 }
 
 void GameManagerSystem::UpdateAnimTracks(World* world)
@@ -453,7 +568,7 @@ void GameManagerSystem::UpdateAnimTracks(World* world)
 	Vector position = Lerp(animKeys.Positions[keyPrev], animKeys.Positions[keyNext], keyDeltaSmooth);
 	Vector scale = Lerp(animKeys.Scales[keyPrev], animKeys.Scales[keyNext], keyDeltaSmooth);
 	Quaternion rotation = Quaternion::Slerp(animKeys.Rotations[keyPrev], animKeys.Rotations[keyNext], keyDeltaSmooth);
-	
+
 	gameMgrCmp->AminModel->GetTransform().SetGlobalTranslation(position);
 	gameMgrCmp->AminModel->GetTransform().SetGlobalScale(scale);
 	gameMgrCmp->AminModel->GetTransform().SetGlobalRotation(rotation);
@@ -461,98 +576,68 @@ void GameManagerSystem::UpdateAnimTracks(World* world)
 	gameMgrCmp->AnimProgress = animTime;
 }
 
-void GameManagerSystem::Deinit(World* world)
-{
-	gConsole.LogInfo("GameManagerSystem::Cleanup");
-}
-
-void GameManagerSystem::CreatePointLights(World* world, int quota)
-{
-	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
-
-	gameMgrCmp->LightsStartPositions.Reserve(quota);
-
-	for (int i = 0; i < quota; ++i)
-	{
-		Vector position = Vector(RandomRange(-1.0f, 1.0f)*1000.0f, RandomRange(0.0f, 800.0f), RandomRange(-1.0f, 1.0f)*500.0f);
-		float rangeRnd = pow(RandomRange(0.0f, 1.0f), 8.0f);
-		float range = 100.0f + rangeRnd * 2000.0f;
-		Entity* lightEntity = CreatePointLight(world, position, range);
-
-		gameMgrCmp->LightsStartPositions.PushBack(position);
-		gameMgrCmp->PointLightEntities.PushBack(lightEntity);
-
-		// gConsole.LogInfo("GameManagerSystem::CreateTestLights #{}: Positon: {}, Radius: {}",
-		// 	i, position, Range);
-	}
-
-	for (size_t i = 0; i < gameMgrCmp->PointLightEntities.GetSize(); ++i)
-	{
-		gameMgrCmp->GameEntities.PushBack(gameMgrCmp->PointLightEntities[i]);
-	}
-}
-
-void GameManagerSystem::UpdateLights(World* world)
+void GameManagerSystem::UpdateAnimDayNight(World* world)
 {
 	float time = (float)(world->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
-	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+	float anim = SmoothStep(-0.5f, 0.5f, Sin(20.0_deg * time));
 
-	for (size_t i = 0; i < gameMgrCmp->LightsStartPositions.GetSize(); ++i)
+	// 0 - night, 1 - day
+	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+	gameMgrCmp->PostCmp->Exposure = Lerp(1.0f, 10.0f, anim);
+
+	float intensityNight = 100.0f * 1000.0f;
+	float animSmooth = SmoothStep(0.0f, 1.0f, anim);
+	// float animSmooth2 = SmoothStep(0.0f, 0.5f, anim);
+	// float intensity = Lerp(intensityNight, 0.0f, animSmooth2);
+
+	SkyboxWorldComponent* skyboxCmp = world->GetWorldComponent<SkyboxWorldComponent>();
+	skyboxCmp->SetTint(Color::WHITE * Lerp(0.2f, 1.0f, animSmooth));
+
+	gConsole.LogInfo("GameManagerSystem::UpdateAnimDayNight time: {}, anim: {}", time, anim);
+
+	for (auto drone : gameMgrCmp->Drones)
 	{
-		Entity* pointLight = gameMgrCmp->PointLightEntities[i];
-		Vector startPosition = gameMgrCmp->LightsStartPositions[i];
-		Vector offset = Vector::UNIT_Y * Sin(2.0_rad * time + 1.0_rad * startPosition.X) * 100.0f;
-		EntityTransform& pointLightTrans = pointLight->GetTransform();
-		pointLightTrans.SetGlobalTranslation(startPosition + offset);
+		float animSmooth2 = SmoothStep(0.0f, 0.5f - Lerp(0.0f, 0.2f, drone->random), anim);
+		float intensity = Lerp(intensityNight, 0.0f, animSmooth2);
+		drone->light->SetIntensity(intensity);
+
+		Color emissive = Color::WHITE * Lerp(1000.0f, 0.0f, animSmooth2);
+		Color albedo = Color::WHITE * Lerp(0.1f, 1.0f, animSmooth2);
+		float roughness = Lerp(0.95f, 0.1f, animSmooth2);
+		float metallic = Lerp(0.95f, 0.1f, animSmooth2);
+		size_t materials = drone->mesh->GetMesh()->GetSubMeshes().GetSize();
+		for (size_t i = 0; i < materials; ++i)
+		{
+			drone->mesh->SetMaterial(i, Material(emissive, albedo, roughness, metallic, 0.5f));
+		}
 	}
 }
 
-void GameManagerSystem::UpdateModel(World* world)
+void GameManagerSystem::UpdateAnimDrones(World* world)
 {
 	float time = (float)(world->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
+	float anim = SmoothStep(-0.5f, 0.5f, Sin(20.0_deg * time));
+	float animSmooth = SmoothStep(0.0f, 1.0f, anim);
+
+	gConsole.LogInfo("GameManagerSystem::UpdateAnimDrones time: {}, anim: {}", time);
 	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
-	if (gameMgrCmp->AminModel)
+
+	size_t dronesSize = gameMgrCmp->Drones.GetSize();
+	size_t shape0Size = gameMgrCmp->AnimShapeCube.ShapeSize;
+	size_t shape1Size = gameMgrCmp->AnimShapeTorus.ShapeSize;
+	gConsole.LogInfo("GameManagerSystem::UpdateAnimDrones droneSize: {}, shape0Size: {}, shape1Size: {}",
+		dronesSize, shape0Size, shape1Size);
+	// ASSERTE(shape0Size <= dronesSize, "Not enough drones to play shape");
+	// ASSERTE(shape1Size <= dronesSize, "Not enough drones to play shape");
+	size_t count = std::min(dronesSize, std::max(shape0Size, shape1Size));
+	for (size_t i = 0; i < count; ++i)
 	{
-		EntityTransform& modelTrans = gameMgrCmp->AminModel->GetTransform();
-		modelTrans.SetLocalRotation(Quaternion(Vector::UNIT_Y, 10.0_deg * time));
+		DroneComponent* drone = gameMgrCmp->Drones[i];
+		Vector pos0 = (i < shape0Size) ? gameMgrCmp->AnimShapeCube.Positions[i] : Vector::UNIT_Y * 500.0f + drone->RestPostion;
+		Vector pos1 = (i < shape1Size) ? gameMgrCmp->AnimShapeTorus.Positions[i] : Vector::UNIT_Y * 500.0f + drone->RestPostion;
+		Vector posAnim = Lerp(pos0, pos1, 1.0f - animSmooth);
+		drone->GetOwner()->GetTransform().SetGlobalTranslation(posAnim);
 	}
-}
-
-Entity* GameManagerSystem::CreatePointLight(World* world, Vector& position, float Range)
-{
-	Color lightColor = Color(RandomRange(0.0f, 1.0f), RandomRange(0.0f, 1.0f), RandomRange(0.0f, 1.0f));
-
-	Entity* pointLight = DeferredTaskSystem::SpawnEntityImmediate(world);
-	PointLightComponent* pointLightCmp = DeferredTaskSystem::AddComponentImmediate<PointLightComponent>(world, pointLight, lightColor, 100.0f * 1000.0f, Range);
-	MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, pointLight, "Models/Primitives/Sphere_LowPoly.obj", eResourceSource::GAME);
-	meshCmp->SetMaterial(0, Material(Color(0.0f, 0.0f, 0.0f, 0.0f), lightColor, 0.0f, 1.0f, 0.5f));
-	EntityTransform& pointLightTrans = pointLight->GetTransform();
-	pointLightTrans.SetGlobalScale(Vector::ONE * 5.0f);
-	pointLightTrans.SetGlobalTranslation(position);
-
-	return pointLight;
-}
-
-void GameManagerSystem::CreateSpotLight(World* world, float Range)
-{
-	Vector spotLightPos = Vector(50.0f, 50.0f, 0.0f);
-	Color lightColor = Color(1.0f, 0.5f, 0.0f) + Color(RandomRange(0.0f, 1.0f), RandomRange(0.0f, 0.5f), RandomRange(0.0f, 0.2f));
-	Quaternion spotLightRot = Quaternion(Vector::UNIT_Y, -45_deg) * Quaternion(Vector::UNIT_X, -35_deg);
-	// float pointLightRange = 100.0f;
-	Entity* spotLight = DeferredTaskSystem::SpawnEntityImmediate(world);
-	DeferredTaskSystem::AddComponentImmediate<SpotLightComponent>(world, spotLight, lightColor, 1.0f, Range, 5.0f, 17.0f);
-	EntityTransform& spotLightTrans = spotLight->GetTransform();
-	spotLightTrans.SetLocalTranslation(spotLightPos);
-	spotLightTrans.SetLocalRotation(spotLightRot);
-
-	Entity* spotLightDebugSource = DeferredTaskSystem::SpawnEntityImmediate(world);
-	DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, spotLightDebugSource, "Models/Primitives/Sphere_LowPoly.obj", eResourceSource::GAME);
-	MeshRenderingComponent* spotLightMesh = world->GetComponent<MeshRenderingComponent>(spotLightDebugSource);
-	spotLightMesh->SetMaterial(0, Material(lightColor, lightColor, 1.0f, 1.0f, 0.5f));
-	EntityTransform& spotLightDebugSourceTrans = spotLightDebugSource->GetTransform();
-	spotLightDebugSource->SetParent(spotLight);
-	spotLightDebugSourceTrans.SetLocalScale(2.0f);
-	spotLightDebugSourceTrans.SetLocalTranslation(Vector(0.0f, 0.0f, 0.0f));
 }
 
 void GameManagerSystem::UpdateParticles(World* world)
@@ -600,6 +685,105 @@ void GameManagerSystem::UpdateParticles(World* world)
 	{
 		gameMgrCmp->particleWorldSpace->GetTransform().SetGlobalTranslation(Vector(0.0f, 4.0f, 0.0f) + Vector(Cos(100.0_deg * time + 180.0_deg), 0.0f, Sin(100.0_deg * time + 180.0_deg)) * 6.0f);
 	}
+}
+
+void GameManagerSystem::UpdateLights(World* world)
+{
+	float time = (float)(world->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
+	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
+	for (size_t i = 0; i < gameMgrCmp->LightsStartPositions.GetSize(); ++i)
+	{
+		Entity* pointLight = gameMgrCmp->PointLightEntities[i];
+		Vector startPosition = gameMgrCmp->LightsStartPositions[i];
+		Vector offset = Vector::UNIT_Y * Sin(2.0_rad * time + 1.0_rad * startPosition.X) * 100.0f;
+		EntityTransform& pointLightTrans = pointLight->GetTransform();
+		pointLightTrans.SetGlobalTranslation(startPosition + offset);
+	}
+}
+
+void GameManagerSystem::UpdateModel(World* world)
+{
+	float time = (float)(world->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
+	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+	if (gameMgrCmp->AminModel)
+	{
+		EntityTransform& modelTrans = gameMgrCmp->AminModel->GetTransform();
+		modelTrans.SetLocalRotation(Quaternion(Vector::UNIT_Y, 10.0_deg * time));
+	}
+}
+
+void GameManagerSystem::Deinit(World* world)
+{
+	gConsole.LogInfo("GameManagerSystem::Deinit");
+	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+	for (auto e : gameMgrCmp->GameEntities)
+	{
+		DeferredTaskSystem::DestroyEntity(world, e.Get());
+	}
+}
+
+void GameManagerSystem::CreatePointLights(World* world, int quota)
+{
+	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
+	gameMgrCmp->LightsStartPositions.Reserve(quota);
+
+	for (int i = 0; i < quota; ++i)
+	{
+		Vector position = Vector(RandomRange(-1.0f, 1.0f)*1000.0f, RandomRange(0.0f, 800.0f), RandomRange(-1.0f, 1.0f)*500.0f);
+		float rangeRnd = pow(RandomRange(0.0f, 1.0f), 8.0f);
+		float range = 100.0f + rangeRnd * 2000.0f;
+		Entity* lightEntity = CreatePointLight(world, position, range);
+
+		gameMgrCmp->LightsStartPositions.PushBack(position);
+		gameMgrCmp->PointLightEntities.PushBack(lightEntity);
+
+		// gConsole.LogInfo("GameManagerSystem::CreateTestLights #{}: Positon: {}, Radius: {}",
+		// 	i, position, Range);
+	}
+
+	for (size_t i = 0; i < gameMgrCmp->PointLightEntities.GetSize(); ++i)
+	{
+		gameMgrCmp->GameEntities.PushBack(gameMgrCmp->PointLightEntities[i]);
+	}
+}
+
+Entity* GameManagerSystem::CreatePointLight(World* world, Vector& position, float Range)
+{
+	Color lightColor = Color(RandomRange(0.0f, 1.0f), RandomRange(0.0f, 1.0f), RandomRange(0.0f, 1.0f));
+
+	Entity* pointLight = DeferredTaskSystem::SpawnEntityImmediate(world);
+	PointLightComponent* pointLightCmp = DeferredTaskSystem::AddComponentImmediate<PointLightComponent>(world, pointLight, lightColor, 100.0f * 1000.0f, Range);
+	MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, pointLight, "Models/Primitives/Sphere_LowPoly.obj", eResourceSource::GAME);
+	meshCmp->SetMaterial(0, Material(Color(0.0f, 0.0f, 0.0f, 0.0f), lightColor, 0.0f, 1.0f, 0.5f));
+	EntityTransform& pointLightTrans = pointLight->GetTransform();
+	pointLightTrans.SetGlobalScale(Vector::ONE * 5.0f);
+	pointLightTrans.SetGlobalTranslation(position);
+
+	return pointLight;
+}
+
+void GameManagerSystem::CreateSpotLight(World* world, float Range)
+{
+	Vector spotLightPos = Vector(50.0f, 50.0f, 0.0f);
+	Color lightColor = Color(1.0f, 0.5f, 0.0f) + Color(RandomRange(0.0f, 1.0f), RandomRange(0.0f, 0.5f), RandomRange(0.0f, 0.2f));
+	Quaternion spotLightRot = Quaternion(Vector::UNIT_Y, -45_deg) * Quaternion(Vector::UNIT_X, -35_deg);
+	// float pointLightRange = 100.0f;
+	Entity* spotLight = DeferredTaskSystem::SpawnEntityImmediate(world);
+	DeferredTaskSystem::AddComponentImmediate<SpotLightComponent>(world, spotLight, lightColor, 1.0f, Range, 5.0f, 17.0f);
+	EntityTransform& spotLightTrans = spotLight->GetTransform();
+	spotLightTrans.SetLocalTranslation(spotLightPos);
+	spotLightTrans.SetLocalRotation(spotLightRot);
+
+	Entity* spotLightDebugSource = DeferredTaskSystem::SpawnEntityImmediate(world);
+	DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, spotLightDebugSource, "Models/Primitives/Sphere_LowPoly.obj", eResourceSource::GAME);
+	MeshRenderingComponent* spotLightMesh = world->GetComponent<MeshRenderingComponent>(spotLightDebugSource);
+	spotLightMesh->SetMaterial(0, Material(lightColor, lightColor, 1.0f, 1.0f, 0.5f));
+	EntityTransform& spotLightDebugSourceTrans = spotLightDebugSource->GetTransform();
+	spotLightDebugSource->SetParent(spotLight);
+	spotLightDebugSourceTrans.SetLocalScale(2.0f);
+	spotLightDebugSourceTrans.SetLocalTranslation(Vector(0.0f, 0.0f, 0.0f));
 }
 
 void GameManagerSystem::SpawnParticles(World* world)

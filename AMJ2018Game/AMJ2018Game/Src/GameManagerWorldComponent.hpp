@@ -1,5 +1,6 @@
 #pragma once
 
+#include <DroneComponent.hpp>
 #include <UniqueID.hpp>
 #include <Collections/Dynarray.hpp>
 #include <ECS/ComponentBase.hpp>
@@ -26,20 +27,46 @@ namespace AMJ
 		Dynarray<Quaternion> Rotations;
 		Dynarray<Vector> Scales;
 	};
+
+	struct AnimShape : public BaseObject<>
+	{
+		AnimShape()
+		{}
+
+		AnimShape(Dynarray<Vector>& positions, float random)
+			: Positions(positions), Random(random), ShapeSize(positions.GetSize())
+		{
+		}
+
+		Dynarray<Vector> Positions;
+		float Random;
+		size_t ShapeSize;
+	};
 }
 
 
 class GAME_DLLEXPORT GameManagerWorldComponent : public ComponentBase
 {
 public:
+	
 	SafePtr<Entity> Camera;
 	PostprocessSettingsComponent* PostCmp;
-	bool IsDrawingDebugMeshes = true;
+	SafePtr<Entity> Level;
+	
+	Dynarray<DroneComponent*> Drones;
 	Dynarray<SafePtr<Entity>> GameEntities;
 
+	// shapes
+	AMJ::AnimShape AnimShapeCube;
+	AMJ::AnimShape AnimShapeTorus;
+
+	// keys
 	AMJ::AnimKeys AnimKeys;
 	SafePtr<Entity> AminModel;
 	float AnimProgress = 0;
+
+public:
+	bool IsDrawingDebugMeshes = true;
 
 	ParticleComponent* particleDefault;
 	ParticleComponent* particleAmbient;
