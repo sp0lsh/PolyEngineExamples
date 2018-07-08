@@ -52,6 +52,9 @@ public:
 	Color LightColor = Color(1.0f, 0.65f, 0.3f);
 	
 	SafePtr<Entity> Camera;
+	SafePtr<Entity> CameraAnim;
+	float CamAnimAccumTime = 0.0f;
+	float CamAnimAccumAngleH = 0.0f;
 	PostprocessSettingsComponent* PostCmp;
 	SafePtr<Entity> Level;
 	SafePtr<Entity> TextFPS;

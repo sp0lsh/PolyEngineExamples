@@ -334,6 +334,10 @@ void GameManagerSystem::CreateCamera(World* world)
 {
 	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
+	Entity* cameraAnim = DeferredTaskSystem::SpawnEntityImmediate(world);
+	gameMgrCmp->CameraAnim = cameraAnim;
+
+
 	Entity* camera = DeferredTaskSystem::SpawnEntityImmediate(world);
 	CameraComponent* cameraCmp = DeferredTaskSystem::AddComponentImmediate<CameraComponent>(world, camera, 120_deg, 1.0f, 20000.f);
 	// cameraCmp->SetRenderingMode(eRenderingModeType::IMMEDIATE_DEBUG);
@@ -342,9 +346,12 @@ void GameManagerSystem::CreateCamera(World* world)
 	// gameMgrCmp->PostCmp->Exposure = 0.5f; // night
 	gameMgrCmp->PostCmp->Exposure = 10.0f; // day
 
+	camera->SetParent(cameraAnim);
+
 	EntityTransform& cameraTrans = camera->GetTransform();
-	cameraTrans.SetGlobalTranslation(Vector(-200.0f, 180.0f, 0.0f));
-	cameraTrans.SetGlobalRotation(Quaternion(Vector::UNIT_Y, -90.0_deg) * Quaternion(Vector::UNIT_X, -10.0_deg));
+	cameraTrans.SetLocalTranslation(Vector(0.0f, 180.0f, 800.0f));
+	// cameraTrans.SetGlobalRotation(Quaternion(Vector::UNIT_Y, -90.0_deg) * Quaternion(Vector::UNIT_X, -10.0_deg));
+	cameraTrans.SetLocalRotation(  Quaternion(Vector::UNIT_X, 45.0_deg));
 	// cameraTrans.SetGlobalRotation(Quaternion(Matrix(cameraTrans.GetGlobalTranslation(), Vector(0.0f, 0.0f, 0.0f))));
 	world->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, world->GetComponent<CameraComponent>(camera));
 	gameMgrCmp->Camera = camera;
@@ -592,6 +599,7 @@ void GameManagerSystem::CreateSponzaSample(World* world)
 
 void GameManagerSystem::Update(World* world)
 {
+
 	// UpdateParticles(world);
 
 	// UpdateLights(world);
@@ -605,9 +613,23 @@ void GameManagerSystem::Update(World* world)
 
 	// UpdatePostProcess(world);
 
+	float delta = (float)(TimeSystem::GetTimerDeltaTime(world, Poly::eEngineTimer::GAMEPLAY));
+	float time = (float)(world->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
 	DebugWorldComponent* com = world->GetWorldComponent<DebugWorldComponent>();
 	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
-	gameMgrCmp->TextFPS->GetComponent<ScreenSpaceTextComponent>()->SetText(String::From(com->GetFPSData().LastFPS));
+	gameMgrCmp->CamAnimAccumTime += delta;
+	float t = 0.5f * gameMgrCmp->CamAnimAccumTime;
+	float fractTime = t - floor(t);
+	// gameMgrCmp->CamAnimAccumAngleH += 180.0f * SmoothStep(0.2f, 0.8f, t);
+	gameMgrCmp->CameraAnim->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_Y, 10.0_deg * t));
+	
+	// gameMgrCmp->Camera->get cameraTrans.SetLocalTranslation(Vector(0.0f, 180.0f, 800.0f));
+
+
+
+	// gameMgrCmp->CameraAnim->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_Y, 1.0_deg * ));
+
+	// gameMgrCmp->TextFPS->GetComponent<ScreenSpaceTextComponent>()->SetText(String::From(com->GetFPSData().LastFPS));
 
 	UpdateAnimTracks(world);
 
@@ -1233,10 +1255,10 @@ ParticleComponent* GameManagerSystem::SpawnEmitterAmbient(World* world, Vector p
 	settings.BurstSizeMax = 20;
 	settings.BaseColor = Color(0.75f, 0.75f, 0.3f, 0.2f);
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
-		p->Position += RandomVectorRange(-1.0f, 1.0f) * 1000.0f;
+		p->Position += RandomVectorRange(-1.0f, 1.0f) * 2000.0f;
 		p->Velocity = RandomVectorRange(-1.0f, 1.0f) * 0.01f;
 		p->LifeTime = RandomRange(5.0f, 10.0f);
-		p->Scale = Vector::ONE * RandomRange(2.0f, 10.0f);
+		p->Scale = Vector::ONE * RandomRange(2.0f, 12.0f);
 	};
 
 	gameMgrCmp->GameEntities.PushBack(particlesEnt);
