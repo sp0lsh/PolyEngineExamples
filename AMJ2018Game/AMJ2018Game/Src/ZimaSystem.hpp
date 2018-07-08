@@ -19,6 +19,8 @@ namespace ZimaSystem
 	bool IsColliding(Entity* EntityA, float RadiusA, Entity* EntityB, float RadiusB);
 	void ReadQuote(World* world, String path);
 	
+	ParticleComponent* SpawnEmitterLocalSpace(World* world, Vector pos);
+
 	ParticleComponent* SpawnEmitterHeartImpact(World* world, Vector pos);
 	void UpdateParticles(World* world);
 

@@ -30,13 +30,18 @@ void ZimaGunSystem::SpawnBullet(World* world, ZimaGunComponent* gunCmp, const Ve
 	Entity* actor = DeferredTaskSystem::SpawnEntityImmediate(world);
 	DeferredTaskSystem::AddComponentImmediate<DebugDrawableComponent>(world, actor, eDebugDrawPreset::STATIC);
 	MeshRenderingComponent* mesh = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, actor, "Models/Primitives/Sphere_LowPoly.obj", eResourceSource::GAME);
-	mesh->SetMaterial(0, Material(Color::RED * 1500.f, Color::WHITE, 1.f, 0.5f, 0.5f));
+	ZimaWorldComponent* gameCmp = world->GetWorldComponent<ZimaWorldComponent>();
+	if (gunCmp->GetOwner() == gameCmp->Player.Get())
+		mesh->SetMaterial(0, Material(Color::BLUE * 1500.f, Color::WHITE, 1.f, 0.5f, 0.5f));
+	else
+		mesh->SetMaterial(0, Material(Color::RED * 1500.f, Color::WHITE, 1.f, 0.5f, 0.5f));
 
 	DeferredTaskSystem::AddComponentImmediate<ZimaBulletComponent>(world, actor);
 	PointLightComponent* pointLightCmp =
 		DeferredTaskSystem::AddComponentImmediate<PointLightComponent>(world, actor, Color::RED, 1.f, 10.f);
 	actor->GetComponent<ZimaBulletComponent>()->Instigator = gunCmp->GetOwner();
 	EntityTransform& transform = actor->GetTransform();
+	transform.SetGlobalScale(Vector(3.f,3.f,3.f));
 	transform.SetGlobalTranslation(translation);
 	transform.SetGlobalRotation(quaternion);
 
