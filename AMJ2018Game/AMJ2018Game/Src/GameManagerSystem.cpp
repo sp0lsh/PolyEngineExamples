@@ -38,13 +38,34 @@ void GameManagerSystem::CreateStartScene(World* world)
 	gameMgrCmp->AnimKeys = LoadAnimTrack(world, "Animations/cube0.x");
 	gameMgrCmp->GameEntities.PushBack(gameMgrCmp->AminModel);
 
+	
 	Matrix scale;	
 	scale.SetScale(Vector::ONE * 500.0f);
 	Matrix move;
-	move.SetTranslation(Vector::UNIT_Y * 500.0f);
-	gameMgrCmp->ShapeTransform = move * scale;
+	move.SetTranslation(Vector::UNIT_Y * 1000.0f);
+
+	gameMgrCmp->ShapeBaseTransform = move * scale;
 	gameMgrCmp->AnimShape_cube = LoadAnimShape(world, "Shapes/sh_cube.obj");
 	gameMgrCmp->AnimShape_torus = LoadAnimShape(world, "Shapes/sh_torus.obj");
+	gameMgrCmp->AnimShape_logo_a = LoadAnimShape(world, "Shapes/sh_logo_a.obj");
+	gameMgrCmp->AnimShape_logo_am = LoadAnimShape(world, "Shapes/sh_logo_am.obj");
+	gameMgrCmp->AnimShape_logo_dc = LoadAnimShape(world, "Shapes/sh_logo_dc.obj");
+	gameMgrCmp->AnimShape_logo_jjb = LoadAnimShape(world, "Shapes/sh_logo_jjb.obj");
+	gameMgrCmp->AnimShape_logo_lg = LoadAnimShape(world, "Shapes/sh_logo_lg.obj");
+	gameMgrCmp->AnimShape_logo_pn = LoadAnimShape(world, "Shapes/sh_logo_pn.obj");
+	gameMgrCmp->AnimShape_logo_tl = LoadAnimShape(world, "Shapes/sh_logo_tl.obj");
+	gameMgrCmp->AnimShape_logo_vm = LoadAnimShape(world, "Shapes/sh_logo_vm.obj");
+	gameMgrCmp->AnimShapes.PushBack(gameMgrCmp->AnimShape_cube);
+	gameMgrCmp->AnimShapes.PushBack(gameMgrCmp->AnimShape_torus);
+	gameMgrCmp->AnimShapes.PushBack(gameMgrCmp->AnimShape_logo_a);
+	gameMgrCmp->AnimShapes.PushBack(gameMgrCmp->AnimShape_logo_am);
+	gameMgrCmp->AnimShapes.PushBack(gameMgrCmp->AnimShape_logo_dc);
+	gameMgrCmp->AnimShapes.PushBack(gameMgrCmp->AnimShape_logo_jjb);
+	gameMgrCmp->AnimShapes.PushBack(gameMgrCmp->AnimShape_logo_lg);
+	gameMgrCmp->AnimShapes.PushBack(gameMgrCmp->AnimShape_logo_pn);
+	gameMgrCmp->AnimShapes.PushBack(gameMgrCmp->AnimShape_logo_tl);
+	gameMgrCmp->AnimShapes.PushBack(gameMgrCmp->AnimShape_logo_vm);
+
 
 	CreateDrones(world, Vector(-400.0f, 0.0f, -300.0f));
 
@@ -227,7 +248,7 @@ Quaternion GameManagerSystem::AnimTrack_ReadQuternion4FromRow(String row)
 
 AnimShape GameManagerSystem::LoadAnimShape(World* world, String path)
 {
-	gConsole.LogInfo("GameManagerSystem::LoadAnimShape");
+	gConsole.LogInfo("GameManagerSystem::LoadAnimShape path: {}", path);
 	String animSrc = LoadTextFileRelative(eResourceSource::GAME, path);
 	// gConsole.LogInfo("GameManagerSystem::CreateAnimTrack AnimSrc: {}", animSrc);
 
@@ -249,11 +270,11 @@ AnimShape GameManagerSystem::LoadAnimShape(World* world, String path)
 		}
 	}
 
-	gConsole.LogInfo("GameManagerSystem::LoadAnimShape Print loaded rotations:");
-	for (size_t i = 0; i < positions.GetSize(); ++i)
-	{
-		gConsole.LogInfo("GameManagerSystem::CreateAnimShape positions[{}]: {}", i, positions[i]);
-	}
+	// gConsole.LogInfo("GameManagerSystem::LoadAnimShape Print loaded rotations:");
+	// for (size_t i = 0; i < positions.GetSize(); ++i)
+	// {
+	// 	gConsole.LogInfo("GameManagerSystem::CreateAnimShape positions[{}]: {}", i, positions[i]);
+	// }
 
 	return AnimShape(positions, Random());
 }
@@ -311,7 +332,7 @@ void GameManagerSystem::CreateCamera(World* world)
 	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
 	Entity* camera = DeferredTaskSystem::SpawnEntityImmediate(world);
-	CameraComponent* cameraCmp = DeferredTaskSystem::AddComponentImmediate<CameraComponent>(world, camera, 90_deg, 1.0f, 20000.f);
+	CameraComponent* cameraCmp = DeferredTaskSystem::AddComponentImmediate<CameraComponent>(world, camera, 120_deg, 1.0f, 20000.f);
 	// cameraCmp->SetRenderingMode(eRenderingModeType::IMMEDIATE_DEBUG);
 	DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(world, camera, 100.0f, 0.003f, 10.0f);
 	gameMgrCmp->PostCmp = DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(world, camera);
@@ -395,8 +416,8 @@ void GameManagerSystem::CreateDrones(World* world, Vector pos)
 			droneCmp->LOD0 = LOD0;
 			droneCmp->LOD1 = LOD1;
 			droneCmp->LOD2 = LOD2;
-			droneCmp->LOD1threshold = 500.0f;
-			droneCmp->LOD2threshold = 1000.0f;
+			droneCmp->LOD1threshold = 400.0f;
+			droneCmp->LOD2threshold = 600.0f;
 			droneCmp->Light = pointLightCmp;
 			droneCmp->random = Random();
 
@@ -636,11 +657,13 @@ void GameManagerSystem::UpdateAnimTracks(World* world)
 void GameManagerSystem::UpdateAnimDayNight(World* world)
 {
 	float time = (float)(world->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
-	float anim = SmoothStep(-0.5f, 0.5f, Sin(20.0_deg * time));
+	// float anim = SmoothStep(-0.5f, 0.5f, Sin(20.0_deg * time));
+	float anim = 0.0f;
 
 	// 0 - night, 1 - day
 	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 	gameMgrCmp->PostCmp->Exposure = Lerp(1.0f, 10.0f, anim);
+	gameMgrCmp->AnimNight = anim;
 
 	float intensityNight = 100.0f * 1000.0f;
 	float animSmooth = SmoothStep(0.0f, 1.0f, anim);
@@ -672,28 +695,56 @@ void GameManagerSystem::UpdateAnimDayNight(World* world)
 
 void GameManagerSystem::UpdateAnimDrones(World* world)
 {
+	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
+
 	float time = (float)(world->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
-	float anim = SmoothStep(-0.5f, 0.5f, Sin(20.0_deg * time));
-	float animSmooth = SmoothStep(0.0f, 1.0f, anim);
+	float delta = (float)(TimeSystem::GetTimerDeltaTime(world, Poly::eEngineTimer::GAMEPLAY));
+
+	// float anim = SmoothStep(-0.5f, 0.5f, Sin(20.0_deg * time));
+	// float animSmooth = SmoothStep(0.0f, 1.0f, anim);
 
 	// gConsole.LogInfo("GameManagerSystem::UpdateAnimDrones time: {}, anim: {}", time);
-	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
-	Matrix shapeTransform = gameMgrCmp->ShapeTransform;
+	Matrix shapeBaseTransform = gameMgrCmp->ShapeBaseTransform;
+
+	float animTime = gameMgrCmp->AnimShapeProgress;
+	size_t animKeysSize = gameMgrCmp->AnimShapes.GetSize();
+
+	animTime += 0.2f * delta;
+	animTime = fmod(animTime, 1.0f * animKeysSize);
+	// gConsole.LogInfo("GameManagerSystem::UpdateAnimTracks AnimProgress: {}", animTime);
+
+	float keyDelta = animTime - floorf(animTime); // fract actually but simpler
+	size_t keyPrev = floorf(animTime);
+	size_t keyNext = keyPrev + 1 >= animKeysSize ? 0 : keyPrev + 1;
+
+	float keyDeltaSmooth = SmoothStep(0.4f, 0.6f, keyDelta);
+
+	// AMJ::AnimShape shapeA = gameMgrCmp->AnimShape_cube;
+	// AMJ::AnimShape shapeB = gameMgrCmp->AnimShape_torus;
+
+	AMJ::AnimShape shapeA = gameMgrCmp->AnimShapes[keyPrev];
+	AMJ::AnimShape shapeB = gameMgrCmp->AnimShapes[keyNext];
 
 	size_t dronesSize = gameMgrCmp->Drones.GetSize();
-	size_t shape0Size = gameMgrCmp->AnimShape_cube.ShapeSize;
-	size_t shape1Size = gameMgrCmp->AnimShape_torus.ShapeSize;
+	size_t shape0Size = shapeA.ShapeSize;
+	size_t shape1Size = shapeB.ShapeSize;
 	// gConsole.LogInfo("GameManagerSystem::UpdateAnimDrones droneSize: {}, shape0Size: {}, shape1Size: {}",
 	// 	dronesSize, shape0Size, shape1Size);
-	size_t count = std::min(dronesSize, std::max(shape0Size, shape1Size));
-	for (size_t i = 0; i < count; ++i)
+	// size_t count = std::min(dronesSize, std::max(shape0Size, shape1Size));
+	for (size_t i = 0; i < dronesSize; ++i)
 	{
 		DroneComponent* drone = gameMgrCmp->Drones[i];
-		Vector pos0 = (i < shape0Size) ? gameMgrCmp->AnimShape_cube.Positions[i] : drone->RestPostion;
-		Vector pos1 = (i < shape1Size) ? gameMgrCmp->AnimShape_torus.Positions[i] : drone->RestPostion;
-		Vector posAnim = shapeTransform * Lerp(pos0, pos1, 1.0f - animSmooth);
+		Vector pos0 = (i < shape0Size) ? shapeA.Positions[i] : drone->RestPostion;
+		Vector pos1 = (i < shape1Size) ? shapeB.Positions[i] : drone->RestPostion;
+		Vector posAnim = shapeBaseTransform * Lerp(pos0, pos1, keyDeltaSmooth);
 		drone->GetOwner()->GetTransform().SetGlobalTranslation(posAnim);
+
+		float light0 = (i < shape0Size) ? 1.0f : 0.0f;
+		float light1 = (i < shape1Size) ? 1.0f : 0.0f;
+		drone->Light->SetIntensity(100.0f * 1000.0f * Lerp(light0, light1, keyDeltaSmooth));
 	}
+
+	gameMgrCmp->AnimShapeProgress = animTime;
 }
 
 void GameManagerSystem::UpdateDrones(World* world)
