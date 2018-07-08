@@ -10,18 +10,17 @@ void ZimaEnemySystem::Update(World* world)
 	for (auto cmp : world->IterateComponents<ZimaEnemyComponent>())
 	{
 		ZimaEnemyComponent* enemyCmp = std::get<ZimaEnemyComponent*>(cmp);
-		if (enemyCmp->Type == EnemyType::SinusRandom || enemyCmp->Type == EnemyType::Shooting)
 		{
 			EntityTransform& transform = enemyCmp->GetOwner()->GetTransform();
 
 			Vector deltaTransform = MovementSystem::GetGlobalForward(transform);
-			deltaTransform += MovementSystem::GetGlobalRight(transform) * std::sin(time) * 3.f;
+			if (enemyCmp->Type == EnemyType::SinusRandom || enemyCmp->Type == EnemyType::SinusShooting || enemyCmp->Type == EnemyType::SinusWachlarz)
+				deltaTransform += MovementSystem::GetGlobalRight(transform) * std::sin(time + enemyCmp->TimeOffset) * 3.f;
 
 			transform.SetGlobalTranslation(transform.GetGlobalTranslation() + deltaTransform * deltaTime * enemyCmp->Speed);
 		}
-		if (enemyCmp->Type == EnemyType::Shooting)
+		if (ZimaGunComponent* gunCmp = enemyCmp->GetOwner()->GetComponent<ZimaGunComponent>())
 		{
-			ZimaGunComponent* gunCmp = enemyCmp->GetOwner()->GetComponent<ZimaGunComponent>();
 			gunCmp->bSpawnBullet = true;
 		}
 
