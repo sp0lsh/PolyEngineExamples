@@ -32,15 +32,15 @@ void GameManagerSystem::CreateScene(World* world)
 
 	DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(world, "HDR/HDR.hdr", eResourceSource::GAME);
 	
-	gameMgrCmp->AminModel = CreateModel(world, String("Models/Drone/OBJ/Drone_00.obj"));
+	//gameMgrCmp->AminModel = CreateModel(world, String("Models/Drone/OBJ/Drone_00.obj"));
 
-	gameMgrCmp->AnimKeys = LoadAnimTrack(world, "Animations/cube0.x");
+	//gameMgrCmp->AnimKeys = LoadAnimTrack(world, "Animations/cube0.x");
 
-	CreateTextUI(world);
+	//CreateTextUI(world);
 
 	//CreateTranslucent(world);
 
-	CreatePointLights(world, 128);
+	//CreatePointLights(world, 128);
 
 	// SpawnParticles(world);
 }
@@ -404,19 +404,19 @@ void GameManagerSystem::CreateSponzaSample(World* world)
 
 void GameManagerSystem::Update(World* world)
 {
-	UpdateParticles(world);
+	//UpdateParticles(world);
 
-	UpdateLights(world);
+	//UpdateLights(world);
 
 	// UpdateModel(world);
 
-	Vector offset = Vector(800.0f, 0.0f, 0.0f);
-	DebugDrawSystem::DrawLine(world, offset, offset + Vector::UNIT_Y * 1000.0f, Color::RED);
-	DebugDrawSystem::DrawBox(world, offset + Vector(-100.0f, 0.0f, -100.0f), offset + Vector(100.0f, 200.0f, 100.0f), Color::RED);
+	//Vector offset = Vector(800.0f, 0.0f, 0.0f);
+	//DebugDrawSystem::DrawLine(world, offset, offset + Vector::UNIT_Y * 1000.0f, Color::RED);
+	//DebugDrawSystem::DrawBox(world, offset + Vector(-100.0f, 0.0f, -100.0f), offset + Vector(100.0f, 200.0f, 100.0f), Color::RED);
 
 	// UpdatePostProcess(world);
 
-	UpdateAnimTracks(world);
+	//UpdateAnimTracks(world);
 }
 
 void GameManagerSystem::UpdatePostProcess(World* world)
