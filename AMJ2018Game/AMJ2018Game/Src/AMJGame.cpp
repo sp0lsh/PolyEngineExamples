@@ -44,7 +44,6 @@ void AMJGame::Init()
 		gEngine->RegisterGameUpdatePhase(ZimaBulletSystem::Update);
 		gEngine->RegisterGameUpdatePhase(SpawnSystem::Update);
 		gEngine->RegisterGameUpdatePhase(ZimaEnemySystem::Update);
-		//gEngine->RegisterGameUpdatePhase(GameManagerSystem::Update);
 
 		ZimaSystem::CreateCamera(gEngine->GetWorld());
 		ZimaSystem::Init(gEngine->GetWorld());

@@ -35,16 +35,116 @@ void ZimaSystem::Init(World* world)
 	ZimaWorldComponent* gameCmp = world->GetWorldComponent<ZimaWorldComponent>();
 
 	gameCmp->Player = CreateActor(world, "Models/Drone/OBJ/Drone_00.obj");
-	DeferredTaskSystem::AddComponentImmediate<ZimaGunComponent>(world, gameCmp->Player.Get(), Vector(), Quaternion());
+	DeferredTaskSystem::AddComponentImmediate<ZimaGunComponent>(world, gameCmp->Player.Get(), Vector(), Dynarray<Quaternion>{Quaternion()});
+	gameCmp->Player->GetComponent<ZimaGunComponent>()->TimeSinceLastBullet = 1000.f;
 	gameCmp->Entities.PushBack(gameCmp->Player);
 	EntityTransform& playerTransform = gameCmp->Player->GetTransform();
 	playerTransform.SetGlobalRotation(Quaternion(Vector::UNIT_Y, Angle::FromDegrees(-90.f)));
 	playerTransform.SetGlobalScale(Vector(3.f, 3.f, 3.f));
 }
 
+ParticleComponent* ZimaSystem::SpawnEmitterHeartImpact(World* world, Vector pos)
+{
+	ZimaWorldComponent* gameCmp = world->GetWorldComponent<ZimaWorldComponent>();
+
+	Entity* particlesEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
+	// EntityTransform& particlesTrans = particlesEnt->GetTransform();
+	// particlesTrans.SetLocalTranslation(pos);
+
+	SpritesheetSettings spriteSettings;
+	spriteSettings.SubImages = Vector2f(2.0f, 2.0f);
+	spriteSettings.SpritePath = "Textures/strokes_2_2.png";
+
+	ParticleEmitter::Settings settings;
+	settings.MaxSize = 1000;
+	settings.BaseColor = Color(1.5f, 1.0f, 1.0f, 0.95f);
+	settings.BurstTimeMin = 0.1f;
+	settings.BurstTimeMax = 0.5f;
+	settings.BurstSizeMin = 10;
+	settings.BurstSizeMax = 30;
+	settings.Spritesheet = spriteSettings;
+	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::LOCAL_SPACE;
+	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
+		Vector rndPos = RandomVectorRange(-1.0f, 1.0f);
+		rndPos.Normalize();
+		rndPos.Z = rndPos.Z * 0.5f;
+		rndPos.Z = rndPos.Z * (1.0f - rndPos.Y * 1.0f);
+		rndPos.Y = 0.9f*rndPos.Y - Abs(rndPos.X) * sqrt((20.0f - Abs(rndPos.X)) / 15.0f);
+		rndPos.Y *= -0.8f;
+		p->Position += rndPos;
+		Vector rndVel = RandomVectorRange(-1.0f, 1.0f);
+		rndVel.Normalize();
+		p->Velocity = rndVel * 0.01f;
+		p->Acceleration = rndVel * 0.0001f;
+		p->LifeTime = RandomRange(8.0f, 10.0f);
+		p->Scale = Vector::ONE * RandomRange(0.01f, 0.02f);
+	};
+	settings.ParticleUpdateFunc = [](ParticleEmitter::Particle* p) {
+		p->Scale = Vector::ONE * Lerp(0.04f, 0.01f, pow(p->Age / p->LifeTime, 16.0f));
+	};
+
+	gameCmp->Entities.PushBack(particlesEnt);
+
+	ParticleComponent* particleCmp = DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, particlesEnt, settings);
+	return particleCmp;
+}
+
+
+void ZimaSystem::UpdateParticles(World* world)
+{
+	float time = (float)(world->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
+	// float deltaTime = (float)(TimeSystem::GetTimerDeltaTime(world, Poly::eEngineTimer::GAMEPLAY));
+
+	ZimaWorldComponent* gameCmp = world->GetWorldComponent<ZimaWorldComponent>();
+
+	Vector translation = Vector::UNIT_Y * (0.2f*Abs(Sin(1.0_rad*3.1415f *time + 0.5_rad)));
+	Vector scale = Vector::ONE * (1.0f + 0.1f*(0.5f + 0.5f*Sin(2.0_rad*3.1415f *time + 0.5_rad)));
+	Quaternion rotation = Quaternion(Vector::UNIT_Y, 0.5_rad * time);
+
+	//if (gameCmp->particleHeart)
+	//{
+	//	gameCmp->particleHeart->GetTransform().SetGlobalTranslation(translation);
+	//	gameCmp->particleHeart->GetTransform().SetGlobalScale(scale);
+	//	gameCmp->particleHeart->GetTransform().SetGlobalRotation(rotation);
+	//}
+
+	//if (gameCmp->particleHeartImpact0)
+	//{
+	//	gameCmp->particleHeartImpact0->GetTransform().SetGlobalTranslation(translation);
+	//	gameCmp->particleHeartImpact0->GetTransform().SetGlobalScale(scale);
+	//	gameCmp->particleHeartImpact0->GetTransform().SetGlobalRotation(rotation);
+	//}
+
+	//if (gameCmp->particleHeartImpact1)
+	//{
+	//	gameCmp->particleHeartImpact1->GetTransform().SetGlobalRotation(rotation);
+	//}
+
+	//if (gameCmp->particleHeartImpact2)
+	//{
+	//	gameCmp->particleHeartImpact2->GetTransform().SetGlobalTranslation(Vector::UNIT_Y * 0.2f);
+	//	gameCmp->particleHeartImpact2->GetTransform().SetGlobalRotation(rotation);
+	//}
+
+	//if (gameCmp->particleLocalSpace)
+	//{
+	//	gameCmp->particleLocalSpace->GetTransform().SetGlobalTranslation(Vector(0.0f, 4.0f, 0.0f) + Vector(Cos(100.0_deg * time), 0.0f, Sin(100.0_deg * time)) * 6.0f);
+	//}
+
+	//if (gameCmp->particleWorldSpace)
+	//{
+	//	gameCmp->particleWorldSpace->GetTransform().SetGlobalTranslation(Vector(0.0f, 4.0f, 0.0f) + Vector(Cos(100.0_deg * time + 180.0_deg), 0.0f, Sin(100.0_deg * time + 180.0_deg)) * 6.0f);
+	//}
+}
+
+
 void ZimaSystem::Update(World* world)
 {
-	DebugDrawSystem::DrawSphere(world, Vector(-100.f, 0.f, 100.f), 10.f);
+	UpdateParticles(world);
+
+	static float playerCollision = 1.f;
+	static float bulletCollision = 1.f;
+	static float enemyCollision = 10.f;
 
 	ZimaWorldComponent* gameCmp = world->GetWorldComponent<ZimaWorldComponent>();
 	for (auto enemy : gameCmp->Enemies)
@@ -55,9 +155,10 @@ void ZimaSystem::Update(World* world)
 			{
 				if (bullet.Get() && bullet.Get()->GetComponent<ZimaBulletComponent>()->Instigator == gameCmp->Player.Get())
 				{
-					if (IsColliding(bullet.Get(), 5.f, enemy.Get(), 10.f))
+					if (IsColliding(bullet.Get(), bulletCollision, enemy.Get(), enemyCollision))
 					{
 						enemy.Get()->GetComponent<ZimaEnemyComponent>()->DamageToBeDealt = bullet.Get()->GetComponent<ZimaBulletComponent>()->Damage;
+						ZimaSystem::SpawnEmitterHeartImpact(world, bullet.Get() ->GetTransform().GetGlobalTranslation());
 						DeferredTaskSystem::DestroyEntity(world, bullet.Get());
 						bullet.Get()->GetComponent<ZimaBulletComponent>()->bDead = true;
 					}
@@ -66,7 +167,7 @@ void ZimaSystem::Update(World* world)
 
 			if (gameCmp->Player.Get())
 			{
-				if (IsColliding(gameCmp->Player.Get(), 10.f, enemy.Get(), 10.f))
+				if (IsColliding(gameCmp->Player.Get(), playerCollision, enemy.Get(), enemyCollision))
 				{
 					//gConsole.LogInfo("ZimaSystem::Collision");
 					gameCmp->PlayerHealth -= enemy.Get()->GetComponent<ZimaEnemyComponent>()->DamageOnHit;
@@ -80,7 +181,7 @@ void ZimaSystem::Update(World* world)
 	{
 		if (bullet.Get() && bullet.Get()->GetComponent<ZimaBulletComponent>()->Instigator != gameCmp->Player.Get())
 		{
-			if (IsColliding(bullet.Get(), 5.f, gameCmp->Player.Get(), 10.f))
+			if (IsColliding(bullet.Get(), bulletCollision, gameCmp->Player.Get(), playerCollision))
 			{
 				gameCmp->PlayerHealth -= bullet.Get()->GetComponent<ZimaBulletComponent>()->Damage;
 				DeferredTaskSystem::DestroyEntity(world, bullet.Get());
@@ -88,9 +189,6 @@ void ZimaSystem::Update(World* world)
 			}
 		}
 	}
-
-
-
 
 	if (gameCmp->PlayerHealth <= 0.f)
 	{
