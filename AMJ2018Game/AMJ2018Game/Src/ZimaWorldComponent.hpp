@@ -13,7 +13,11 @@ class GAME_DLLEXPORT ZimaWorldComponent : public ComponentBase
 {
 public:
 
+	ParticleComponent* particleLocalSpace;
+	
+	SafePtr<Entity> Camera;
 	SafePtr<Entity> Player;
+	bool bScreenShake = false;
 	float PlayerHealth = 300.f;
 	Dynarray<SafePtr<Entity>> Enemies;
 	Dynarray<SafePtr<Entity>> Entities;

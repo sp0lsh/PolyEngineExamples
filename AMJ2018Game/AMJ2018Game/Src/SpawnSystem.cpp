@@ -26,20 +26,33 @@ void SpawnSystem::SpawnEnemies(World* world)
 		Entity* actor = ZimaSystem::CreateActor(world, "Models/Drone/OBJ/Drone_00.obj");
 		EntityTransform& transform = actor->GetTransform();
 		transform.SetGlobalTranslation(spawnCmp->Waves[spawnCmp->WaveIndex].enemyTransforms[i] + spawnCmp->Waves[spawnCmp->WaveIndex].Offset);
+		MeshRenderingComponent* mesh = actor->GetComponent<MeshRenderingComponent>();
 		if (spawnCmp->Waves[spawnCmp->WaveIndex].Types[i] == EnemyType::SinusRandom)
+		{
+			//mesh->SetMaterial(0, Material(Color(0.1, 0.1, 0.1) * 1.f, Color::BLACK, 1.f, 1.f, 0.5f));
+			//mesh->SetMaterial(1, Material(Color(0.1, 0.1, 0.1) * 1, Color::BLACK, 1.f, 1.f, 0.5f));
+			//mesh->SetMaterial(2, Material(Color(0.1, 0.1, 0.1) * 1, Color::BLACK, 1.f, 1.f, 0.5f));
+			//mesh->SetMaterial(3, Material(Color(0.1, 0.1, 0.1) * 1, Color::BLACK, 1.f, 1.f, 0.5f));
+			//mesh->SetMaterial(4, Material(Color(0.1,0.1,0.1) * 1, Color::BLACK, 1.f, 1.f, 0.5f));
+			//mesh->SetMaterial(5, Material(Color(0.1, 0.1, 0.1) * 1, Color::BLACK, 1.f, 1.f, 0.5f));
 			transform.SetGlobalScale(Vector(2.5f, 2.5f, 2.5f));
-		
+		}
 		if (spawnCmp->Waves[spawnCmp->WaveIndex].Types[i] == EnemyType::Shooting)
+		{
 			transform.SetGlobalScale(Vector(3.5f, 3.5f, 3.5f));
-
+		}
 		if (spawnCmp->Waves[spawnCmp->WaveIndex].Types[i] == EnemyType::SinusShooting)
+		{
 			transform.SetGlobalScale(Vector(4.f, 4.f, 4.f));
-
+		}
 		if (spawnCmp->Waves[spawnCmp->WaveIndex].Types[i] == EnemyType::Wachlarz)
+		{
 			transform.SetGlobalScale(Vector(5.f, 5.f, 5.f));
-
+		}
 		if (spawnCmp->Waves[spawnCmp->WaveIndex].Types[i] == EnemyType::SinusWachlarz)
+		{
 			transform.SetGlobalScale(Vector(5.5f, 5.5f, 5.5f));
+		}
 
 		transform.SetGlobalRotation(Quaternion(Vector::UNIT_Y, Angle::FromDegrees(90.f)));
 
@@ -64,7 +77,7 @@ void SpawnSystem::SpawnEnemies(World* world)
 						DeferredTaskSystem::AddComponentImmediate<ZimaGunComponent>(world, gun, Vector(), Dynarray<Quaternion>{Quaternion()});*/
 
 		}
-		if (spawnCmp->Waves[spawnCmp->WaveIndex].Types[i] == EnemyType::Wachlarz)
+		if (spawnCmp->Waves[spawnCmp->WaveIndex].Types[i] == EnemyType::Wachlarz || spawnCmp->Waves[spawnCmp->WaveIndex].Types[i] == EnemyType::SinusWachlarz)
 		{
 			Dynarray<Quaternion> rots{ Quaternion(),
 				Quaternion(Vector::UNIT_Y, Angle::FromDegrees(30.f)),

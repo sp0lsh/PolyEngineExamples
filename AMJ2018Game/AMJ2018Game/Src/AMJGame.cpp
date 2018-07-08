@@ -46,10 +46,10 @@ void AMJGame::Init()
 		gEngine->RegisterGameUpdatePhase(SpawnSystem::Update);
 		gEngine->RegisterGameUpdatePhase(ZimaEnemySystem::Update);
 
-		ZimaSystem::CreateCamera(gEngine->GetWorld());
 		ZimaSystem::Init(gEngine->GetWorld());
 		SpawnSystem::Init(gEngine->GetWorld());
 
+		ZimaSystem::CreateCamera(gEngine->GetWorld());
 	}
 	else
 	{
