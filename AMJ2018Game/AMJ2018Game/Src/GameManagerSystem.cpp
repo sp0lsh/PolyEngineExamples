@@ -68,6 +68,8 @@ void GameManagerSystem::CreateStartScene(World* world)
 	gameMgrCmp->AnimShapes.PushBack(gameMgrCmp->AnimShape_logo_vm);
 
 
+	SpawnEmitterAmbient(world, Vector::ZERO);
+
 	CreateDrones(world, Vector(-400.0f, 0.0f, -300.0f));
 
 	CreateLevel(world);
@@ -346,7 +348,8 @@ void GameManagerSystem::CreateCamera(World* world)
 	// cameraTrans.SetGlobalRotation(Quaternion(Matrix(cameraTrans.GetGlobalTranslation(), Vector(0.0f, 0.0f, 0.0f))));
 	world->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, world->GetComponent<CameraComponent>(camera));
 	gameMgrCmp->Camera = camera;
-	gameMgrCmp->GameEntities.PushBack(camera);
+
+	// gameMgrCmp->GameEntities.PushBack(camera);
 
 	// Entity* keyDirLight = DeferredTaskSystem::SpawnEntityImmediate(world);
 	// DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(world, keyDirLight, Color(1.0f, 1.0f, 1.0f), 5.0f);
@@ -371,7 +374,7 @@ void GameManagerSystem::CreateDrones(World* world, Vector pos)
 			size_t LOD0MaterialsLen = LOD0->GetMesh()->GetSubMeshes().GetSize();
 			for (size_t i = 0; i < LOD0MaterialsLen; ++i)
 			{
-				LOD0->SetMaterial(i, Material(Color::WHITE * 1000.0f, Color::WHITE, 1.0f, 1.0f, 0.5f));
+				LOD0->SetMaterial(i, Material(Color::WHITE * 10.0f, Color::WHITE, 1.0f, 1.0f, 0.5f));
 			}
 
 			Entity* droneLOD1 = DeferredTaskSystem::SpawnEntityImmediate(world);
@@ -381,7 +384,7 @@ void GameManagerSystem::CreateDrones(World* world, Vector pos)
 			size_t LOD1MaterialsLen = LOD1->GetMesh()->GetSubMeshes().GetSize();
 			for (size_t i = 0; i < LOD1MaterialsLen; ++i)
 			{
-				LOD1->SetMaterial(i, Material(Color::WHITE * 1000.0f, Color::WHITE, 1.0f, 0.5f, 0.5f));
+				LOD1->SetMaterial(i, Material(Color::WHITE * 10.0f, Color::WHITE, 1.0f, 0.5f, 0.5f));
 			}
 
 			Entity* droneLOD2 = DeferredTaskSystem::SpawnEntityImmediate(world);
@@ -392,13 +395,13 @@ void GameManagerSystem::CreateDrones(World* world, Vector pos)
 			size_t LOD2MaterialsLen = LOD2->GetMesh()->GetSubMeshes().GetSize();
 			for (size_t i = 0; i < LOD2MaterialsLen; ++i)
 			{
-				LOD2->SetMaterial(i, Material(Color::WHITE * 1000.0f, Color::WHITE, 1.0f, 1.0f, 0.5f));
+				LOD2->SetMaterial(i, Material(Color::WHITE * 10.0f, Color::WHITE, 1.0f, 1.0f, 0.5f));
 			}
 
 			Entity* droneLight = DeferredTaskSystem::SpawnEntityImmediate(world);
 			droneLight->SetParent(droneRoot);
-			float range = Lerp(100.0f, 200.0f, Random());
-			PointLightComponent* pointLightCmp = DeferredTaskSystem::AddComponentImmediate<PointLightComponent>(world, droneLight, Color::WHITE, 0.0f, range);
+			float range = Lerp(200.0f, 300.0f, Random());
+			PointLightComponent* pointLightCmp = DeferredTaskSystem::AddComponentImmediate<PointLightComponent>(world, droneLight, gameMgrCmp->LightColor, 0.0f, range);
 			droneLight->GetTransform().SetLocalTranslation(Vector::UNIT_Y * 10.0f);
 
 
@@ -666,10 +669,10 @@ void GameManagerSystem::UpdateAnimDayNight(World* world)
 
 	// 0 - night, 1 - day
 	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
-	gameMgrCmp->PostCmp->Exposure = Lerp(1.0f, 10.0f, anim);
+	gameMgrCmp->PostCmp->Exposure = Lerp(2.0f, 10.0f, anim);
 	gameMgrCmp->AnimNight = anim;
 
-	float intensityNight = 100.0f * 1000.0f;
+	float intensityNight = 100.0f;
 	float animSmooth = SmoothStep(0.0f, 1.0f, anim);
 	// float animSmooth2 = SmoothStep(0.0f, 0.5f, anim);
 	// float intensity = Lerp(intensityNight, 0.0f, animSmooth2);
@@ -692,7 +695,7 @@ void GameManagerSystem::UpdateAnimDayNight(World* world)
 		{
 			drone->Light->SetIntensity(intensity);
 		}
-		Color emissive = Color::WHITE * Lerp(1000.0f, 0.0f, animSmooth2);
+		Color emissive = gameMgrCmp->LightColor * Lerp(10.0f, 0.0f, animSmooth2);
 		Color albedo = Color::WHITE * Lerp(0.1f, 1.0f, animSmooth2);
 		float roughness = Lerp(0.95f, 0.1f, animSmooth2);
 		float metallic = Lerp(0.95f, 0.1f, animSmooth2);
@@ -761,8 +764,8 @@ void GameManagerSystem::UpdateAnimDrones(World* world)
 
 		float light0 = (i < shape0Size) ? 1.0f : 0.0f;
 		float light1 = (i < shape1Size) ? 1.0f : 0.0f;
-		float intensity = 100 * 1000.0f * Lerp(0.99f, 1.0f, 1.0f - (noiseN * noiseN)) * Lerp(light0, light1, keyDeltaSmooth);
-		drone->LOD2->SetMaterial(0, Material(Color::WHITE * intensity, Color::WHITE, 1.0f, 1.0f, 0.5f));
+		float intensity = 10.0f * Lerp(0.99f, 1.0f, 1.0f - (noiseN * noiseN)) * Lerp(light0, light1, keyDeltaSmooth);
+		drone->LOD2->SetMaterial(0, Material(gameMgrCmp->LightColor * intensity, Color::WHITE * 0.3f * intensity, 1.0f, 1.0f, 0.5f));
 		if (drone->Light)
 		{
 			drone->Light->SetIntensity(intensity);
@@ -998,7 +1001,6 @@ void GameManagerSystem::SpawnShaderball(World* world)
 	gameMgrCmp->GameEntities.PushBack(shaderball);
 }
 
-
 // #pragma region Spritesheet examples
 
 void GameManagerSystem::SpawnSpritesheet11(World* world, Vector pos)
@@ -1218,23 +1220,23 @@ ParticleComponent* GameManagerSystem::SpawnEmitterAmbient(World* world, Vector p
 
 	SpritesheetSettings spriteSettings;
 	spriteSettings.SubImages = Vector2f(2.0f, 2.0f);
-	spriteSettings.SpritePath = "Textures/test_2_2.png";
+	spriteSettings.SpritePath ="Textures/strokes_2_2.png";
 
 	ParticleEmitter::Settings settings;
-	settings.MaxSize = 500;
-	settings.InitialSize = 500;
+	settings.MaxSize = 1000;
+	settings.InitialSize = 1000;
 	settings.Spritesheet = spriteSettings;
 	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::WORLD_SPACE;
 	settings.BurstTimeMin = 1.0f;
 	settings.BurstTimeMax = 2.0f;
 	settings.BurstSizeMin = 10;
 	settings.BurstSizeMax = 20;
-	settings.BaseColor = Color(1.0f, 1.0f, 1.0f, 0.5f);
+	settings.BaseColor = Color(0.75f, 0.75f, 0.3f, 0.2f);
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
-		p->Position += RandomVectorRange(-1.0f, 1.0f) * 10.0f;
-		p->Velocity = RandomVectorRange(-1.0f, 1.0f) * 0.001f;
+		p->Position += RandomVectorRange(-1.0f, 1.0f) * 1000.0f;
+		p->Velocity = RandomVectorRange(-1.0f, 1.0f) * 0.01f;
 		p->LifeTime = RandomRange(5.0f, 10.0f);
-		p->Scale = Vector::ONE * RandomRange(0.025f, 0.05f);
+		p->Scale = Vector::ONE * RandomRange(2.0f, 10.0f);
 	};
 
 	gameMgrCmp->GameEntities.PushBack(particlesEnt);

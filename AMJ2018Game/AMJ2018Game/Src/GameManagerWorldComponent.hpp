@@ -48,6 +48,8 @@ namespace AMJ
 class GAME_DLLEXPORT GameManagerWorldComponent : public ComponentBase
 {
 public:
+
+	Color LightColor = Color(1.0f, 0.65f, 0.3f);
 	
 	SafePtr<Entity> Camera;
 	PostprocessSettingsComponent* PostCmp;
