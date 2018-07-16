@@ -90,10 +90,10 @@ void GameManagerSystem::CreateCamera(Scene* scene)
 	DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(scene, camera, 100.0f, 0.003f, 10.0f);
 	gameMgrCmp->PostCmp = DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(scene, camera);
 	gameMgrCmp->PostCmp->Exposure = 3.0f;
-	// gameMgrCmp->PostCmp->DOFShow = 1.0f;
-	gameMgrCmp->PostCmp->DOFSize = 0.4f;
+	gameMgrCmp->PostCmp->DOFSize = 1.0f;
 	gameMgrCmp->PostCmp->DOFPoint = 200.0f;
-	gameMgrCmp->PostCmp->DOFRange = 200.0f;
+	gameMgrCmp->PostCmp->DOFRange = 100.0f;
+	// gameMgrCmp->PostCmp->DOFShow = 1.0f;
 
 	EntityTransform& cameraTrans = camera->GetTransform();
 	cameraTrans.SetGlobalTranslation(Vector(-550.0f, 180.0f, 0.0f));
