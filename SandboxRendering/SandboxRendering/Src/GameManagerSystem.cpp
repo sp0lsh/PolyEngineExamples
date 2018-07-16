@@ -54,7 +54,7 @@ void GameManagerSystem::CreateScene(Scene* scene)
 
 	CreateTextUI(scene);
 
-	// CreateTranslucent(scene);
+	CreateTranslucent(scene);
 
 	CreatePointLights(scene, 128);
 
@@ -194,6 +194,7 @@ void GameManagerSystem::CreateTranslucent(Scene* scene)
 		for (size_t i = 0; i < materialsNum; ++i)
 		{
 			meshCmp->SetMaterial(i, material);
+			meshCmp->SetBlendingMode(eBlendingMode::TRANSLUCENT);
 		}
 
 		gameMgrCmp->GameEntities.PushBack(translucent);
