@@ -90,9 +90,9 @@ void GameManagerSystem::CreateCamera(Scene* scene)
 	DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(scene, camera, 100.0f, 0.003f, 10.0f);
 	gameMgrCmp->PostCmp = DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(scene, camera);
 	gameMgrCmp->PostCmp->Exposure = 3.0f;
-	gameMgrCmp->PostCmp->DOFSize = 1.0f;
-	gameMgrCmp->PostCmp->DOFPoint = 200.0f;
-	gameMgrCmp->PostCmp->DOFRange = 100.0f;
+	gameMgrCmp->PostCmp->DOFSize = 0.5f;
+	gameMgrCmp->PostCmp->DOFPoint = 300.0f;
+	gameMgrCmp->PostCmp->DOFRange = 200.0f;
 	// gameMgrCmp->PostCmp->DOFShow = 1.0f;
 
 	EntityTransform& cameraTrans = camera->GetTransform();
@@ -688,12 +688,12 @@ ParticleComponent* GameManagerSystem::SpawnEmitterAmbient(Scene* scene, Vector p
 	settings.BurstTimeMax = 2.0f;
 	settings.BurstSizeMin = 100;
 	settings.BurstSizeMax = 200;
-	settings.BaseColor = Color(0.5f, 0.5f, 1.0f, 0.5f);
+	settings.BaseColor = Color(100.5f, 0.5f, 1.0f, 0.5f);
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
 		p->Position += RandomVectorRange(-1.0f, 1.0f) * 1000.0f;
-		p->Velocity = RandomVectorRange(-1.0f, 1.0f) * 1.0f;
+		p->Velocity = RandomVectorRange(-1.0f, 1.0f) * 10.0f;
 		p->LifeTime = RandomRange(5.0f, 10.0f);
-		p->Scale = Vector::ONE * RandomRange(5.0f, 15.0f);
+		p->Scale = Vector::ONE * RandomRange(0.5f, 2.0f);
 	};
 
 	gameMgrCmp->GameEntities.PushBack(particlesEnt);
