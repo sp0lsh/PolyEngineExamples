@@ -34,8 +34,8 @@ void GameManagerSystem::CreateScene(Scene* scene)
 
 	DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(scene, "HDR/HDR.hdr", eResourceSource::GAME);
 	
-	gameMgrCmp->Model = CreateModel(scene, "Models/leather_shoes/Leather_Shoes.obj");
-	gameMgrCmp->Model->GetTransform().SetGlobalTranslation(Vector(500.0f, 0.0f, 0.0f));
+	// gameMgrCmp->Model = CreateModel(scene, "Models/leather_shoes/Leather_Shoes.obj");
+	// gameMgrCmp->Model->GetTransform().SetGlobalTranslation(Vector(500.0f, 0.0f, 0.0f));
 
 	// gameMgrCmp->Model = CreateModel(scene, "Models/kv-2-heavy-tank-1940/model.obj");
 	// gameMgrCmp->Model->GetTransform().SetGlobalScale(Vector(5.0f, 5.0f, 5.0f));
@@ -48,11 +48,11 @@ void GameManagerSystem::CreateScene(Scene* scene)
 	CreatePBRShpereGrid(scene, Vector(-300.0f, 0.0f, 0.0f), Color(0.5f, 0.5f, 0.5f, 1.0f));
 	CreatePBRShpereGrid(scene, Vector(-600.0f, 0.0f, 0.0f), Color(1.0f, 1.0f, 1.0f, 1.0f));
 
-	CreateSponza(scene);
+	// CreateSponza(scene);
 
 	CreateTextUI(scene);
 
-	CreateTranslucent(scene);
+	// CreateTranslucent(scene);
 
 	CreatePointLights(scene, 128);
 
@@ -89,11 +89,12 @@ void GameManagerSystem::CreateCamera(Scene* scene)
 	DeferredTaskSystem::AddComponentImmediate<CameraComponent>(scene, camera, 35_deg, 1.0f, 5000.f);
 	DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(scene, camera, 100.0f, 0.003f, 10.0f);
 	gameMgrCmp->PostCmp = DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(scene, camera);
-	gameMgrCmp->PostCmp->Exposure = 3.0f;
-	gameMgrCmp->PostCmp->DOFSize = 0.5f;
+	gameMgrCmp->PostCmp->Exposure = 1.0f;
+	gameMgrCmp->PostCmp->DOFSize = 1.0f;
 	gameMgrCmp->PostCmp->DOFPoint = 300.0f;
 	gameMgrCmp->PostCmp->DOFRange = 200.0f;
 	// gameMgrCmp->PostCmp->DOFShow = 1.0f;
+	gameMgrCmp->PostCmp->BloomScale = 1.0f;
 
 	EntityTransform& cameraTrans = camera->GetTransform();
 	cameraTrans.SetGlobalTranslation(Vector(-550.0f, 180.0f, 0.0f));
@@ -151,7 +152,8 @@ void GameManagerSystem::CreatePBRShpereGrid(Scene* scene, Vector pos, Color albe
 			sphereTrans.SetGlobalTranslation(pos + Vector(50.0f * y, 0.0f, 50.0f * z) - (Vector(50.0f * 5.0f, -100.0f, 50.0f * 5.0f) * 0.5f));
 			sphereTrans.SetLocalScale(Vector(1.0f, 1.0f, 1.0f) * 20.0f);
 			sphereTrans.SetLocalRotation(Quaternion(Vector::UNIT_Z, 90.0_deg));
-			MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(scene, sphere, "Models/Primitives/Sphere_HighPoly.obj", eResourceSource::GAME);
+			// MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(scene, sphere, "Models/Primitives/Sphere_HighPoly.obj", eResourceSource::GAME);
+			MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(scene, sphere, "Models/Primitives/Sphere_LowPoly.obj", eResourceSource::GAME);
 			size_t materialsNum = meshCmp->GetMesh()->GetSubMeshes().GetSize();
 			for (size_t i = 0; i < materialsNum; ++i)
 			{
@@ -681,14 +683,15 @@ ParticleComponent* GameManagerSystem::SpawnEmitterAmbient(Scene* scene, Vector p
 
 	ParticleEmitter::Settings settings;
 	settings.MaxSize = 1000;
-	settings.InitialSize = 700;
+	settings.InitialSize = 500;
 	settings.Spritesheet = spriteSettings;
 	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::WORLD_SPACE;
 	settings.BurstTimeMin = 1.0f;
 	settings.BurstTimeMax = 2.0f;
-	settings.BurstSizeMin = 100;
-	settings.BurstSizeMax = 200;
-	settings.BaseColor = Color(100.5f, 0.5f, 1.0f, 0.5f);
+	settings.BurstSizeMin = 10;
+	settings.BurstSizeMax = 50;
+	settings.Albedo = Color(0.5f, 0.5f, 1.0f, 0.5f);
+	settings.Emissive = Color(100.0f, 0.5f, 1.0f, 1.0f);
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
 		p->Position += RandomVectorRange(-1.0f, 1.0f) * 1000.0f;
 		p->Velocity = RandomVectorRange(-1.0f, 1.0f) * 10.0f;
@@ -723,7 +726,7 @@ ParticleComponent* GameManagerSystem::SpawnEmitterAmbientWind(Scene* scene, Vect
 	settings.BurstTimeMax = 2.0f;
 	settings.BurstSizeMin = 200;
 	settings.BurstSizeMax = 400;
-	settings.BaseColor = Color(1.0f, 1.0f, 1.0f, 0.1f);
+	settings.Albedo = Color(1.0f, 1.0f, 1.0f, 0.1f);
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
 		p->Position += Vector(-20.0f, 2.0f, 0.0f) + RandomVectorRange(-1.0f, 1.0f) * 10.0f;
 		p->Velocity = Vector(RandomRange(0.75f, 1.0f) * 0.5f, 0.0f, 0.0f);
@@ -752,7 +755,7 @@ ParticleComponent* GameManagerSystem::SpawnEmitterHeart(Scene* scene, Vector pos
 
 	ParticleEmitter::Settings settings;
 	settings.MaxSize = 1000;
-	settings.BaseColor = Color(1.2f, 0.8f, 0.8f, 0.5f);
+	settings.Albedo = Color(1.2f, 0.8f, 0.8f, 0.5f);
 	settings.BurstTimeMin = 0.01f;
 	settings.BurstTimeMax = 0.05f;
 	settings.BurstSizeMin = 10;
@@ -792,7 +795,7 @@ ParticleComponent* GameManagerSystem::SpawnEmitterHeartImpact(Scene* scene, Vect
 
 	ParticleEmitter::Settings settings;
 	settings.MaxSize = 1000;
-	settings.BaseColor = Color(1.5f, 1.0f, 1.0f, 0.95f);
+	settings.Albedo = Color(1.5f, 1.0f, 1.0f, 0.95f);
 	settings.BurstTimeMin = 0.1f;
 	settings.BurstTimeMax = 0.5f;
 	settings.BurstSizeMin = 10;
@@ -838,7 +841,7 @@ ParticleComponent* GameManagerSystem::SpawnEmitterHeartImpact2(Scene* scene, Vec
 
 	ParticleEmitter::Settings settings;
 	settings.MaxSize = 1000;
-	settings.BaseColor = Color(2.0f, 0.5f, 0.5f, 0.2f);
+	settings.Albedo = Color(2.0f, 0.5f, 0.5f, 0.2f);
 	settings.BurstTimeMin = 1.0f;
 	settings.BurstTimeMax = 1.0f;
 	settings.BurstSizeMin = 200;
