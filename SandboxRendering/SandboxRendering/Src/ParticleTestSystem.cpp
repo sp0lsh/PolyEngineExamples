@@ -25,10 +25,10 @@ void ParticleTestSystem::Init(Scene* scene)
 	GameManagerWorldComponent* gameMgrCmp = scene->GetWorldComponent<GameManagerWorldComponent>();
 	Vector particlesPosition = Vector(0.0f, 0.0f, 0.0f);
 	// gameMgrCmp->particleDefault = SpawnEmitterDefault(scene, particlesPosition);
-	gameMgrCmp->particleWorldSpace = SpawnEmitterWorldSpace(scene, particlesPosition);
-	gameMgrCmp->particleLocalSpace = SpawnEmitterLocalSpace(scene, particlesPosition);
+	// gameMgrCmp->particleWorldSpace = SpawnEmitterWorldSpace(scene, particlesPosition);
+	// gameMgrCmp->particleLocalSpace = SpawnEmitterLocalSpace(scene, particlesPosition);
 	gameMgrCmp->particleAmbient = SpawnEmitterAmbient(scene, particlesPosition);
-	gameMgrCmp->particleAmbientWind = SpawnEmitterAmbientWind(scene, particlesPosition);
+	// gameMgrCmp->particleAmbientWind = SpawnEmitterAmbientWind(scene, particlesPosition);
 
 	// SpawnHeartSystem(scene);
 }
@@ -82,7 +82,7 @@ void ParticleTestSystem::Update(Scene* scene)
 
 void ParticleTestSystem::Deinit(Scene* scene)
 {
-	gConsole.LogInfo("ParticleTestSystem::Cleanup");
+	gConsole.LogInfo("ParticleTestSystem::Deinit");
 }
 
 // #pragma region Particle Examples

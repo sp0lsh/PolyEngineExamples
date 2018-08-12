@@ -55,8 +55,6 @@ void GameManagerSystem::Init(Scene* scene)
 	// CreateTranslucent(scene);
 
 	CreatePointLights(scene, 128);
-
-	CreateParticles(scene);
 }
 
 void GameManagerSystem::CreateTextUI(Scene* scene)
@@ -278,7 +276,7 @@ void GameManagerSystem::UpdatePostProcess(Scene* scene)
 
 void GameManagerSystem::Deinit(Scene* scene)
 {
-	gConsole.LogInfo("GameManagerSystem::Cleanup");
+	gConsole.LogInfo("GameManagerSystem::Deinit");
 }
 
 void GameManagerSystem::CreatePointLights(Scene* scene, int quota)
@@ -370,12 +368,6 @@ void GameManagerSystem::CreateSpotLight(Scene* scene, float Range)
 	spotLightDebugSourceTrans.SetLocalTranslation(Vector(0.0f, 0.0f, 0.0f));
 }
 
-void GameManagerSystem::CreateParticles(Scene* scene)
-{
-	GameManagerWorldComponent* gameMgrCmp = scene->GetWorldComponent<GameManagerWorldComponent>();
-	gameMgrCmp->particleAmbient = SpawnEmitterAmbient(scene, Vector(0.0f, 0.0f, 0.0f));
-}
-
 void GameManagerSystem::SpawnShaderball(Scene* scene)
 {
 	GameManagerWorldComponent* gameMgrCmp = scene->GetWorldComponent<GameManagerWorldComponent>();
@@ -389,40 +381,4 @@ void GameManagerSystem::SpawnShaderball(Scene* scene)
 	ballMesh->SetMaterial(1, Material(Color(1.0f, 1.0f, 1.0f), Color(0.4f, 0.4f, 0.4f), 1.0f, 1.0f, 0.5f));
 	shaderballTrans.SetLocalScale(0.1f);
 	gameMgrCmp->GameEntities.PushBack(shaderball);
-}
-
-ParticleComponent* GameManagerSystem::SpawnEmitterAmbient(Scene* scene, Vector pos)
-{
-	GameManagerWorldComponent* gameMgrCmp = scene->GetWorldComponent<GameManagerWorldComponent>();
-
-	Entity* particlesEnt = DeferredTaskSystem::SpawnEntityImmediate(scene);
-	EntityTransform& particlesTrans = particlesEnt->GetTransform();
-	particlesTrans.SetLocalTranslation(pos);
-
-	SpritesheetSettings spriteSettings;
-	spriteSettings.SubImages = Vector2f(2.0f, 2.0f);
-	spriteSettings.SpritePath = "Textures/strokes_2_2.png";
-
-	ParticleEmitter::Settings settings;
-	settings.MaxSize = 1000;
-	settings.InitialSize = 500;
-	settings.Spritesheet = spriteSettings;
-	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::WORLD_SPACE;
-	settings.BurstTimeMin = 1.0f;
-	settings.BurstTimeMax = 2.0f;
-	settings.BurstSizeMin = 10;
-	settings.BurstSizeMax = 50;
-	settings.Albedo = Color(0.5f, 0.5f, 1.0f, 0.5f);
-	settings.Emissive = Color(100.0f, 0.5f, 1.0f, 1.0f);
-	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
-		p->Position += RandomVectorRange(-1.0f, 1.0f) * 1000.0f;
-		p->Velocity = RandomVectorRange(-1.0f, 1.0f) * 10.0f;
-		p->LifeTime = RandomRange(5.0f, 10.0f);
-		p->Scale = Vector::ONE * RandomRange(0.5f, 2.0f);
-	};
-
-	gameMgrCmp->GameEntities.PushBack(particlesEnt);
-
-	ParticleComponent* particleCmp = DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(scene, particlesEnt, settings);
-	return particleCmp;
 }

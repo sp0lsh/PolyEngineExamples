@@ -23,15 +23,12 @@ namespace GameManagerSystem
 	void CreatePointLights(Scene* world, int quota);
 	Entity* CreatePointLight(Scene* world, Vector& position, float Range);
 	void CreateSpotLight(Scene* world, float Range);
-	void CreateParticles(Scene* world);	
 	void SpawnShaderball(Scene* world);
 
 	void Update(Scene* world);
 	void UpdateLights(Scene* world);
 	void UpdateModel(Scene* world);
 	void UpdatePostProcess(Scene* world);
-
-	ParticleComponent* SpawnEmitterAmbient(Scene* scene, Vector pos);
 	
 	void Deinit(Scene* world);
 }
