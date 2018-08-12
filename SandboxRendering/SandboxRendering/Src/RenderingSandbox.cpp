@@ -2,7 +2,9 @@
 
 #include "RenderingSandbox.hpp"
 #include "GameManagerSystem.hpp"
+#include "ParticleTestSystem.hpp"
 #include "GameManagerWorldComponent.hpp"
+#include "ParticleTestWorldComponent.hpp"
 
 #include <Core.hpp>
 #include <Audio/SoundSystem.hpp>
@@ -24,13 +26,19 @@ DEFINE_GAME(RenderingSandbox)
 void RenderingSandbox::Init()
 {
 	gEngine->RegisterGameUpdatePhase(GameManagerSystem::Update);
+	gEngine->RegisterGameUpdatePhase(ParticleTestSystem::Update);
 
-	DeferredTaskSystem::AddWorldComponentImmediate<GameManagerWorldComponent>(gEngine->GetActiveScene());
+	Scene* scene = gEngine->GetActiveScene();
+	DeferredTaskSystem::AddWorldComponentImmediate<GameManagerWorldComponent>(scene);
+	DeferredTaskSystem::AddWorldComponentImmediate<ParticleTestWorldComponent>(scene);
 	
-	GameManagerSystem::CreateScene(gEngine->GetActiveScene());
+	GameManagerSystem::Init(scene);
+	ParticleTestSystem::Init(scene);
 };
 
 void RenderingSandbox::Deinit()
 {
-	GameManagerSystem::Deinit(gEngine->GetActiveScene());
+	Scene* scene = gEngine->GetActiveScene();
+	GameManagerSystem::Deinit(scene);
+	ParticleTestSystem::Deinit(scene);
 };
