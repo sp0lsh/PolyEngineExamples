@@ -35,7 +35,7 @@ void Game::Init()
 	gEngine->RegisterGameUpdatePhase(CollisionSystem::Update);
 	gEngine->RegisterGameUpdatePhase(EnemyAISystem::Update);
 
-	World* world = gEngine->GetWorld();
+	Scene* world = gEngine->GetActiveScene();
 	DeferredTaskSystem::AddWorldComponentImmediate<GameManagerWorldComponent>(world);
 	DeferredTaskSystem::AddWorldComponentImmediate<TransmissionStatusWorldComponent>(world); //GUI transmission status
 
@@ -54,7 +54,7 @@ void Game::Init()
 
 void Game::Deinit()
 {
-	GameManagerSystem::DenitializeScene(gEngine->GetWorld());
+	GameManagerSystem::DenitializeScene(gEngine->GetActiveScene());
 
 	for (SoundResource* res : SoundsPreload)
 		ResourceManager<SoundResource>::Release(res);

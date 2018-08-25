@@ -3,7 +3,7 @@
 #include "ReceiverComponent.hpp"
 #include "TransmitterComponent.hpp"
 
-void GGJGame::ReceiverSystem::Update(World* world)
+void GGJGame::ReceiverSystem::Update(Scene* world)
 {
 	for (auto tuple : world->IterateComponents<ReceiverComponent>())
 	{

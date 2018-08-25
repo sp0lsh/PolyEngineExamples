@@ -11,6 +11,10 @@ using namespace Poly;
 
 class GameManagerWorldComponent : public ComponentBase
 {
+	RTTI_DECLARE_COMPONENT(GameManagerWorldComponent)
+	{
+		NO_RTTI_PROPERTY();
+	}
 public:
 	SafePtr<Entity> Camera;
 	PostprocessSettingsComponent* PostCmp;

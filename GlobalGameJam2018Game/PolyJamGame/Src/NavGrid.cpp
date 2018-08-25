@@ -25,7 +25,7 @@ Poly::Vector2i GGJGame::NavGrid::GetNodeGridPosition(const Poly::NavNode* node) 
 	ASSERTE(node >= Cells.GetData(), "Invalid node pointer");
 	const size_t idx = static_cast<const NavGridCell*>(node) - Cells.GetData();
 	ASSERTE(idx < Cells.GetSize(), "Invalid index");
-	return Vector2i(idx % GridSize.X, idx / GridSize.X);
+	return Vector2i((int)idx % GridSize.X, (int)idx / GridSize.X);
 }
 
 float GGJGame::NavGrid::GetTravelCost(const Poly::NavNode* from, const Poly::NavNode* to) const
@@ -128,7 +128,7 @@ Optional<Vector2i> GGJGame::NavGrid::GetIdxFromPos(const Vector2f& pos) const
 		return Optional<Vector2i>();
 
 	Vector2i idx;
-	idx.X = (pos.X - GridOrigin.X) / CellSize;
-	idx.Y = (pos.Y - GridOrigin.Y) / CellSize;
+	idx.X = (int)((pos.X - GridOrigin.X) / CellSize);
+	idx.Y = (int)((pos.Y - GridOrigin.Y) / CellSize);
 	return idx;
 }

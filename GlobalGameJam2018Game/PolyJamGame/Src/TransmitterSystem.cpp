@@ -8,17 +8,21 @@
 #include "TransmissionStatusWorldComponent.hpp"
 #include "ActorComponent.hpp"
 
+using namespace GGJGame;
+
+RTTI_DEFINE_COMPONENT(TransmitterComponent);
+
 const float TIME_TO_TURN = 10.0f;
 const float TRANSMISSION_TIME = 180.0f;
 const float TRIGGER_RADIUS = 20.0f;
 const float TRANSMISSION_MUL = 2.0f;
 
-void GGJGame::TransmitterSystem::Update(World * world)
+void GGJGame::TransmitterSystem::Update(Scene* world)
 {
 	float deltaTime = (float)(TimeSystem::GetTimerDeltaTime(world, eEngineTimer::GAMEPLAY));
 	TransmissionStatusWorldComponent* com = world->GetWorldComponent<TransmissionStatusWorldComponent>();
 	if (!com) { return; }
-	int currentTime = com->PercentData.TimeLeft;
+	float currentTime = com->PercentData.TimeLeft;
 	int transCount = 0;
 	float toSubstract = 0;
 
@@ -109,7 +113,7 @@ void GGJGame::TransmitterSystem::Update(World * world)
 
 
 
-int GGJGame::TransmitterSystem::GetPercent(World* world)
+float GGJGame::TransmitterSystem::GetPercent(Scene* world)
 {
 	return world->GetWorldComponent<TransmissionStatusWorldComponent>()->PercentData.TimeLeft;
 }

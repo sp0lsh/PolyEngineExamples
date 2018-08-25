@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ECS/World.hpp>
+#include <ECS/Scene.hpp>
 #include <Collections/String.hpp>
 #include <Math/Vector.hpp>
 #include <Utils/EnumUtils.hpp>
@@ -18,57 +18,57 @@ namespace GGJGame
 {
 	namespace GameManagerSystem
 	{
-		void InitializeScene(Poly::World* world);
-		void DenitializeScene(Poly::World* world);
-		void Update(Poly::World* world);
+		void InitializeScene(Poly::Scene* world);
+		void DenitializeScene(Poly::Scene* world);
+		void Update(Poly::Scene* world);
 
-		Poly::Entity* SpawnPlayer(Poly::World* world, const Poly::Vector& position);
-		void DespawnEnemy(Poly::World* world);
-		void DespawnPlayer(Poly::World* world);
-		void Restart(Poly::World* world);
+		Poly::Entity* SpawnPlayer(Poly::Scene* world, const Poly::Vector& position);
+		void DespawnEnemy(Poly::Scene* world);
+		void DespawnPlayer(Poly::Scene* world);
+		void Restart(Poly::Scene* world);
 
-		Poly::Entity* SpawnLevel(Poly::World* world, eLevels level);
-		void DespawnLevel(Poly::World* world);
+		Poly::Entity* SpawnLevel(Poly::Scene* world, eLevels level);
+		void DespawnLevel(Poly::Scene* world);
 
-		void PlaySample(Poly::World * world, const Poly::String& file, const Poly::Vector& position, float pitch = 1.0f, float gain = 1.0f, bool loop = false);
+		void PlaySample(Poly::Scene* world, const Poly::String& file, const Poly::Vector& position, float pitch = 1.0f, float gain = 1.0f, bool loop = false);
 
-		void PrepareNonlevelObjects(Poly::World* world);
-		void Cleanup(Poly::World* world);
+		void PrepareNonlevelObjects(Poly::Scene* world);
+		void Cleanup(Poly::Scene* world);
 
 		// levels spawn
 
-		Poly::Entity* SpawnMovementTestLevel(Poly::World* world);
-		Poly::Entity* SpawnReleaseLevel(Poly::World* world);
+		Poly::Entity* SpawnMovementTestLevel(Poly::Scene* world);
+		Poly::Entity* SpawnReleaseLevel(Poly::Scene* world);
 
 		// objects spawn
 
-		Poly::Entity* SpawnPlaneGround(Poly::World* world, Poly::Entity* parent, 
+		Poly::Entity* SpawnPlaneGround(Poly::Scene* world, Poly::Entity* parent, 
 			const String& meshPath = "Models/Ground_200x200.fbx", 
 			eResourceSource meshResource = eResourceSource::GAME,
-			PhongMaterial material = PhongMaterial(Color(1, 1, 1), Color(1, 1, 1), Color(1, 1, 1), 8.0f),
+			Material material = Material(),
 			const Vector& colliderHalfExtents = Vector(400, 400, 0),
 			eTerrainPassability passability = eTerrainPassability::PASSABLE);
 
-		Poly::Entity* SpawnLevelMesh(Poly::World* world, Poly::Entity* parent,
+		Poly::Entity* SpawnLevelMesh(Poly::Scene* world, Poly::Entity* parent,
 			const String& meshPath = "Models/Ground_200x200.fbx",
 			eResourceSource meshResource = eResourceSource::GAME,
-			PhongMaterial material = PhongMaterial(Color(1, 1, 1), Color(1, 1, 1), Color(1, 1, 1), 8.0f));
+			Material material = Material());
 
-		Poly::Entity* SpawnCustomCollider(Poly::World* world, Poly::Entity* parent,
+		Poly::Entity* SpawnCustomCollider(Poly::Scene* world, Poly::Entity* parent,
 			const String& meshPath = "Models/Ground_200x200.fbx",
 			eResourceSource meshResource = eResourceSource::GAME,
 			eTerrainPassability passability = eTerrainPassability::PASSABLE);		
 
 		//enemies spawn
-		void SpawnEnemies(Poly::World* world, Poly::Entity* parent);
+		void SpawnEnemies(Poly::Scene* world, Poly::Entity* parent);
 		template <typename T>
-		Poly::Entity* SpawnEnemy(Poly::World* world, Poly::Entity* parent, const Poly::Vector& position);
-		Poly::Entity* SpawnBeacon(Poly::World* world, Poly::Entity* parent, const Poly::Vector& position);
+		Poly::Entity* SpawnEnemy(Poly::Scene* world, Poly::Entity* parent, const Poly::Vector& position);
+		Poly::Entity* SpawnBeacon(Poly::Scene* world, Poly::Entity* parent, const Poly::Vector& position);
 
 
-		void SpawnAmbientFX(World* world);
-		void SpawnParticleAmbientSmall(World* world);
-		void SpawnParticleAmbientBig(World* world);
+		void SpawnAmbientFX(Scene* world);
+		void SpawnParticleAmbientSmall(Scene* world);
+		void SpawnParticleAmbientBig(Scene* world);
 
 		float Random();
 		float Random(float min, float max);

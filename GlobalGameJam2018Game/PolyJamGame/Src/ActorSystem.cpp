@@ -11,7 +11,7 @@ static const float PROJECTILE_SPAWN_DISTANCE = 0.1f;
 static const float MOVEMENT_IMPULSE_SCALE = 0.6f;
 static const float JUMP_IMPULSE_SCALE = 20.0f;
 
-void GGJGame::ActorSystem::Update(World* world)
+void GGJGame::ActorSystem::Update(Scene* world)
 {
 	float deltaTime = (float)(TimeSystem::GetTimerDeltaTime(world, eEngineTimer::GAMEPLAY));
 	//InputWorldComponent* inputCmp = world->GetWorldComponent<InputWorldComponent>();
@@ -57,7 +57,7 @@ void GGJGame::ActorSystem::Jump(Poly::Entity* actor)
 	actor->GetComponent<ActorComponent>()->SetJumpRequested(true);
 }
 
-void GGJGame::ActorSystem::Shoot(Poly::World* world, Poly::Entity* shooter, const Vector& localOffset, const Vector& direction)
+void GGJGame::ActorSystem::Shoot(Poly::Scene* world, Poly::Entity* shooter, const Vector& localOffset, const Vector& direction)
 {
 	Vector position = shooter->GetTransform().GetGlobalTranslation() + localOffset + direction * PROJECTILE_SPAWN_DISTANCE;
 	//GameManagerWorldComponent* gmComp = world->GetWorldComponent<GameManagerWorldComponent>();

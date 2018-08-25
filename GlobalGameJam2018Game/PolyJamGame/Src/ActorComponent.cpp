@@ -1,5 +1,9 @@
 #include "ActorComponent.hpp"
 
+using namespace GGJGame;
+
+RTTI_DEFINE_COMPONENT(ActorComponent);
+
 void GGJGame::ActorComponent::SetMovement(const Vector& movement)
 {
 	Movement = movement;

@@ -8,6 +8,7 @@ namespace GGJGame
 {
 	class GAME_DLLEXPORT ActorComponent : public ComponentBase
 	{
+		RTTI_DECLARE_COMPONENT(ActorComponent) { NO_RTTI_PROPERTY(); }
 	public:
 		ActorComponent() = default;
 

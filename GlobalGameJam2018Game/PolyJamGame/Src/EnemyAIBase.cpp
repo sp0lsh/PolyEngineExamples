@@ -18,7 +18,7 @@ void DebugDrawPath(Entity* ent)
 	{
 		for (size_t i = 1; i < path.GetSize(); ++i)
 		{
-			DebugDrawSystem::DrawLine(ent->GetWorld(), Vector(path[i - 1].X, 0.1f, path[i - 1].Z), Vector(path[i].X, 0.1f, path[i].Z), Color::RED);
+			DebugDrawSystem::DrawLine(ent->GetEntityScene(), Vector(path[i - 1].X, 0.1f, path[i - 1].Z), Vector(path[i].X, 0.1f, path[i].Z), Color::RED);
 		}
 	}
 }
@@ -27,7 +27,7 @@ namespace Actions
 {
 	using namespace GGJGame;
 	// wander around in direction of transmitter
-	GGJGame::EnemyAIBase::actionSignature lookForTransmitter = [](World* world, Entity* selfEntity)
+	GGJGame::EnemyAIBase::actionSignature lookForTransmitter = [](Scene* world, Entity* selfEntity)
 	{
 		PathfindingComponent* pathfindingCmp = selfEntity->GetComponent<PathfindingComponent>();
 
@@ -56,7 +56,7 @@ namespace Actions
 		return true;
 	};
 
-	GGJGame::EnemyAIBase::actionSignature attackPlayer = [](World* world, Entity* selfEntity)
+	GGJGame::EnemyAIBase::actionSignature attackPlayer = [](Scene* world, Entity* selfEntity)
 	{
 		// if in line of sight
 		for(auto playerTuple : world->IterateComponents<PlayerComponent>())
@@ -82,7 +82,7 @@ namespace Actions
 		return true;
 	};
 
-	GGJGame::EnemyAIBase::actionSignature goAfterPlayer = [](World* world, Entity* selfEntity)
+	GGJGame::EnemyAIBase::actionSignature goAfterPlayer = [](Scene* world, Entity* selfEntity)
 	{
 		PathfindingComponent* pathfindingCmp = selfEntity->GetComponent<PathfindingComponent>();
 

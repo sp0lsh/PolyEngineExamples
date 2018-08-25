@@ -2,7 +2,7 @@
 #include "PowerupSystem.hpp"
 #include "PlayerControllerComponent.hpp"
 #include "PlayerUpdateSystem.hpp"
-#include "ECS/World.hpp"
+#include "ECS/Scene.hpp"
 #include "Powerups.hpp"
 #include "Physics2D/Rigidbody2DComponent.hpp"
 #include "Time/TimeSystem.hpp"

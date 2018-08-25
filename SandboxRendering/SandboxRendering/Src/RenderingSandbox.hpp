@@ -2,7 +2,7 @@
 
 #include <Core.hpp>
 #include <Engine.hpp>
-#include <ECS/World.hpp>
+#include <ECS/Scene.hpp>
 #include <Movement/FreeFloatMovementComponent.hpp>
 #include <Rendering/Camera/CameraComponent.hpp>
 #include <Rendering/MeshRenderingComponent.hpp>

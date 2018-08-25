@@ -1,7 +1,7 @@
 #include "ResourcesManagementSystem.hpp"
 #include "GameManagerWorldComponent.hpp"
 
-void GGJGame::ResourcesManagementSystem::PreloadResources(World* world)
+void GGJGame::ResourcesManagementSystem::PreloadResources(Scene* world)
 {
 	//GameManagerWorldComponent* gmComp = world->GetWorldComponent<GameManagerWorldComponent>();
 	//preload sounds
@@ -13,7 +13,7 @@ void GGJGame::ResourcesManagementSystem::PreloadResources(World* world)
 
 }
 
-void GGJGame::ResourcesManagementSystem::FreeResources(World* world)
+void GGJGame::ResourcesManagementSystem::FreeResources(Scene* world)
 {
 	//GameManagerWorldComponent* gmComp = world->GetWorldComponent<GameManagerWorldComponent>();
 	//free sounds

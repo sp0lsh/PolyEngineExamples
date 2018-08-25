@@ -1,5 +1,5 @@
 #include "PlayerUpdateSystem.hpp"
-#include "ECS/World.hpp"
+#include "ECS/Scene.hpp"
 #include "Input/InputWorldComponent.hpp"
 #include "PlayerControllerComponent.hpp"
 #include "Physics2D/Rigidbody2DComponent.hpp"
@@ -196,7 +196,8 @@ namespace SGJ
 		PostprocessSettingsComponent* postCmp = world->GetComponent<PostprocessSettingsComponent>(mgrCmp->Camera.Get());
 		auto deltaTime = float(TimeSystem::GetTimerDeltaTime(world, Poly::eEngineTimer::GAMEPLAY));
 
-		if (playerCmp->DeathCoolDowntime >= 0)
+		// Disabled in newer version
+		/*if (playerCmp->DeathCoolDowntime >= 0)
 		{
 			if (postCmp)
 			{
@@ -222,7 +223,7 @@ namespace SGJ
 				postCmp->Stripes = 0.15f;
 			}
 			ResetPlayer(world, playerCmp->SpawnPoint);
-		}
+		}*/
 	}
 
 	void PlayerUpdateSystem::PushPlayer(Poly::Scene* world, const Poly::Vector& normal, float force)

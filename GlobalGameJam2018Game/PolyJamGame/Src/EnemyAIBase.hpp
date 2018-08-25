@@ -2,17 +2,17 @@
 
 #include <functional>
 
-#include <ECS/World.hpp>
+#include <ECS/Scene.hpp>
 #include <Collections/OrderedMap.hpp>
 
 using namespace Poly;
 
 namespace GGJGame
 {
-	class GAME_DLLEXPORT EnemyAIBase : public BaseObject<>
+	class EnemyAIBase : public BaseObject<>
 	{
 	public:
-		using actionSignature = std::function<bool(World* world, Entity* selfEntity)>;
+		using actionSignature = std::function<bool(Scene* world, Entity* selfEntity)>;
 
 		EnemyAIBase() : actions(OrderedMap<int, actionSignature>())
 		{ }
@@ -22,7 +22,7 @@ namespace GGJGame
 			actions.Insert(priority, action);
 		}
 
-		void IterateActions(World* world, Entity* selfEntity)
+		void IterateActions(Scene* world, Entity* selfEntity)
 		{
 			for(auto action : actions)
 			{
@@ -46,7 +46,7 @@ namespace GGJGame
 		OrderedMap<int, actionSignature> actions;
 	};
 
-	class GAME_DLLEXPORT EnemyAIEngineer : public EnemyAIBase
+	class EnemyAIEngineer : public EnemyAIBase
 	{
 	public:
 		EnemyAIEngineer()
@@ -57,7 +57,7 @@ namespace GGJGame
 		virtual void InitActions() override final;
 	};
 
-	class GAME_DLLEXPORT EnemyAIAssailant : public EnemyAIBase
+	class EnemyAIAssailant : public EnemyAIBase
 	{
 	public:
 		EnemyAIAssailant()

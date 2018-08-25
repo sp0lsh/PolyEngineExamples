@@ -36,6 +36,14 @@
 using namespace Poly;
 using namespace GGJGame;
 
+RTTI_DEFINE_COMPONENT(TerrainComponent);
+RTTI_DEFINE_COMPONENT(ReceiverComponent);
+RTTI_DEFINE_COMPONENT(PlayerComponent);
+RTTI_DEFINE_COMPONENT(LevelComponent);
+RTTI_DEFINE_COMPONENT(GunComponent);
+RTTI_DEFINE_COMPONENT(GameManagerWorldComponent);
+RTTI_DEFINE_COMPONENT(ActorMovementComponent);
+
 const static float PLAYER_HEIGHT = 1.8f;
 const static float PLAYER_CAPSULE_RADIUS = 0.3f;
 const static float PLAYER_CAPSULE_HEIGHT = PLAYER_HEIGHT - 2 * PLAYER_CAPSULE_RADIUS;
@@ -56,12 +64,12 @@ const static float ENEMY_LINEAR_DAMPING = 0.7f;
 
 static const Vector2i MAP_SIZE = Vector2i(150, 150);
 static const float CELL_SIZE = 2.5f;
-static const Vector2i GRID_SIZE = Vector2i(MAP_SIZE.X / CELL_SIZE, MAP_SIZE.Y / CELL_SIZE);
+static const Vector2i GRID_SIZE = Vector2i((int)(MAP_SIZE.X / CELL_SIZE), (int)(MAP_SIZE.Y / CELL_SIZE));
 
 //------------------------------------------------------------------------------
-void GameManagerSystem::InitializeScene(Poly::World* world)
+void GameManagerSystem::InitializeScene(Poly::Scene* world)
 {
-	GameManagerWorldComponent* gameMgr = gEngine->GetWorld()->GetWorldComponent<GameManagerWorldComponent>();
+	GameManagerWorldComponent* gameMgr = gEngine->GetActiveScene()->GetWorldComponent<GameManagerWorldComponent>();
 
 	// create camera
 	SpawnPlayer(world, Vector(10.f, 10.f, -10.f));
@@ -82,18 +90,18 @@ void GameManagerSystem::InitializeScene(Poly::World* world)
 }
 
 //------------------------------------------------------------------------------
-void GGJGame::GameManagerSystem::DenitializeScene(Poly::World* world)
+void GGJGame::GameManagerSystem::DenitializeScene(Poly::Scene* world)
 {
-	GameManagerWorldComponent* gameMgr = gEngine->GetWorld()->GetWorldComponent<GameManagerWorldComponent>();
+	GameManagerWorldComponent* gameMgr = gEngine->GetActiveScene()->GetWorldComponent<GameManagerWorldComponent>();
 	ResourceManager<MeshResource>::Release(gameMgr->BulletMesh);
 	ResourceManager<MeshResource>::Release(gameMgr->EnemyMesh);
 }
 
 //------------------------------------------------------------------------------
-void GameManagerSystem::Update(Poly::World* world)
+void GameManagerSystem::Update(Poly::Scene* world)
 {
 	//float deltaTime = (float)(TimeSystem::GetTimerDeltaTime(world, Poly::eEngineTimer::GAMEPLAY));
-	GameManagerWorldComponent* gameManager = Poly::gEngine->GetWorld()->GetWorldComponent<GameManagerWorldComponent>();
+	GameManagerWorldComponent* gameManager = Poly::gEngine->GetActiveScene()->GetWorldComponent<GameManagerWorldComponent>();
 	InputWorldComponent* inputCmp = world->GetWorldComponent<InputWorldComponent>();
 
 	
@@ -180,10 +188,10 @@ void GameManagerSystem::Update(Poly::World* world)
 }
 
 //------------------------------------------------------------------------------
-Entity* GameManagerSystem::SpawnPlayer(Poly::World* world, const Poly::Vector& position)
+Entity* GameManagerSystem::SpawnPlayer(Poly::Scene* world, const Poly::Vector& position)
 {
 	// entity
-	Entity* entity = DeferredTaskSystem::SpawnEntityImmediate(gEngine->GetWorld());
+	Entity* entity = DeferredTaskSystem::SpawnEntityImmediate(gEngine->GetActiveScene());
 	world->GetWorldComponent<GameManagerWorldComponent>()->Player = entity;
 
 	// collider
@@ -191,7 +199,7 @@ Entity* GameManagerSystem::SpawnPlayer(Poly::World* world, const Poly::Vector& p
 	colliderTemplate.Shape = std::make_unique<Physics3DCapsuleShape>(PLAYER_CAPSULE_RADIUS, PLAYER_CAPSULE_HEIGHT);
 	colliderTemplate.CollisionGroup = EnumFlags<eCollisionGroup>(eCollisionGroup::RIGIDBODY_GREEN);
 	colliderTemplate.CollisionMask = EnumFlags<eCollisionGroup>(eCollisionGroup::RIGIDBODY_GREEN);
-	DeferredTaskSystem::AddComponentImmediate<Collider3DComponent>(gEngine->GetWorld(), entity, gEngine->GetWorld(), std::move(colliderTemplate));
+	DeferredTaskSystem::AddComponentImmediate<Collider3DComponent>(gEngine->GetActiveScene(), entity, gEngine->GetActiveScene(), std::move(colliderTemplate));
 
 	//rigidbody
 	Rigidbody3DComponentTemplate rigidbodyTemplate;
@@ -200,25 +208,25 @@ Entity* GameManagerSystem::SpawnPlayer(Poly::World* world, const Poly::Vector& p
 	rigidbodyTemplate.RigidbodyType = eRigidBody3DType::DYNAMIC;
 	rigidbodyTemplate.Friction = PLAYER_FRICTION;
 	rigidbodyTemplate.LinearDamping = PLAYER_LINEAR_DAMPING;
-	DeferredTaskSystem::AddComponentImmediate<Rigidbody3DComponent>(gEngine->GetWorld(), entity, gEngine->GetWorld(), rigidbodyTemplate);
+	DeferredTaskSystem::AddComponentImmediate<Rigidbody3DComponent>(gEngine->GetActiveScene(), entity, gEngine->GetActiveScene(), rigidbodyTemplate);
 
 	// actor
-	DeferredTaskSystem::AddComponentImmediate<ActorComponent>(gEngine->GetWorld(), entity);
+	DeferredTaskSystem::AddComponentImmediate<ActorComponent>(gEngine->GetActiveScene(), entity);
 	// player
-	DeferredTaskSystem::AddComponentImmediate<PlayerComponent>(gEngine->GetWorld(), entity);
+	DeferredTaskSystem::AddComponentImmediate<PlayerComponent>(gEngine->GetActiveScene(), entity);
 
 	// receiver
-	DeferredTaskSystem::AddComponentImmediate<ReceiverComponent>(gEngine->GetWorld(), entity);
+	DeferredTaskSystem::AddComponentImmediate<ReceiverComponent>(gEngine->GetActiveScene(), entity);
 
 	//camera
-	Entity* camera = DeferredTaskSystem::SpawnEntityImmediate(gEngine->GetWorld());
+	Entity* camera = DeferredTaskSystem::SpawnEntityImmediate(gEngine->GetActiveScene());
 	camera->SetParent(entity);
-	DeferredTaskSystem::AddComponentImmediate<Poly::CameraComponent>(gEngine->GetWorld(), camera, PLAYER_CAMERA_FOV, PLAYER_CAMERA_NEAR, PLAYER_CAMERA_FAR);
-	gEngine->GetWorld()->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, gEngine->GetWorld()->GetComponent<CameraComponent>(camera));
-	DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(gEngine->GetWorld(), camera);
+	DeferredTaskSystem::AddComponentImmediate<Poly::CameraComponent>(gEngine->GetActiveScene(), camera, PLAYER_CAMERA_FOV, PLAYER_CAMERA_NEAR, PLAYER_CAMERA_FAR);
+	gEngine->GetActiveScene()->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, gEngine->GetActiveScene()->GetComponent<CameraComponent>(camera));
+	DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(gEngine->GetActiveScene(), camera);
 	PostprocessSettingsComponent* postCmp = world->GetComponent<PostprocessSettingsComponent>(camera);
-	postCmp->UseBgShader = false;
-	postCmp->UseFgShader = true;
+	//postCmp->UseBgShader = false;
+	//postCmp->UseFgShader = true;
 // 	postCmp->Distortion = 0.5f;
 // 	postCmp->ColorTempValue = 6500.0f;
 // 	postCmp->Saturation = 1.0f;
@@ -227,9 +235,9 @@ Entity* GameManagerSystem::SpawnPlayer(Poly::World* world, const Poly::Vector& p
 // 	postCmp->Vignette = 1.0f;
 
 	// gun
-	Entity* gun = DeferredTaskSystem::SpawnEntityImmediate(gEngine->GetWorld());
-	DeferredTaskSystem::AddComponentImmediate<Poly::MeshRenderingComponent>(gEngine->GetWorld(), gun, "Models/Gun.fbx", eResourceSource::GAME);
-	DeferredTaskSystem::AddComponentImmediate<GGJGame::GunComponent>(gEngine->GetWorld(), gun);
+	Entity* gun = DeferredTaskSystem::SpawnEntityImmediate(gEngine->GetActiveScene());
+	DeferredTaskSystem::AddComponentImmediate<Poly::MeshRenderingComponent>(gEngine->GetActiveScene(), gun, "Models/Gun.fbx", eResourceSource::GAME);
+	DeferredTaskSystem::AddComponentImmediate<GGJGame::GunComponent>(gEngine->GetActiveScene(), gun);
 	gun->SetParent(camera);
 	gun->GetTransform().SetLocalScale(0.1f);
 	gun->GetTransform().SetLocalTranslation(Vector(0.1f, -0.1f, -0.4f));
@@ -261,7 +269,7 @@ Entity* GameManagerSystem::SpawnPlayer(Poly::World* world, const Poly::Vector& p
 }
 
 //------------------------------------------------------------------------------
-Poly::Entity* GameManagerSystem::SpawnLevel(Poly::World* world, eLevels level)
+Poly::Entity* GameManagerSystem::SpawnLevel(Poly::Scene* world, eLevels level)
 {
 	Entity* levelEntity;
 
@@ -286,7 +294,7 @@ Poly::Entity* GameManagerSystem::SpawnLevel(Poly::World* world, eLevels level)
 }
 
 //------------------------------------------------------------------------------
-void GGJGame::GameManagerSystem::Cleanup(Poly::World* world)
+void GGJGame::GameManagerSystem::Cleanup(Poly::Scene* world)
 {
 	GameManagerWorldComponent* gameMgr = world->GetWorldComponent<GameManagerWorldComponent>();
 
@@ -294,7 +302,7 @@ void GGJGame::GameManagerSystem::Cleanup(Poly::World* world)
 }
 
 //------------------------------------------------------------------------------
-void GGJGame::GameManagerSystem::PlaySample(Poly::World* world, const Poly::String& file, const Poly::Vector& position, float pitch, float gain, bool loop)
+void GGJGame::GameManagerSystem::PlaySample(Poly::Scene* world, const Poly::String& file, const Poly::Vector& position, float pitch, float gain, bool loop)
 {
 	GameManagerWorldComponent* gameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
@@ -312,7 +320,7 @@ void GGJGame::GameManagerSystem::PlaySample(Poly::World* world, const Poly::Stri
 }
 
 //------------------------------------------------------------------------------
-Poly::Entity * GGJGame::GameManagerSystem::SpawnReleaseLevel(Poly::World * world)
+Poly::Entity * GGJGame::GameManagerSystem::SpawnReleaseLevel(Poly::Scene* world)
 {
 	//GameManagerWorldComponent* gameMgr = world->GetWorldComponent<GameManagerWorldComponent>();
 
@@ -346,9 +354,9 @@ Poly::Entity * GGJGame::GameManagerSystem::SpawnReleaseLevel(Poly::World * world
 	// spawn navMesh generation mask
 	SpawnCustomCollider(world, level, "Levels/ReleaseLevel/GroundColliderLayout.fbx", eResourceSource::GAME, eTerrainPassability::WALKABLE_GROUND);
 
-	Entity* b = SpawnBeacon(world, level, Vector(16, 0.9, 5.2));
-	SpawnBeacon(world, level, Vector(-39, 0.9, -0.6));
-	SpawnBeacon(world, level, Vector(16.8, 0.9, -52));
+	Entity* b = SpawnBeacon(world, level, Vector(16.f, 0.9f, 5.2f));
+	SpawnBeacon(world, level, Vector(-39.f, 0.9f, -0.6f));
+	SpawnBeacon(world, level, Vector(16.8f, 0.9f, -52.f));
 
 	b->GetTransform().SetLocalTranslation(b->GetTransform().GetLocalTranslation() + Vector(0, 0, 2.f));
 
@@ -356,7 +364,7 @@ Poly::Entity * GGJGame::GameManagerSystem::SpawnReleaseLevel(Poly::World * world
 }
 
 //------------------------------------------------------------------------------
-Poly::Entity* GameManagerSystem::SpawnMovementTestLevel(Poly::World* world)
+Poly::Entity* GameManagerSystem::SpawnMovementTestLevel(Poly::Scene* world)
 {
 	//GameManagerWorldComponent* gameMgr = world->GetWorldComponent<GameManagerWorldComponent>();
 	
@@ -375,26 +383,26 @@ Poly::Entity* GameManagerSystem::SpawnMovementTestLevel(Poly::World* world)
 		for (int y = 0; y < 5; ++y)
 		{
 			// entity
-			Entity* brick = DeferredTaskSystem::SpawnEntityImmediate(gEngine->GetWorld());
+			Entity* brick = DeferredTaskSystem::SpawnEntityImmediate(gEngine->GetActiveScene());
 			brick->SetParent(level);
 			// transform
 			EntityTransform& brickTransform = brick->GetTransform();
-			brickTransform.SetLocalTranslation(Vector(-5 + x * 2, 15 + y * 2, -5 * 2));
+			brickTransform.SetLocalTranslation(Vector(-5 + x * 2.f, 15 + y * 2.f, -5 * 2.f));
 			// mesh
 			MeshRenderingComponent* brickMesh = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, brick, "Models/Cube.fbx", eResourceSource::GAME);
-			brickMesh->SetMaterial(0, PhongMaterial(Color(0, 0, 1), Color(0, 0, 1), Color(0, 0, 1), 8.0f));
-			brickMesh->SetShadingModel(eShadingModel::LIT);
+			brickMesh->SetMaterial(0, Material(Color(0, 0, 0), Color(0, 0, 1), 1.0f, 1.0f, 0.5f));
+			brickMesh->SetShadingModel(eShadingMode::PBR);
 			// collider
 			Collider3DComponentTemplate colliderTemplate;
 			colliderTemplate.Shape = std::make_unique<Physics3DBoxShape>(Vector(1, 1, 1));
 			colliderTemplate.CollisionGroup = EnumFlags<eCollisionGroup>(eCollisionGroup::RIGIDBODY_GREEN);
 			colliderTemplate.CollisionMask = EnumFlags<eCollisionGroup>(eCollisionGroup::RIGIDBODY_GREEN);
-			DeferredTaskSystem::AddComponentImmediate<Collider3DComponent>(gEngine->GetWorld(), brick, gEngine->GetWorld(), std::move(colliderTemplate));
+			DeferredTaskSystem::AddComponentImmediate<Collider3DComponent>(gEngine->GetActiveScene(), brick, gEngine->GetActiveScene(), std::move(colliderTemplate));
 			//rigidbody
 			Rigidbody3DComponentTemplate rigidbodyTemplate;
 			rigidbodyTemplate.Mass = 10;
 			rigidbodyTemplate.AngularDamping = 0.1f;
-			DeferredTaskSystem::AddComponentImmediate<Rigidbody3DComponent>(gEngine->GetWorld(), brick, gEngine->GetWorld(), rigidbodyTemplate);
+			DeferredTaskSystem::AddComponentImmediate<Rigidbody3DComponent>(gEngine->GetActiveScene(), brick, gEngine->GetActiveScene(), rigidbodyTemplate);
 		}
 	}
 
@@ -402,10 +410,10 @@ Poly::Entity* GameManagerSystem::SpawnMovementTestLevel(Poly::World* world)
 }
 
 //------------------------------------------------------------------------------
-Poly::Entity* GameManagerSystem::SpawnPlaneGround(Poly::World* world, Poly::Entity* parent, const String& meshPath, eResourceSource meshResource, PhongMaterial material, const Vector& colliderHalfExtents, eTerrainPassability passability)
+Poly::Entity* GameManagerSystem::SpawnPlaneGround(Poly::Scene* world, Poly::Entity* parent, const String& meshPath, eResourceSource meshResource, Material material, const Vector& colliderHalfExtents, eTerrainPassability passability)
 {
 	// entity
-	Entity* entity = DeferredTaskSystem::SpawnEntityImmediate(gEngine->GetWorld());
+	Entity* entity = DeferredTaskSystem::SpawnEntityImmediate(gEngine->GetActiveScene());
 	entity->SetParent(parent);
 
 	// transform
@@ -416,14 +424,14 @@ Poly::Entity* GameManagerSystem::SpawnPlaneGround(Poly::World* world, Poly::Enti
 	// mesh
 	MeshRenderingComponent* groundMesh = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, entity, meshPath, meshResource);
 	groundMesh->SetMaterial(0, material);
-	groundMesh->SetShadingModel(eShadingModel::LIT);
+	groundMesh->SetShadingModel(eShadingMode::PBR);
 
 	// collider
 	Collider3DComponentTemplate colliderTemplate;
 	colliderTemplate.Shape = std::make_unique<Physics3DBoxShape>(colliderHalfExtents);
 	colliderTemplate.CollisionGroup = EnumFlags<eCollisionGroup>(eCollisionGroup::RIGIDBODY_GREEN);
 	colliderTemplate.CollisionMask = EnumFlags<eCollisionGroup>(eCollisionGroup::RIGIDBODY_GREEN);
-	DeferredTaskSystem::AddComponentImmediate<Collider3DComponent>(world, entity, gEngine->GetWorld(), std::move(colliderTemplate));
+	DeferredTaskSystem::AddComponentImmediate<Collider3DComponent>(world, entity, gEngine->GetActiveScene(), std::move(colliderTemplate));
 
 	//rigidbody
 	Rigidbody3DComponentTemplate rigidbodyTemplate;
@@ -436,10 +444,10 @@ Poly::Entity* GameManagerSystem::SpawnPlaneGround(Poly::World* world, Poly::Enti
 	return entity;
 }
 
-Poly::Entity * GGJGame::GameManagerSystem::SpawnLevelMesh(Poly::World* world, Poly::Entity* parent, const String & meshPath, eResourceSource meshResource, PhongMaterial material)
+Poly::Entity * GGJGame::GameManagerSystem::SpawnLevelMesh(Poly::Scene* world, Poly::Entity* parent, const String & meshPath, eResourceSource meshResource, Material material)
 {
 	// entity
-	Entity* entity = DeferredTaskSystem::SpawnEntityImmediate(gEngine->GetWorld());
+	Entity* entity = DeferredTaskSystem::SpawnEntityImmediate(gEngine->GetActiveScene());
 	entity->SetParent(parent);
 
 	// transform
@@ -450,16 +458,16 @@ Poly::Entity * GGJGame::GameManagerSystem::SpawnLevelMesh(Poly::World* world, Po
 	// mesh
 	MeshRenderingComponent* groundMesh = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, entity, meshPath, meshResource);
 	groundMesh->SetMaterial(0, material);
-	groundMesh->SetShadingModel(eShadingModel::LIT);
+	groundMesh->SetShadingModel(eShadingMode::PBR);
 
 	return entity;
 }
 
 //------------------------------------------------------------------------------
-Poly::Entity* GGJGame::GameManagerSystem::SpawnCustomCollider(Poly::World* world, Poly::Entity* parent, const String& meshPath, eResourceSource meshResource, eTerrainPassability passability)
+Poly::Entity* GGJGame::GameManagerSystem::SpawnCustomCollider(Poly::Scene* world, Poly::Entity* parent, const String& meshPath, eResourceSource meshResource, eTerrainPassability passability)
 {
 	// entity
-	Entity* entity = DeferredTaskSystem::SpawnEntityImmediate(gEngine->GetWorld());
+	Entity* entity = DeferredTaskSystem::SpawnEntityImmediate(gEngine->GetActiveScene());
 	entity->SetParent(parent);
 
 	// transform
@@ -469,8 +477,8 @@ Poly::Entity* GGJGame::GameManagerSystem::SpawnCustomCollider(Poly::World* world
 
 	// mesh
 	//MeshRenderingComponent* groundMesh = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, entity, meshPath, meshResource);
-	//groundMesh->SetMaterial(0, PhongMaterial(Color(1, 0.25, 0.25), Color(1, 0.25, 0.25), Color(1, 0.25, 0.25), 8.0f));
-	//groundMesh->SetShadingModel(eShadingModel::LIT);
+	//groundMesh->SetMaterial(0, Material(Color(1, 0.25, 0.25), Color(1, 0.25, 0.25), Color(1, 0.25, 0.25), 8.0f));
+	//groundMesh->SetShadingModel(eShadingModel::PBR);
 	
 	// collider
 	Collider3DComponentTemplate colliderTemplate;
@@ -479,7 +487,7 @@ Poly::Entity* GGJGame::GameManagerSystem::SpawnCustomCollider(Poly::World* world
 	colliderTemplate.Shape = std::make_unique<Physics3DStaticMeshShape>(src);
 	colliderTemplate.CollisionGroup = EnumFlags<eCollisionGroup>(eCollisionGroup::RIGIDBODY_GREEN);
 	colliderTemplate.CollisionMask = EnumFlags<eCollisionGroup>(eCollisionGroup::RIGIDBODY_GREEN);
-	DeferredTaskSystem::AddComponentImmediate<Collider3DComponent>(gEngine->GetWorld(), entity, gEngine->GetWorld(), std::move(colliderTemplate));
+	DeferredTaskSystem::AddComponentImmediate<Collider3DComponent>(gEngine->GetActiveScene(), entity, gEngine->GetActiveScene(), std::move(colliderTemplate));
 
 	//rigidbody
 	Rigidbody3DComponentTemplate rigidbodyTemplate;
@@ -494,10 +502,10 @@ Poly::Entity* GGJGame::GameManagerSystem::SpawnCustomCollider(Poly::World* world
 
 //------------------------------------------------------------------------------
 template <typename T>
-Poly::Entity* GGJGame::GameManagerSystem::SpawnEnemy(Poly::World* world, Poly::Entity* parent, const Poly::Vector& position)
+Poly::Entity* GGJGame::GameManagerSystem::SpawnEnemy(Poly::Scene* world, Poly::Entity* parent, const Poly::Vector& position)
 {
 	// entity
-	Entity* entity = DeferredTaskSystem::SpawnEntityImmediate(gEngine->GetWorld());
+	Entity* entity = DeferredTaskSystem::SpawnEntityImmediate(gEngine->GetActiveScene());
 	entity->SetParent(parent);
 
 	world->GetWorldComponent<GameManagerWorldComponent>()->Level->GetComponent<LevelComponent>()->Enemy.PushFront(entity);
@@ -511,7 +519,7 @@ Poly::Entity* GGJGame::GameManagerSystem::SpawnEnemy(Poly::World* world, Poly::E
 	colliderTemplate.Shape = std::make_unique<Physics3DCapsuleShape>(ENEMY_CAPSULE_RADIUS, ENEMY_CAPSULE_HEIGHT);
 	colliderTemplate.CollisionGroup = EnumFlags<eCollisionGroup>(eCollisionGroup::RIGIDBODY_GREEN);
 	colliderTemplate.CollisionMask = EnumFlags<eCollisionGroup>(eCollisionGroup::RIGIDBODY_GREEN);
-	DeferredTaskSystem::AddComponentImmediate<Collider3DComponent>(gEngine->GetWorld(), entity, gEngine->GetWorld(), std::move(colliderTemplate));
+	DeferredTaskSystem::AddComponentImmediate<Collider3DComponent>(gEngine->GetActiveScene(), entity, gEngine->GetActiveScene(), std::move(colliderTemplate));
 
 	//rigidbody
 	Rigidbody3DComponentTemplate rigidbodyTemplate;
@@ -519,36 +527,36 @@ Poly::Entity* GGJGame::GameManagerSystem::SpawnEnemy(Poly::World* world, Poly::E
 	rigidbodyTemplate.AngularFactor = Vector(0.f, 0.f, 0.f);
 	rigidbodyTemplate.Friction = ENEMY_FRICTION;
 	rigidbodyTemplate.LinearDamping = ENEMY_LINEAR_DAMPING;
-	DeferredTaskSystem::AddComponentImmediate<Rigidbody3DComponent>(gEngine->GetWorld(), entity, gEngine->GetWorld(), rigidbodyTemplate);
+	DeferredTaskSystem::AddComponentImmediate<Rigidbody3DComponent>(gEngine->GetActiveScene(), entity, gEngine->GetActiveScene(), rigidbodyTemplate);
 
 	//mesh
 	MeshRenderingComponent* enemyMesh = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, entity, "Models/Robot/Robot.fbx", eResourceSource::GAME);
-	enemyMesh->SetMaterial(0, PhongMaterial(Color(1, 0, 1), Color(1, 0, 1), Color(1, 0, 1), 8.0f));
-	enemyMesh->SetShadingModel(eShadingModel::LIT);
+	enemyMesh->SetMaterial(0, Material(Color(1, 0, 1), Color(1, 0, 1), 1.0f, 1.0f, 0.5f));
+	enemyMesh->SetShadingModel(eShadingMode::PBR);
 
 	// actor
-	//ActorComponent* actorCmp = DeferredTaskSystem::AddComponentImmediate<ActorComponent>(gEngine->GetWorld(), entity);
+	//ActorComponent* actorCmp = DeferredTaskSystem::AddComponentImmediate<ActorComponent>(gEngine->GetActiveScene(), entity);
 
 	//enemy
 	//EnemyComponent* enemyCmp = DeferredTaskSystem::AddComponentImmediate<EnemyComponent>(world, entity, std::make_unique<T>());
 
-	GameManagerWorldComponent* gameManager = Poly::gEngine->GetWorld()->GetWorldComponent<GameManagerWorldComponent>();
-	DeferredTaskSystem::AddComponentImmediate<PathfindingComponent>(gEngine->GetWorld(), entity, gameManager->Level->GetComponent<LevelComponent>()->NavigationGrid);
+	GameManagerWorldComponent* gameManager = Poly::gEngine->GetActiveScene()->GetWorldComponent<GameManagerWorldComponent>();
+	DeferredTaskSystem::AddComponentImmediate<PathfindingComponent>(gEngine->GetActiveScene(), entity, gameManager->Level->GetComponent<LevelComponent>()->NavigationGrid);
 
 	return entity;
 }
 
 template
-Poly::Entity* GGJGame::GameManagerSystem::SpawnEnemy<EnemyAIAssailant>(Poly::World* world, Poly::Entity* parent, const Poly::Vector& position);
+Poly::Entity* GGJGame::GameManagerSystem::SpawnEnemy<EnemyAIAssailant>(Poly::Scene* world, Poly::Entity* parent, const Poly::Vector& position);
 
 template
-Poly::Entity* GGJGame::GameManagerSystem::SpawnEnemy<EnemyAIEngineer>(Poly::World* world, Poly::Entity* parent, const Poly::Vector& position);
+Poly::Entity* GGJGame::GameManagerSystem::SpawnEnemy<EnemyAIEngineer>(Poly::Scene* world, Poly::Entity* parent, const Poly::Vector& position);
 
 
-Poly::Entity * GGJGame::GameManagerSystem::SpawnBeacon(Poly::World* world, Poly::Entity* parent, const Poly::Vector& position)
+Poly::Entity * GGJGame::GameManagerSystem::SpawnBeacon(Poly::Scene* world, Poly::Entity* parent, const Poly::Vector& position)
 {
 	// entity
-	Entity* entity = DeferredTaskSystem::SpawnEntityImmediate(gEngine->GetWorld());
+	Entity* entity = DeferredTaskSystem::SpawnEntityImmediate(gEngine->GetActiveScene());
 	entity->GetTransform().SetLocalTranslation(position);
 	entity->SetParent(parent);
 
@@ -557,29 +565,29 @@ Poly::Entity * GGJGame::GameManagerSystem::SpawnBeacon(Poly::World* world, Poly:
 
 	// mesh
 	MeshRenderingComponent* brickMesh = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, entity, "Levels/ReleaseLevel/Antenna/Antenna.fbx", eResourceSource::GAME);
-	brickMesh->SetMaterial(0, PhongMaterial(Color(1, 0, 1), Color(1, 0, 1), Color(1, 0, 1), 8.0f));
-	brickMesh->SetShadingModel(eShadingModel::LIT);
+	brickMesh->SetMaterial(0, Material(Color(1, 1, 1), Color(1, 1, 1), 1.0f, 1.0f, 0.5f));
+	brickMesh->SetShadingModel(eShadingMode::PBR);
 
 	// collider
 	Collider3DComponentTemplate colliderTemplate;
 	colliderTemplate.Shape = std::make_unique<Physics3DSphereShape>(1.f);
 	colliderTemplate.CollisionGroup = EnumFlags<eCollisionGroup>(eCollisionGroup::RIGIDBODY_GREEN);
 	colliderTemplate.CollisionMask = EnumFlags<eCollisionGroup>(eCollisionGroup::RIGIDBODY_GREEN);
-	DeferredTaskSystem::AddComponentImmediate<Collider3DComponent>(gEngine->GetWorld(), entity, gEngine->GetWorld(), std::move(colliderTemplate));
+	DeferredTaskSystem::AddComponentImmediate<Collider3DComponent>(gEngine->GetActiveScene(), entity, gEngine->GetActiveScene(), std::move(colliderTemplate));
 
 	// rigidbody
 	Rigidbody3DComponentTemplate rigidbodyTemplate;
 	rigidbodyTemplate.Mass = 0;
 	rigidbodyTemplate.AngularFactor = Vector(0, 0, 0);
 	rigidbodyTemplate.RigidbodyType = eRigidBody3DType::STATIC;
-	DeferredTaskSystem::AddComponentImmediate<Rigidbody3DComponent>(gEngine->GetWorld(), entity, gEngine->GetWorld(), rigidbodyTemplate);
+	DeferredTaskSystem::AddComponentImmediate<Rigidbody3DComponent>(gEngine->GetActiveScene(), entity, gEngine->GetActiveScene(), rigidbodyTemplate);
 
 	DeferredTaskSystem::AddComponentImmediate<TransmitterComponent>(world, entity);
 
 	return entity;
 }
 
-void GameManagerSystem::SpawnAmbientFX(World* world)
+void GameManagerSystem::SpawnAmbientFX(Scene* world)
 {
 	EnumArray<String, eCubemapSide> miramar{
 		{ eCubemapSide::RIGHT, "Cubemaps/stormydays/stormydays_rt.jpg" },
@@ -589,13 +597,13 @@ void GameManagerSystem::SpawnAmbientFX(World* world)
 		{ eCubemapSide::BACK , "Cubemaps/stormydays/stormydays_bk.jpg" },
 		{ eCubemapSide::FRONT, "Cubemaps/stormydays/stormydays_ft.jpg" }
 	};
-	DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(world, miramar);
+	//DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(world, miramar);
 
 	SpawnParticleAmbientSmall(world);
 	SpawnParticleAmbientBig(world);
 }
 
-void GameManagerSystem::SpawnParticleAmbientSmall(World* world)
+void GameManagerSystem::SpawnParticleAmbientSmall(Scene* world)
 {
 	// GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
@@ -610,7 +618,7 @@ void GameManagerSystem::SpawnParticleAmbientSmall(World* world)
 	settings.BurstSizeMax = 200;
 	settings.BurstTimeMin = 0.1f;
 	settings.BurstTimeMax = 0.2f;
-	settings.BaseColor = Color(0.1f, 0.4f, 0.4f, 1.0f);
+	settings.Albedo = Color(0.1f, 0.4f, 0.4f, 1.0f);
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
 		Vector rndPos = (GameManagerSystem::RandomVector(-1.0f, 1.0f) * 50.0f);
 		p->Position = Vector(1.0f * rndPos.X, 0.01f * Abs(rndPos.Y), 1.0f * rndPos.Z);
@@ -628,7 +636,7 @@ void GameManagerSystem::SpawnParticleAmbientSmall(World* world)
 	// GameMgrCmp->GameEntities.PushBack(ParticlesEnt);
 }
 
-void GameManagerSystem::SpawnParticleAmbientBig(World* world)
+void GameManagerSystem::SpawnParticleAmbientBig(Scene* world)
 {
 	// GameManagerWorldComponent* GameMgrCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 
@@ -643,7 +651,7 @@ void GameManagerSystem::SpawnParticleAmbientBig(World* world)
 	settings.BurstSizeMax = 200;
 	settings.BurstTimeMin = 0.1f;
 	settings.BurstTimeMax = 0.2f;
-	settings.BaseColor = Color(0.1f, 0.7f, 0.8f, 0.01f);
+	settings.Albedo = Color(0.1f, 0.7f, 0.8f, 0.01f);
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
 		Vector rndPos = (GameManagerSystem::RandomVector(-1.0f, 1.0f) * 50.0f);
 		p->Position = Vector(1.0f * rndPos.X, 0.01f * Abs(rndPos.Y), 1.0f * rndPos.Z);
@@ -656,8 +664,8 @@ void GameManagerSystem::SpawnParticleAmbientBig(World* world)
 		p->Position += p->Acceleration;
 	};
 
-    settings.SprsheetSettings.SpritePath = "Textures/puff_512.png";
-    settings.SprsheetSettings.Source = eResourceSource::GAME;
+    settings.Spritesheet.SpritePath = "Textures/puff_512.png";
+    settings.Spritesheet.Source = eResourceSource::GAME;
 	DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, ParticlesEnt, settings);
 	//ParticleComponent* ParticleComp = world->GetComponent<ParticleComponent>(ParticlesEnt);
 	// GameMgrCmp->GameEntities.PushBack(ParticlesEnt);

@@ -7,8 +7,9 @@ using namespace Poly;
 
 namespace GGJGame
 {
-	class GAME_DLLEXPORT EnemyComponent : public ComponentBase
+	class EnemyComponent : public ComponentBase
 	{
+		RTTI_DECLARE_COMPONENT(EnemyComponent) { NO_RTTI_PROPERTY(); }
 	public:
 		EnemyComponent(std::unique_ptr<EnemyAIBase> enemyAI) : EnemyAI(std::move(enemyAI))
 		{ }

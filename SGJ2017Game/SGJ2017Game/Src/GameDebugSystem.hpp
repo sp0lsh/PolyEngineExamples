@@ -2,7 +2,7 @@
 
 #include <Defines.hpp>
 
-namespace Poly { class World; }
+namespace Poly { class Scene; }
 
 namespace SGJ
 {
