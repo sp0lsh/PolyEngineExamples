@@ -1,0 +1,3 @@
+#include "GameManagerWorldComponent.hpp"
+
+RTTI_DEFINE_COMPONENT(GameManagerWorldComponent)

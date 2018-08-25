@@ -24,6 +24,7 @@ env:
   matrix:
     - GAME_NAME=GlobalGameJam2018Game
     - GAME_NAME=SGJ2017Game
+    - GAME_NAME=SGJ2018Game
     - GAME_NAME=SandboxPhysics3D
     - GAME_NAME=SandboxRendering
 
