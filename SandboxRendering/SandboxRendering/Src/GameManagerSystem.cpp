@@ -34,8 +34,22 @@ void GameManagerSystem::Init(Scene* scene)
 
 	DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(scene, "HDR/HDR.hdr", eResourceSource::GAME);
 	
-	// gameMgrCmp->Model = CreateModel(scene, "Models/leather_shoes/Leather_Shoes.obj");
-	// gameMgrCmp->Model->GetTransform().SetGlobalTranslation(Vector(500.0f, 0.0f, 0.0f));
+	gameMgrCmp->Model = CreateModel(scene, "Models/leather_shoes/Leather_Shoes.obj");
+	gameMgrCmp->Model->GetTransform().SetGlobalTranslation(Vector(500.0f, 0.0f, 0.0f));
+
+	// SHADOW TEST SCENE START
+	Entity* entityCube0 = CreateModel(scene, "Models/Primitives/Cube.obj");
+	entityCube0->GetTransform().SetGlobalTranslation(Vector::UNIT_Y * 50.0f);
+	entityCube0->GetTransform().SetGlobalScale(Vector::ONE * 100.0f);	
+
+	Entity* entityCube1 = CreateModel(scene, "Models/Primitives/Cube.obj");
+	entityCube1->GetTransform().SetGlobalTranslation(Vector(40.0, 170.0f, 240.0f));
+	entityCube1->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_Z, 30_deg));
+	entityCube1->GetTransform().SetGlobalScale(Vector::ONE * 100.0f);
+
+	Entity* entityPlane = CreateModel(scene, "Models/Primitives/Plane.obj");
+	entityPlane->GetTransform().SetGlobalScale(Vector::ONE * 1000.0f);
+	// SHADOW TEST SCENE END
 
 	// gameMgrCmp->Model = CreateModel(scene, "Models/kv-2-heavy-tank-1940/model.obj");
 	// gameMgrCmp->Model->GetTransform().SetGlobalScale(Vector(5.0f, 5.0f, 5.0f));
@@ -44,9 +58,9 @@ void GameManagerSystem::Init(Scene* scene)
 	// gameMgrCmp->Model = CreateModel(scene, "Models/1972-datsun-240k-gt/model.obj");
 	// gameMgrCmp->Model->GetTransform().SetGlobalScale(Vector::ONE * 20.0f);
 
-	CreatePBRShpereGrid(scene, Vector(0.0f, 0.0f, 0.0f), Color(0.0f, 0.0f, 0.0f, 1.0f));
-	CreatePBRShpereGrid(scene, Vector(-300.0f, 0.0f, 0.0f), Color(0.5f, 0.5f, 0.5f, 1.0f));
-	CreatePBRShpereGrid(scene, Vector(-600.0f, 0.0f, 0.0f), Color(1.0f, 1.0f, 1.0f, 1.0f));
+    // CreatePBRShpereGrid(scene, Vector(0.0f, 0.0f, 0.0f), Color(0.0f, 0.0f, 0.0f, 1.0f));
+    // CreatePBRShpereGrid(scene, Vector(-300.0f, 0.0f, 0.0f), Color(0.5f, 0.5f, 0.5f, 1.0f));
+    // CreatePBRShpereGrid(scene, Vector(-600.0f, 0.0f, 0.0f), Color(1.0f, 1.0f, 1.0f, 1.0f));
 
 	// CreateSponza(scene);
 
@@ -54,7 +68,7 @@ void GameManagerSystem::Init(Scene* scene)
 
 	// CreateTranslucent(scene);
 
-	CreatePointLights(scene, 128);
+	// CreatePointLights(scene, 128);
 }
 
 void GameManagerSystem::CreateTextUI(Scene* scene)
@@ -88,11 +102,15 @@ void GameManagerSystem::CreateCamera(Scene* scene)
 	DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(scene, camera, 100.0f, 0.003f, 10.0f);
 	gameMgrCmp->PostCmp = DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(scene, camera);
 	gameMgrCmp->PostCmp->Exposure = 1.0f;
-	gameMgrCmp->PostCmp->DOFSize = 1.0f;
-	gameMgrCmp->PostCmp->DOFPoint = 300.0f;
-	gameMgrCmp->PostCmp->DOFRange = 200.0f;
+	gameMgrCmp->PostCmp->DOFSize = 0.0f;
+	gameMgrCmp->PostCmp->DOFPoint = 1000.0f;
+	gameMgrCmp->PostCmp->DOFRange = 2000.0f;
 	// gameMgrCmp->PostCmp->DOFShow = 1.0f;
-	gameMgrCmp->PostCmp->BloomScale = 1.0f;
+	gameMgrCmp->PostCmp->BloomScale = 0.0f;
+	gameMgrCmp->PostCmp->AbberationScale = 0.0f;
+	gameMgrCmp->PostCmp->GrainScale = 0.0f;
+	gameMgrCmp->PostCmp->MotionBlurScale = 0.0f;
+	gameMgrCmp->PostCmp->VignetteScale = 0.0f;
 
 	EntityTransform& cameraTrans = camera->GetTransform();
 	cameraTrans.SetGlobalTranslation(Vector(-550.0f, 180.0f, 0.0f));
@@ -101,10 +119,10 @@ void GameManagerSystem::CreateCamera(Scene* scene)
 	scene->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, scene->GetComponent<CameraComponent>(camera));
 	gameMgrCmp->Camera = camera;
 
-	// Entity* keyDirLight = DeferredTaskSystem::SpawnEntityImmediate(scene);
-	// DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(scene, keyDirLight, Color(1.0f, 1.0f, 1.0f), 5.0f);
-	// keyDirLight->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_Y, -45_deg) * Quaternion(Vector::UNIT_X, 65_deg));
-	// gameMgrCmp->GameEntities.PushBack(keyDirLight);
+	Entity* keyDirLight = DeferredTaskSystem::SpawnEntityImmediate(scene);
+	DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(scene, keyDirLight, Color(1.0f, 1.0f, 1.0f), 15.0f);
+	keyDirLight->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_Y, -45_deg) * Quaternion(Vector::UNIT_X, 65_deg));
+	gameMgrCmp->GameEntities.PushBack(keyDirLight);
 }
 
 void GameManagerSystem::CreatePBRShpereGrid(Scene* scene, Vector pos, Color albedo)
