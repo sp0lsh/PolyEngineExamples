@@ -27,7 +27,11 @@ void ModelCheckSystem::CreateScene(Scene* scene)
 
 	CreateCamera(scene);
 	
-	CreateModel(scene, "Models/Primitives/Cube.obj");
+	Entity* cube = CreateModel(scene, "Models/Primitives/Cube.obj");
+	cube->GetTransform().SetGlobalTranslation(Vector::UNIT_X * 1.0f);
+	Entity* defautCube = CreateModel(scene, "Models/MODELS_TO_CHECK/Models/DefaultCube.fbx");
+	Entity* defautCubeScaled = CreateModel(scene, "Models/MODELS_TO_CHECK/Models/DefaultCubeDifferentFileScale.fbx");
+	Entity* defautHuman = CreateModel(scene, "Models/MODELS_TO_CHECK/Models/DefaultHuman.fbx");
 
 	DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(scene, "HDR/HDR.hdr", eResourceSource::GAME);
 }
