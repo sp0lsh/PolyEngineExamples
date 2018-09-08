@@ -8,6 +8,8 @@
 #include "Rendering/Particles/ParticleComponent.hpp"
 #include <Resources/ResourceManager.hpp>
 
+#include "ModelCheckSystem.hpp"
+#include "ModelCheckWorldComponent.hpp"
 #include "CameraManagerSystem.hpp"
 #include "GameManagerWorldComponent.hpp"
 #include <AnimKeys.hpp>
@@ -27,8 +29,17 @@ const static Angle PLAYER_CAMERA_FOV = 60_deg;
 
 void Game::Init()
 {
-	InitDebugAnimation();
+	InitModelCheck();
 
+	// InitDebugAnimation();
+}
+
+void Game::InitModelCheck()
+{
+	DeferredTaskSystem::AddWorldComponentImmediate<ModelCheckWorldComponent>(gEngine->GetActiveScene());
+
+	ModelCheckSystem::CreateScene(gEngine->GetActiveScene());
+	gEngine->RegisterGameUpdatePhase(ModelCheckSystem::Update);
 }
 
 void Game::InitDebugAnimation()
