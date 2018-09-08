@@ -2,7 +2,7 @@
 
 #include "GameManagerWorldComponent.hpp"
 
-#include <Core.hpp>
+#include <Math/Random.hpp>
 #include <Debugging/DebugDrawComponents.hpp>
 #include <Debugging/DebugDrawSystem.hpp>
 #include <ECS/DeferredTaskSystem.hpp>

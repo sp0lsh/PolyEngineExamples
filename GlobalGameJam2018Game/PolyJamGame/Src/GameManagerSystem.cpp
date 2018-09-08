@@ -31,6 +31,8 @@
 #include "Rendering/SkyboxWorldComponent.hpp"
 #include "Rendering/Particles/ParticleComponent.hpp"
 #include "Rendering/Particles/ParticleEmitter.hpp"
+#include <ECS/DeferredTaskSystem.hpp>
+#include <Input/InputWorldComponent.hpp>
 #include "NavGrid.hpp"
 
 using namespace Poly;

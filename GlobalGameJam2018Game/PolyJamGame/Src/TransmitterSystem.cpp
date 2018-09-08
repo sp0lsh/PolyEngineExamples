@@ -7,6 +7,8 @@
 #include "EnemyComponent.hpp"
 #include "TransmissionStatusWorldComponent.hpp"
 #include "ActorComponent.hpp"
+#include <ECS/DeferredTaskSystem.hpp>
+#include <UI/ScreenSpaceTextComponent.hpp>
 
 using namespace GGJGame;
 

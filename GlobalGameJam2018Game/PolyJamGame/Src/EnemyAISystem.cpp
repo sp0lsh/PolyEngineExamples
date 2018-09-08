@@ -1,5 +1,3 @@
-#include "EnginePCH.hpp"
-
 #include "EnemyAISystem.hpp"
 #include "EnemyComponent.hpp"
 #include "GameManagerWorldComponent.hpp"
@@ -9,6 +7,7 @@
 #include "Rendering/Particles/ParticleEmitter.hpp"
 #include "Rendering/Particles/ParticleComponent.hpp"
 #include "GameManagerSystem.hpp"
+#include <ECS/DeferredTaskSystem.hpp>
 #include "NavGrid.hpp"
 
 using namespace Poly;

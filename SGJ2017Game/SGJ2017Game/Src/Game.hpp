@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Core.hpp>
 #include <Engine.hpp>
 #include <ECS/Scene.hpp>
 

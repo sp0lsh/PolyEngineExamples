@@ -1,5 +1,6 @@
 #include "PlayerSystem.hpp"
 
+#include <Rendering/Camera/CameraComponent.hpp>
 #include <Time/TimeSystem.hpp>
 #include <Input/InputWorldComponent.hpp>
 #include <Physics3D/Rigidbody3DComponent.hpp>
@@ -13,6 +14,8 @@
 #include "Rendering/Particles/ParticleComponent.hpp"
 #include "Rendering/Particles/ParticleEmitter.hpp"
 #include "GameManagerSystem.hpp"
+#include <ECS/DeferredTaskSystem.hpp>
+#include <Movement/MovementSystem.hpp>
 
 #include "ActorSystem.hpp"
 

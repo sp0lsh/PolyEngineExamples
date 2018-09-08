@@ -8,7 +8,6 @@
 #include <Physics2D/Physics2DColliders.hpp>
 #include <Physics2D/Rigidbody2DComponent.hpp>
 #include <Rendering/PostprocessSettingsComponent.hpp>
-#include <Core.hpp>
 #include <ECS/DeferredTaskSystem.hpp>
 #include <Resources/SoundResource.hpp>
 #include "Rendering/ViewportWorldComponent.hpp"

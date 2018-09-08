@@ -2,6 +2,7 @@
 
 #include <Time/TimeSystem.hpp>
 #include <Physics3D/Rigidbody3DComponent.hpp>
+#include <Debugging/DebugDrawSystem.hpp>
 
 #include "ActorComponent.hpp"
 #include "GameManagerSystem.hpp"

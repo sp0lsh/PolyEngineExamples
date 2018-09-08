@@ -1,5 +1,3 @@
-#include "EnginePCH.hpp"
-
 #include "ActorSystem.hpp"
 #include "AI/PathfindingComponent.hpp"
 #include "TransmitterComponent.hpp"
@@ -7,6 +5,8 @@
 #include "PlayerComponent.hpp"
 #include "EnemyComponent.hpp"
 #include "EnemyAIBase.hpp"
+#include <Debugging/DebugDrawSystem.hpp>
+#include <Movement/MovementSystem.hpp>
 
 static const float ENEMY_MOVEMENT_SPEED_MULT = 0.1f;
 

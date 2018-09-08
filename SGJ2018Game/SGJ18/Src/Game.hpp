@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core.hpp>
+#include <Common.hpp>
 #include <Engine.hpp>
 #include <ECS/Scene.hpp>
 #include <Memory/SafePtr.hpp>

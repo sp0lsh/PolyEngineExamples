@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Common.hpp"
 #include <UniqueID.hpp>
 #include <Collections/Dynarray.hpp>
 #include <ECS/ComponentBase.hpp>

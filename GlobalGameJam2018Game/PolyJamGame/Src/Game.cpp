@@ -11,6 +11,8 @@
 #include "CollisionSystem.hpp"
 #include "EnemyAISystem.hpp"
 #include "ResourcesManagementSystem.hpp"
+#include <Resources/ResourceManager.hpp>
+#include <Resources/SoundResource.hpp>
 
 #include "GameManagerWorldComponent.hpp"
 #include "TransmissionStatusWorldComponent.hpp"

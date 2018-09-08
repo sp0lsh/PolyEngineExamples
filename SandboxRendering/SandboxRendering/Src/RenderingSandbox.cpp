@@ -4,7 +4,6 @@
 #include "GameManagerSystem.hpp"
 #include "GameManagerWorldComponent.hpp"
 
-#include <Core.hpp>
 #include <Audio/SoundSystem.hpp>
 #include <ECS/DeferredTaskSystem.hpp>
 #include <Rendering/MeshRenderingComponent.hpp>

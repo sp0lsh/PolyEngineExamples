@@ -1,6 +1,5 @@
 #pragma once
 
-#include "EnginePCH.hpp"
 #include <Collections/Dynarray.hpp>
 #include <Math/Vector.hpp>
 

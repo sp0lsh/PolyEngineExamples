@@ -1,11 +1,13 @@
 #pragma once
 
+#include <Defines.hpp>
+#include <ECS/Entity.hpp>
 #include <ECS/ComponentBase.hpp>
 #include <Memory/SafePtr.hpp>
 
 namespace SGJ
 {
-	class GAME_DLLEXPORT GameDebugWorldComponent : public Poly::ComponentBase
+	class GameDebugWorldComponent : public Poly::ComponentBase
 	{
 		RTTI_DECLARE_COMPONENT(GameDebugWorldComponent) { NO_RTTI_PROPERTY(); }
 	public:
