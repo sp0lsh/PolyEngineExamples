@@ -191,6 +191,44 @@ ParticleComponent* ParticleTestSystem::SpawnEmitterAmbient(Scene* scene, Vector 
 	SpritesheetSettings spriteSettings;
 	spriteSettings.SubImages = Vector2f(2.0f, 2.0f);
 	spriteSettings.SpritePath = "Textures/strokes_2_2.png";
+	spriteSettings.Speed = 0.0f;
+
+	ParticleEmitter::Settings settings;
+	settings.MaxSize = 1000;
+	settings.InitialSize = 500;
+	settings.Spritesheet = spriteSettings;
+	settings.SimulationSpace = ParticleEmitter::eSimulationSpace::WORLD_SPACE;
+	settings.BurstTimeMin = 1.0f;
+	settings.BurstTimeMax = 2.0f;
+	settings.BurstSizeMin = 10;
+	settings.BurstSizeMax = 50;
+	settings.Albedo = Color(1.0f, 0.1f, 0.1f, 0.2f);
+	settings.Emissive = Color::BLACK;
+	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
+		Vector rndSpawn = RandomVectorRange(-1.0f, 1.0f);
+		p->Position += Vector(500.0f * rndSpawn.X, 200.0f * rndSpawn.Y, 300.0f * rndSpawn.Z);
+		p->Velocity = RandomVectorRange(-1.0f, 1.0f) * 0.1f;
+		p->LifeTime = RandomRange(5.0f, 10.0f);
+		p->Scale = Vector::ONE * RandomRange(0.5f, 1.0f);
+	};
+
+	gameMgrCmp->GameEntities.PushBack(particlesEnt);
+
+	ParticleComponent* particleCmp = DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(scene, particlesEnt, settings);
+	return particleCmp;
+}
+
+ParticleComponent* ParticleTestSystem::SpawnEmitterAmbientFireflies(Scene* scene, Vector pos)
+{
+	GameManagerWorldComponent* gameMgrCmp = scene->GetWorldComponent<GameManagerWorldComponent>();
+
+	Entity* particlesEnt = DeferredTaskSystem::SpawnEntityImmediate(scene);
+	EntityTransform& particlesTrans = particlesEnt->GetTransform();
+	particlesTrans.SetLocalTranslation(pos);
+
+	SpritesheetSettings spriteSettings;
+	spriteSettings.SubImages = Vector2f(2.0f, 2.0f);
+	spriteSettings.SpritePath = "Textures/strokes_2_2.png";
 
 	ParticleEmitter::Settings settings;
 	settings.MaxSize = 1000;

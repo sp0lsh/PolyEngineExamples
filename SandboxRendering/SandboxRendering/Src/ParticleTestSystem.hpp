@@ -15,6 +15,7 @@ namespace ParticleTestSystem
 	ParticleComponent* SpawnEmitterWorldSpace(Scene* world, Vector pos);
 	ParticleComponent* SpawnEmitterLocalSpace(Scene* world, Vector pos);
 	ParticleComponent* SpawnEmitterAmbient(Scene* world, Vector pos);
+	ParticleComponent* SpawnEmitterAmbientFireflies(Scene* world, Vector pos);
 	ParticleComponent* SpawnEmitterAmbientWind(Scene* world, Vector pos);
 	ParticleComponent* SpawnEmitterHeart(Scene* world, Vector pos);
 	ParticleComponent* SpawnEmitterHeartImpact(Scene* world, Vector pos);

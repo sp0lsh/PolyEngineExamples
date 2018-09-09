@@ -11,6 +11,13 @@ namespace GameManagerSystem
 {
 	void Init(Scene* world);
 
+	void CreateShadowsTestScene(Poly::Scene * scene);
+
+	void FancyPostEffects();
+
+	void ResetPostEffects(PostprocessSettingsComponent* postCmp);
+	void FancyPostEffects(PostprocessSettingsComponent* postCmp);
+
 	Entity* CreateModel(Scene* world, String path);
 	
 	void CreateTextUI(Scene* world);

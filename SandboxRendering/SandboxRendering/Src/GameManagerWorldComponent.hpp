@@ -13,6 +13,8 @@ class GameManagerWorldComponent : public ComponentBase
 {
 public:
 	SafePtr<Entity> Camera;
+	SafePtr<Entity> KeyDirLight;
+	SafePtr<Entity> PointLight;
 	PostprocessSettingsComponent* PostCmp;
 	SafePtr<Entity> Model;
 	bool IsDrawingDebugMeshes = true;
