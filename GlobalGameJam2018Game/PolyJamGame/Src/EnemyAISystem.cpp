@@ -1,5 +1,3 @@
-#include "EnginePCH.hpp"
-
 #include "EnemyAISystem.hpp"
 #include "EnemyComponent.hpp"
 #include "GameManagerWorldComponent.hpp"
@@ -9,14 +7,17 @@
 #include "Rendering/Particles/ParticleEmitter.hpp"
 #include "Rendering/Particles/ParticleComponent.hpp"
 #include "GameManagerSystem.hpp"
+#include <ECS/DeferredTaskSystem.hpp>
 #include "NavGrid.hpp"
 
 using namespace Poly;
 using namespace GGJGame;
 
+RTTI_DEFINE_COMPONENT(EnemyComponent);
+
 constexpr float SPAWNRATE = 5.0f;
 
-void EnemyAISystem::Update(Poly::World* world)
+void EnemyAISystem::Update(Poly::Scene* world)
 {
 	float deltaTime = (float)(TimeSystem::GetTimerDeltaTime(world, eEngineTimer::GAMEPLAY));
 	for(auto tuple : world->IterateComponents<EnemyComponent>())
@@ -45,7 +46,7 @@ void EnemyAISystem::Update(Poly::World* world)
 	if (gmComp->Level->GetComponent<LevelComponent>()->TimeSinceLastEnemySpawn >= SPAWNRATE)
 	{
 		// -42, 1, 2
-		float cellSize = nav->GetCellSize();
+		int cellSize = (int)nav->GetCellSize();
 		for (int i = 0; i < nav->GetGridSize().Y; i += cellSize)
 		{
 			for (int j = 0; j < nav->GetGridSize().X; j += cellSize)
@@ -69,7 +70,7 @@ void EnemyAISystem::Update(Poly::World* world)
 	}
 }
 
-void GGJGame::EnemyAISystem::DeathParticle(Poly::Entity* enemy, Poly::World * &world)
+void GGJGame::EnemyAISystem::DeathParticle(Poly::Entity* enemy, Poly::Scene* &world)
 {
 	Entity* ParticlesEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
 	EntityTransform& ParticlesEnt1Trans = ParticlesEnt->GetTransform();
@@ -81,7 +82,7 @@ void GGJGame::EnemyAISystem::DeathParticle(Poly::Entity* enemy, Poly::World * &w
 	settings.BurstSizeMax = 10;
 	settings.BurstTimeMin = 0.1f;
 	settings.BurstTimeMax = 0.2f;
-	settings.BaseColor = Color(1.0f, 0.8f, 0.8f, 1.0f);
+	settings.Albedo = Color(1.0f, 0.8f, 0.8f, 1.0f);
 	settings.ParticleInitFunc = [=](ParticleEmitter::Particle* p) {
 		p->Position = EnemyPos + GameManagerSystem::RandomVector(0.2f, 0.2f);
 		Vector accel = GameManagerSystem::RandomVector(-1.0f, 1.0f);
@@ -95,7 +96,7 @@ void GGJGame::EnemyAISystem::DeathParticle(Poly::Entity* enemy, Poly::World * &w
 		p->Scale = Vector(1.0f, 1.0f, 1.0f) * (1.0f - life * life);
 	};
 
-    settings.SprsheetSettings.SpritePath = "Textures/puff_512.png";
-    settings.SprsheetSettings.Source = eResourceSource::GAME;
+    settings.Spritesheet.SpritePath = "Textures/puff_512.png";
+    settings.Spritesheet.Source = eResourceSource::GAME;
 	DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, ParticlesEnt, settings);
 }

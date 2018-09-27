@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ECS/ComponentBase.hpp>
+#include <Memory/SafePtr.hpp>
 #include <Collections/Dynarray.hpp>
 #include <UniqueID.hpp>
 #include "Level.hpp"
@@ -9,6 +10,7 @@ namespace SGJ
 {
 	class GAME_DLLEXPORT GameManagerWorldComponent : public Poly::ComponentBase
 	{
+		RTTI_DECLARE_COMPONENT(GameManagerWorldComponent) { NO_RTTI_PROPERTY(); }
 	public:
 		Poly::SafePtr<Poly::Entity> Player;
 		Poly::SafePtr<Poly::Entity> Camera;

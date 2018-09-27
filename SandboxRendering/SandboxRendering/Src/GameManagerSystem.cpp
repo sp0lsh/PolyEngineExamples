@@ -2,7 +2,7 @@
 
 #include "GameManagerWorldComponent.hpp"
 
-#include <Core.hpp>
+#include <Math/Random.hpp>
 #include <Debugging/DebugDrawComponents.hpp>
 #include <Debugging/DebugDrawSystem.hpp>
 #include <ECS/DeferredTaskSystem.hpp>
@@ -18,45 +18,97 @@
 #include <Time/TimeWorldComponent.hpp>
 #include <UI/ScreenSpaceTextComponent.hpp>
 
+#include <Imgui/imgui.h>
+
 using namespace Poly;
 
 void GameManagerSystem::Init(Scene* scene)
 {
 	gConsole.LogInfo("GameManagerSystem::Init");
+	
+	srand(42);
 
-	srand(42);	
+	// CreateShadowsTestScene(scene);
 
-	CreateShadowsTestScene(scene);
+	CreateShadingTestScene(scene);
+	
+	// CreateSponza(scene);
 }
 
-void GameManagerSystem::CreateShadowsTestScene(Poly::Scene * scene)
+void GameManagerSystem::CreateShadingTestScene(Scene* scene)
 {
 	GameManagerWorldComponent* gameMgrCmp = scene->GetWorldComponent<GameManagerWorldComponent>();
 
 	Entity* camera = DeferredTaskSystem::SpawnEntityImmediate(scene);
-	DeferredTaskSystem::AddComponentImmediate<CameraComponent>(scene, camera, 35_deg, 1.0f, 5000.f);
 	DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(scene, camera, 100.0f, 0.003f, 10.0f);
 	gameMgrCmp->PostCmp = DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(scene, camera);
-	FancyPostEffects(gameMgrCmp->PostCmp);
+	CameraComponent* cameraCmp = DeferredTaskSystem::AddComponentImmediate<CameraComponent>(scene, camera, 35_deg, 1.0f, 5000.f);
+	// PostProcessFancyWarm(gameMgrCmp->PostCmp);
+	PostProcessFancyCold(gameMgrCmp->PostCmp);
+	// PostProcessNone(gameMgrCmp->PostCmp);
 
 	EntityTransform& cameraTrans = camera->GetTransform();
 	cameraTrans.SetGlobalTranslation(Vector(-550.0f, 180.0f, 0.0f));
 	cameraTrans.SetGlobalRotation(Quaternion(Vector::UNIT_Y, -90.0_deg) * Quaternion(Vector::UNIT_X, -10.0_deg));
 	// cameraTrans.SetGlobalRotation(Quaternion(Matrix(cameraTrans.GetGlobalTranslation(), Vector(0.0f, 0.0f, 0.0f))));
-	scene->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, scene->GetComponent<CameraComponent>(camera));
 	gameMgrCmp->Camera = camera;
+	
+	ViewportWorldComponent* viewport = scene->GetWorldComponent<ViewportWorldComponent>();
+	viewport->SetCamera(0, cameraCmp);
+	cameraCmp->SetForcedRatio(true);
+	cameraCmp->SetAspect(2.4f); // anamorphic 2.40 : 1.0	(2.39)
 
-	gameMgrCmp->KeyDirLight = DeferredTaskSystem::SpawnEntityImmediate(scene);
-	// DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(scene, gameMgrCmp->KeyDirLight.Get(), Color(1.0f, 0.8f, 0.8f), 15.0f);
-	DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(scene, gameMgrCmp->KeyDirLight.Get(), Color(1.0f, 0.8f, 0.8f), 2.0f);
-	// keyDirLight->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_Y, -45_deg) * Quaternion(Vector::UNIT_X, -65_deg));
-	gameMgrCmp->KeyDirLight->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_X, 60_deg) * Quaternion(Vector::UNIT_Y, -20_deg));
-	gameMgrCmp->GameEntities.PushBack(gameMgrCmp->KeyDirLight);
+	// Dynarray<String> hdrs{ "HDR/Barce.hdr", "HDR/Hall.hdr", "HDR/Playa.hdr", "HDR/Path.hdr", "HDR/Factory.hdr" };
+	// DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(scene, hdrs, eResourceSource::GAME);
+	DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(scene, "HDR/HDR.hdr", eResourceSource::GAME);
 
-	gameMgrCmp->PointLight = CreatePointLight(scene, Vector(0.0f, 100.0f, 0.0f), 1000.0f);
+	CreatePBRShpereGrid(scene, Vector::UNIT_X *  200.0f,	Color::WHITE		);
+	CreatePBRShpereGrid(scene, Vector::ZERO,				Color::WHITE * 0.5f	);
+	CreatePBRShpereGrid(scene, Vector::UNIT_X * -200.0f,	Color::BLACK		);
+
+	CreatePointLights(scene, 100);
+
+	// Entity* entityPlane = CreateModel(scene, "Models/Primitives/Cube.obj");
+	// entityPlane->GetTransform().SetGlobalScale(Vector(5000.0f, 1.0f, 5000.0f));
+
+
+	// Entity* sponza = DeferredTaskSystem::SpawnEntityImmediate(scene);
+	// DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(scene, sponza, "Models/Sponza/sponza.obj", eResourceSource::GAME);
+	// gameMgrCmp->GameEntities.PushBack(sponza);
+}
+
+void GameManagerSystem::CreateShadowsTestScene(Scene* scene)
+{
+	GameManagerWorldComponent* gameMgrCmp = scene->GetWorldComponent<GameManagerWorldComponent>();
+
+	Entity* camera = DeferredTaskSystem::SpawnEntityImmediate(scene);
+	CameraComponent* cameraCmp = DeferredTaskSystem::AddComponentImmediate<CameraComponent>(scene, camera, 35_deg, 1.0f, 5000.f);
+	DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(scene, camera, 100.0f, 0.003f, 10.0f);
+	gameMgrCmp->PostCmp = DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(scene, camera);
+	// PostProcessFancy(gameMgrCmp->PostCmp);
+	PostProcessNone(gameMgrCmp->PostCmp);
+
+	EntityTransform& cameraTrans = camera->GetTransform();
+	cameraTrans.SetGlobalTranslation(Vector(-550.0f, 180.0f, 0.0f));
+	cameraTrans.SetGlobalRotation(Quaternion(Vector::UNIT_Y, -90.0_deg) * Quaternion(Vector::UNIT_X, -10.0_deg));
+	gameMgrCmp->Camera = camera;
+	// cameraTrans.SetGlobalRotation(Quaternion(Matrix(cameraTrans.GetGlobalTranslation(), Vector(0.0f, 0.0f, 0.0f))));
+
+	ViewportWorldComponent* viewportCmp = scene->GetWorldComponent<ViewportWorldComponent>();
+	viewportCmp->SetCamera(0, cameraCmp);
+
+	// gameMgrCmp->KeyDirLight = DeferredTaskSystem::SpawnEntityImmediate(scene);
+	// // DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(scene, gameMgrCmp->KeyDirLight.Get(), Color(1.0f, 0.8f, 0.8f), 15.0f);
+	// DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(scene, gameMgrCmp->KeyDirLight.Get(), Color(1.0f, 0.8f, 0.8f), 10.0f);
+	// // keyDirLight->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_Y, -45_deg) * Quaternion(Vector::UNIT_X, -65_deg));
+	// gameMgrCmp->KeyDirLight->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_X, 60_deg) * Quaternion(Vector::UNIT_Y, -20_deg));
+	// gameMgrCmp->GameEntities.PushBack(gameMgrCmp->KeyDirLight);
+
+	gameMgrCmp->PointLight = CreatePointLight(scene, Vector(0.0f, 100.0f, 0.0f), 2000.0f);
 
 	
 	DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(scene, "HDR/HDR.hdr", eResourceSource::GAME);
+
 
 	gameMgrCmp->Model = CreateModel(scene, "Models/leather_shoes/Leather_Shoes.obj");
 	gameMgrCmp->Model->GetTransform().SetGlobalTranslation(Vector(300.0f, 0.0f, 0.0f));
@@ -83,31 +135,61 @@ void GameManagerSystem::CreateShadowsTestScene(Poly::Scene * scene)
 	// gameMgrCmp->GameEntities.PushBack(sponza);
 }
 
-void GameManagerSystem::FancyPostEffects(PostprocessSettingsComponent* postCmp)
+void GameManagerSystem::PostProcessFancyCold(PostprocessSettingsComponent* postCmp)
 {
 	postCmp->Exposure = 2.0f;
 	postCmp->DOFSize = 0.1f;
 	postCmp->DOFPoint = 700.0f;
 	postCmp->DOFRange = 1200.0f;
-	postCmp->BloomScale = 0.2f;
-	postCmp->AbberationScale = 0.25f;
-	postCmp->GrainScale = 0.1f;
-	postCmp->MotionBlurScale = 0.2f;
-	postCmp->VignetteScale = 1.0f;
+	postCmp->BloomScale = 0.5f;
+	// postCmp->BloomBlurScaleX = 0.5f;
+	// postCmp->BloomBlurScaleY = 100.0f;
+	postCmp->AbberationScale = 0.5f;
+	postCmp->GrainScale = 0.5f;
+	postCmp->MotionBlurScale = 0.5f;
+	postCmp->VignetteScale = 2.0f;
+	// postCmp->FogColor = Color(0.2f, 0.3f, 0.5f) * 0.1f;
+	// postCmp->FogDensity = 0.66f;
+	// postCmp->Temperature = 12500.0f;
 	// gameMgrCmp->PostCmp->DOFShow = 1.0f;
 }
 
-void GameManagerSystem::ResetPostEffects(PostprocessSettingsComponent* postCmp)
+void GameManagerSystem::PostProcessFancyWarm(PostprocessSettingsComponent* postCmp)
 {
-	postCmp->Exposure = 1.0f;
+	postCmp->Exposure = 2.0f;
+	postCmp->DOFSize = 0.1f;
+	postCmp->DOFPoint = 700.0f;
+	postCmp->DOFRange = 1200.0f;
+	postCmp->BloomScale = 0.5f;
+	// postCmp->BloomBlurScaleX = 0.5f;
+	// postCmp->BloomBlurScaleY = 100.0f;
+	postCmp->AbberationScale = 0.5f;
+	postCmp->GrainScale = 0.5f;
+	postCmp->MotionBlurScale = 0.5f;
+	postCmp->VignetteScale = 2.0f;
+	// postCmp->FogColor = Color(0.5f, 0.4f, 0.2f) * 0.1f;
+	// postCmp->FogDensity = 0.66f;
+	// postCmp->Temperature = 3500.0f;
+	postCmp->Tint = Color(2.0f, 1.8f, 0.5f); // Industrial Hall Grade
+	// gameMgrCmp->PostCmp->DOFShow = 1.0f;
+}
+
+void GameManagerSystem::PostProcessNone(PostprocessSettingsComponent* postCmp)
+{
+	postCmp->Exposure = 2.0f;
 	postCmp->DOFSize = 0.0f;
 	postCmp->DOFPoint = 1000.0f;
 	postCmp->DOFRange = 2000.0f;
 	postCmp->BloomScale = 0.0f;
+	// postCmp->BloomBlurScaleX = 1.0f;
+	// postCmp->BloomBlurScaleY = 1.0f;
 	postCmp->AbberationScale = 0.0f;
 	postCmp->GrainScale = 0.0f;
 	postCmp->MotionBlurScale = 0.0f;
 	postCmp->VignetteScale = 0.0f;
+	// postCmp->FogColor = Color::WHITE;
+	// postCmp->FogDensity = 0.0f;
+	// postCmp->Temperature = 6500.0f;
 	// gameMgrCmp->PostCmp->DOFShow = 1.0f;
 }
 
@@ -141,16 +223,6 @@ void GameManagerSystem::CreateCamera(Scene* scene)
 	DeferredTaskSystem::AddComponentImmediate<CameraComponent>(scene, camera, 35_deg, 1.0f, 5000.f);
 	DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(scene, camera, 100.0f, 0.003f, 10.0f);
 	gameMgrCmp->PostCmp = DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(scene, camera);
-	gameMgrCmp->PostCmp->Exposure = 1.0f;
-	gameMgrCmp->PostCmp->DOFSize = 0.0f;
-	gameMgrCmp->PostCmp->DOFPoint = 1000.0f;
-	gameMgrCmp->PostCmp->DOFRange = 2000.0f;
-	// gameMgrCmp->PostCmp->DOFShow = 1.0f;
-	gameMgrCmp->PostCmp->BloomScale = 0.0f;
-	gameMgrCmp->PostCmp->AbberationScale = 0.0f;
-	gameMgrCmp->PostCmp->GrainScale = 0.0f;
-	gameMgrCmp->PostCmp->MotionBlurScale = 0.0f;
-	gameMgrCmp->PostCmp->VignetteScale = 0.0f;
 
 	EntityTransform& cameraTrans = camera->GetTransform();
 	cameraTrans.SetGlobalTranslation(Vector(-550.0f, 180.0f, 0.0f));
@@ -208,9 +280,10 @@ void GameManagerSystem::CreatePBRShpereGrid(Scene* scene, Vector pos, Color albe
 			EntityTransform& sphereTrans = sphere->GetTransform();
 			sphereTrans.SetGlobalTranslation(pos + Vector(50.0f * y, 0.0f, 50.0f * z) - (Vector(50.0f * 5.0f, -100.0f, 50.0f * 5.0f) * 0.5f));
 			sphereTrans.SetLocalScale(Vector(1.0f, 1.0f, 1.0f) * 20.0f);
-			sphereTrans.SetLocalRotation(Quaternion(Vector::UNIT_Z, 90.0_deg));
+			sphereTrans.SetLocalRotation(Quaternion(Vector::UNIT_X, 90.0_deg));
+
 			MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(scene, sphere, "Models/Primitives/Sphere_HighPoly.obj", eResourceSource::GAME);
-			// MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(scene, sphere, "Models/Primitives/Sphere_LowPoly.obj", eResourceSource::GAME);
+
 			size_t materialsNum = meshCmp->GetMesh()->GetSubMeshes().GetSize();
 			for (size_t i = 0; i < materialsNum; ++i)
 			{
@@ -266,25 +339,28 @@ void GameManagerSystem::CreateSponza(Scene* scene)
 {
 	GameManagerWorldComponent* gameMgrCmp = scene->GetWorldComponent<GameManagerWorldComponent>();
 
-	// Entity* camera = DeferredTaskSystem::SpawnEntityImmediate(scene);
-	// CameraComponent* cameraCmp = DeferredTaskSystem::AddComponentImmediate<CameraComponent>(scene, camera, 50_deg, 1.0f, 5000.f);
-	// cameraCmp->SetRenderingMode(eRenderingModeType::IMMEDIATE_DEBUG);
-	// DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(scene, camera, 10.0f, 0.003f);
-	// EntityTransform& cameraTrans = camera->GetTransform();
-	// cameraTrans.SetGlobalTranslation(Vector(800.0f, 180.0f, 0.0f));
-	// cameraTrans.SetGlobalRotation(Quaternion(Vector::UNIT_Y, 90.0_deg));
-	// scene->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, scene->GetComponent<CameraComponent>(camera));
-
-	// Entity* keyDirLight = DeferredTaskSystem::SpawnEntityImmediate(scene);
-	// DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(scene, keyDirLight, Color(0.1f, 0.095f, 0.075f), 1.0f);
-	// EntityTransform& dirLightTrans = keyDirLight->GetTransform();
-	// dirLightTrans.SetLocalRotation(Quaternion(Vector::UNIT_Y, -45_deg) * Quaternion(Vector::UNIT_X, 65_deg));
-	// gameMgrCmp->GameEntities.PushBack(keyDirLight);
+	Entity* camera = DeferredTaskSystem::SpawnEntityImmediate(scene);
+	DeferredTaskSystem::AddComponentImmediate<CameraComponent>(scene, camera, 35_deg, 1.0f, 5000.f);
+	DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(scene, camera, 100.0f, 0.003f, 10.0f);
+	gameMgrCmp->PostCmp = DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(scene, camera);
+	// PostProcessFancy(gameMgrCmp->PostCmp);
+	PostProcessNone(gameMgrCmp->PostCmp);
+	
+	EntityTransform& cameraTrans = camera->GetTransform();
+	cameraTrans.SetGlobalTranslation(Vector(-550.0f, 180.0f, 0.0f));
+	cameraTrans.SetGlobalRotation(Quaternion(Vector::UNIT_Y, -90.0_deg) * Quaternion(Vector::UNIT_X, -10.0_deg));
+	// cameraTrans.SetGlobalRotation(Quaternion(Matrix(cameraTrans.GetGlobalTranslation(), Vector(0.0f, 0.0f, 0.0f))));
+	scene->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, scene->GetComponent<CameraComponent>(camera));
+	gameMgrCmp->Camera = camera;
+	
+	DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(scene, "HDR/HDR.hdr", eResourceSource::GAME);
 
 	Entity* sponza = DeferredTaskSystem::SpawnEntityImmediate(scene);
 	DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(scene, sponza, "Models/Sponza/sponza.obj", eResourceSource::GAME);
 
 	gameMgrCmp->GameEntities.PushBack(sponza);
+
+	CreatePointLights(scene, 100);
 }
 
 void GameManagerSystem::CreateSponzaSample(Scene* scene)
@@ -314,6 +390,12 @@ void GameManagerSystem::Update(Scene* scene)
 {
 	UpdateLights(scene);
 
+	UpdateImguiWindow();
+
+	// UpdateCameraAspect(scene);
+
+	// UpdateSkybox(scene);
+
 	// UpdateModel(scene);
 
 	// Vector offset = Vector(800.0f, 0.0f, 0.0f);
@@ -322,6 +404,13 @@ void GameManagerSystem::Update(Scene* scene)
 
 	// UpdatePostProcess(scene);
 }
+
+// void GameManagerSystem::UpdateSkybox(Poly::Scene * scene)
+// {
+// 	float time = 0.2f * (float)(scene->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
+// 	size_t currHdr = (size_t)(5.0f * (time - (size_t)time));
+// 	scene->GetWorldComponent<SkyboxWorldComponent>()->SetCurrentPanorama(currHdr);
+// }
 
 void GameManagerSystem::UpdatePostProcess(Scene* scene)
 {
@@ -369,14 +458,21 @@ void GameManagerSystem::UpdateLights(Scene* scene)
 	float time = (float)(scene->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
 	GameManagerWorldComponent* gameMgrCmp = scene->GetWorldComponent<GameManagerWorldComponent>();
 
-	float anim = Sin(0.5_rad * time) * 0.5f + 0.5f;
-	anim = SmoothStep(0.1f, 0.9f, anim);
-	gameMgrCmp->KeyDirLight->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_X, Lerp(60.0_deg, 90.0_deg, anim) ) * Quaternion(Vector::UNIT_Y, -20_deg));
+	if (gameMgrCmp->PointLight)
+	{
+		float r = 200.0f;
+		Angle a = 0.5_rad * time;
+		float s = Sin(a);
+		float c = Cos(a);
+		gameMgrCmp->PointLight->GetTransform().SetGlobalTranslation(Vector(c, 0.0f, s) * r + Vector::UNIT_Y * 200.0f);
+	}
 
-	float t = 1.0f * time;
-	float s = 400.0f * Sin(1.0_rad * t);
-	float c = 400.0f * Cos(1.0_rad * t);
-	gameMgrCmp->PointLight->GetTransform().SetGlobalTranslation(Vector(c, 100.0f, s));
+	if (gameMgrCmp->KeyDirLight)
+	{
+		float anim = Sin(0.5_rad * time) * 0.5f + 0.5f;
+		anim = SmoothStep(0.1f, 0.9f, anim);
+		gameMgrCmp->KeyDirLight->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_X, Lerp(60.0_deg, 90.0_deg, anim)) * Quaternion(Vector::UNIT_Y, -20_deg));
+	}
 
 	for (size_t i = 0; i < gameMgrCmp->LightsStartPositions.GetSize(); ++i)
 	{
@@ -397,6 +493,32 @@ void GameManagerSystem::UpdateModel(Scene* scene)
 		EntityTransform& modelTrans = gameMgrCmp->Model->GetTransform();
 		modelTrans.SetLocalRotation(Quaternion(Vector::UNIT_Y, 10.0_deg * time));
 	}
+}
+
+void GameManagerSystem::UpdateCameraAspect(Poly::Scene * scene)
+{
+	GameManagerWorldComponent* gameMgrCmp = scene->GetWorldComponent<GameManagerWorldComponent>();
+	CameraComponent* cameraCmp = gameMgrCmp->Camera->GetComponent<CameraComponent>();
+	float time = (float)(scene->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
+	float anim = SmoothStep(-0.8f, 0.8f, Sin(5.0_rad * time));
+	float aspect = Lerp(2.5f, 0.5f, anim);
+	cameraCmp->SetAspect(aspect);
+	gConsole.LogInfo("GameManagerSystem::Update aspect: {}", aspect);
+}
+
+void GameManagerSystem::UpdateImguiWindow()
+{
+	if (!ImGui::GetIO().Fonts->IsBuilt())
+		return;
+
+	gConsole.LogInfo("GameManagerSystem::UpdateImguiWindow()");
+
+	ImGui::Begin("Another Window");
+	ImGui::Text("Hello from another window!");
+	if (ImGui::Button("Click"))
+		gConsole.LogInfo("Another Window: Click");
+
+	ImGui::End();
 }
 
 Entity* GameManagerSystem::CreatePointLight(Scene* scene, Vector& position, float Range)

@@ -7,6 +7,7 @@ namespace GGJGame {
 
 	class GunComponent : public ComponentBase
 	{
+		RTTI_DECLARE_COMPONENT(GunComponent) { NO_RTTI_PROPERTY(); }
 	public:
 	};
 }

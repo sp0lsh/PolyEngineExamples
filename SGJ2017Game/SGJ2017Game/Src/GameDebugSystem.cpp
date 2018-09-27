@@ -1,6 +1,6 @@
 #include "GameDebugSystem.hpp"
 
-#include <ECS/World.hpp>
+#include <ECS/Scene.hpp>
 #include "GameDebugWorldComponent.hpp"
 #include <ECS/DeferredTaskSystem.hpp>
 #include <UI/ScreenSpaceTextComponent.hpp>

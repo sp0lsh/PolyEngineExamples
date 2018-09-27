@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ECS/World.hpp>
+#include <ECS/Scene.hpp>
 #include <Collections/String.hpp>
 #include <Math/Vector.hpp>
 #include <Rendering/Particles/ParticleComponent.hpp>
@@ -11,12 +11,14 @@ namespace GameManagerSystem
 {
 	void Init(Scene* world);
 
-	void CreateShadowsTestScene(Poly::Scene * scene);
+	void UpdateImguiWindow();
 
-	void FancyPostEffects();
+	void CreateShadowsTestScene(Scene* scene);
+	void CreateShadingTestScene(Scene* scene);
 
-	void ResetPostEffects(PostprocessSettingsComponent* postCmp);
-	void FancyPostEffects(PostprocessSettingsComponent* postCmp);
+	void PostProcessNone(PostprocessSettingsComponent* postCmp);
+	void PostProcessFancyCold(PostprocessSettingsComponent* postCmp);
+	void PostProcessFancyWarm(PostprocessSettingsComponent* postCmp);
 
 	Entity* CreateModel(Scene* world, String path);
 	
@@ -29,10 +31,12 @@ namespace GameManagerSystem
 	
 	void CreatePointLights(Scene* world, int quota);
 	Entity* CreatePointLight(Scene* world, Vector& position, float Range);
-	void CreateSpotLight(Scene* world, float Range);
+
 	void SpawnShaderball(Scene* world);
 
 	void Update(Scene* world);
+	void UpdateCameraAspect(Poly::Scene * scene);
+	void UpdateSkybox(Poly::Scene * scene);
 	void UpdateLights(Scene* world);
 	void UpdateModel(Scene* world);
 	void UpdatePostProcess(Scene* world);

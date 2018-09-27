@@ -1,8 +1,7 @@
 #pragma once
 
-#include <Core.hpp>
 #include <Engine.hpp>
-#include <ECS/World.hpp>
+#include <ECS/Scene.hpp>
 #include <Memory/SafePtr.hpp>
 
 DECLARE_GAME()

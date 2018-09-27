@@ -2,7 +2,6 @@
 
 #include "SpriteSheetTestWorldComponent.hpp"
 
-#include <Core.hpp>
 #include <Debugging/DebugDrawComponents.hpp>
 #include <Debugging/DebugDrawSystem.hpp>
 #include <ECS/DeferredTaskSystem.hpp>
@@ -24,7 +23,7 @@ void SpriteSheetTestSystem::Init(Scene* scene)
 {
 	gConsole.LogInfo("SpriteSheetTestSystem::Init");
 
-	SpriteSheetTestWorldComponent* spriteSheetCmp = scene->GetWorldComponent<SpriteSheetTestWorldComponent>();		
+	SpriteSheetTestWorldComponent* spriteSheetCmp = scene->GetWorldComponent<SpriteSheetTestWorldComponent>();
 }
 
 void SpriteSheetTestSystem::Update(Scene* scene)

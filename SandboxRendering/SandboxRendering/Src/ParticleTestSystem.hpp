@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ECS/World.hpp>
+#include <ECS/Scene.hpp>
 #include <Collections/String.hpp>
 #include <Math/Vector.hpp>
 #include <Rendering/Particles/ParticleComponent.hpp>

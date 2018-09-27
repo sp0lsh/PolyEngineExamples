@@ -8,6 +8,7 @@ namespace GGJGame
 {
 	class GAME_DLLEXPORT TransmitterComponent : public ComponentBase
 	{
+		RTTI_DECLARE_COMPONENT(TransmitterComponent) { NO_RTTI_PROPERTY(); }
 	public:
 		TransmitterComponent() = default;
 

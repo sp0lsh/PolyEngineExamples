@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ECS/World.hpp>
+#include <ECS/Scene.hpp>
 
 using namespace Poly;
 
@@ -14,7 +14,7 @@ namespace GGJGame
 			SafePtr<Entity> TextEnt;
 		};
 		// sets all TransmitterComponent properties.
-		void GAME_DLLEXPORT Update(World* world);
-		int GetPercent(World* world);
+		void GAME_DLLEXPORT Update(Scene* world);
+		float GetPercent(Scene* world);
 	}
 }

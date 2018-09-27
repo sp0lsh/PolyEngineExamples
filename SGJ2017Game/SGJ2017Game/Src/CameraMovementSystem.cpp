@@ -1,6 +1,6 @@
 #include "CameraMovementSystem.hpp"
 
-#include <ECS/World.hpp>
+#include <ECS/Scene.hpp>
 #include <Time/TimeSystem.hpp>
 #include <Rendering/Camera/CameraComponent.hpp>
 #include "Physics2D/Rigidbody2DComponent.hpp"
@@ -11,6 +11,8 @@
 
 using namespace Poly;
 using namespace SGJ;
+
+RTTI_DEFINE_COMPONENT(CameraMovementComponent);
 
 void SGJ::CameraMovementSystem::CameraMovementUpdatePhase(Poly::Scene* world)
 {

@@ -8,6 +8,7 @@ namespace GGJGame
 {
 	class GAME_DLLEXPORT PlayerComponent : public ComponentBase
 	{
+		RTTI_DECLARE_COMPONENT(PlayerComponent) { NO_RTTI_PROPERTY(); }
 	public:
 		PlayerComponent() = default;
 

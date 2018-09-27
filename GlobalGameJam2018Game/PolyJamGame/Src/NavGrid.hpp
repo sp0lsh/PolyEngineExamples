@@ -2,7 +2,7 @@
 
 #include <functional>
 
-#include <ECS/World.hpp>
+#include <ECS/Scene.hpp>
 #include <Collections/OrderedMap.hpp>
 #include <Math/Vector2f.hpp>
 #include <AI/PathfindingComponent.hpp>
@@ -33,7 +33,7 @@ namespace GGJGame
 		bool Occupied = false;
 	};
 
-	class GAME_DLLEXPORT NavGrid : public Poly::NavGraph
+	class NavGrid : public Poly::NavGraph
 	{
 	public:
 		NavGrid(const Poly::Vector2f& origin, const Poly::Vector2i& gridSize, float cellSize = 1.0f);

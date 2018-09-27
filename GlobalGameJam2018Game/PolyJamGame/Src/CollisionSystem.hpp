@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ECS/World.hpp>
+#include <ECS/Scene.hpp>
 
 using namespace Poly;
 
@@ -8,8 +8,8 @@ namespace GGJGame
 {
 	namespace CollisionSystem
 	{
-		void GAME_DLLEXPORT Update(World* world);
+		void GAME_DLLEXPORT Update(Scene* world);
 	}
 }
 
-void Kaboom(Poly::World * &world);
+void Kaboom(Poly::Scene* &world);

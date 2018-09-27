@@ -1,5 +1,6 @@
 #include "PlayerSystem.hpp"
 
+#include <Rendering/Camera/CameraComponent.hpp>
 #include <Time/TimeSystem.hpp>
 #include <Input/InputWorldComponent.hpp>
 #include <Physics3D/Rigidbody3DComponent.hpp>
@@ -13,6 +14,8 @@
 #include "Rendering/Particles/ParticleComponent.hpp"
 #include "Rendering/Particles/ParticleEmitter.hpp"
 #include "GameManagerSystem.hpp"
+#include <ECS/DeferredTaskSystem.hpp>
+#include <Movement/MovementSystem.hpp>
 
 #include "ActorSystem.hpp"
 
@@ -21,9 +24,9 @@ const float MOUSE_SENSITIVITY = 0.001f;
 Entity* GGJGame::PlayerSystem::GetPlayerCamera(Entity* player)
 {
 	PlayerComponent* playerCmp = player->GetComponent<PlayerComponent>();
-	for (Entity* e : playerCmp->GetOwner()->GetChildren())
+	for (const auto& e : playerCmp->GetOwner()->GetChildren())
 		if (e->GetComponent<CameraComponent>())
-			return e;
+			return e.get();
 	return nullptr;
 }
 
@@ -34,23 +37,23 @@ Entity * GGJGame::PlayerSystem::GetPlayerGun(Entity * player)
 	if (!camera)
 		return nullptr;
 
-	for (Entity* e : camera->GetChildren())
+	for (const auto& e : camera->GetChildren())
 		if (e->GetComponent<GunComponent>())
-			return e;
+			return e.get();
 	return nullptr;
 }
 
 Entity * GGJGame::PlayerSystem::GetPlayerSoundEmmiter(Entity * player)
 {
 	PlayerComponent* playerCmp = player->GetComponent<PlayerComponent>();
-	for (Entity* e : playerCmp->GetOwner()->GetChildren())
+	for (const auto& e : playerCmp->GetOwner()->GetChildren())
 		if (e->GetComponent<Poly::SoundEmitterComponent>())
-			return e;
+			return e.get();
 
 	return nullptr;
 }
 
-void GGJGame::PlayerSystem::Update(World* world)
+void GGJGame::PlayerSystem::Update(Scene* world)
 {
 	float deltaTime = (float)(TimeSystem::GetTimerDeltaTime(world, eEngineTimer::GAMEPLAY));
 	//float time = (float)(TimeSystem::GetTimerElapsedTime(world, eEngineTimer::GAMEPLAY));
@@ -150,8 +153,8 @@ void GGJGame::PlayerSystem::Update(World* world)
 				const float cFactor = 0.005f;
 
 
-				float shift1 = sin(shift1Speed * (moveTime + deltaTime)) - sin(shift1Speed * moveTime);
-				float shift2 = sin(shift2Speed * (moveTime + deltaTime) + M_PI / 2) - sin(shift2Speed * moveTime + M_PI / 2);
+				float shift1 = sinf(shift1Speed * (moveTime + deltaTime)) - sinf(shift1Speed * moveTime);
+				float shift2 = sinf(shift2Speed * (moveTime + deltaTime) + (float)M_PI / 2) - sinf(shift2Speed * moveTime + (float)M_PI / 2);
 
 				shift1 *= aFactor;
 				shift2 *= cFactor;
@@ -167,7 +170,7 @@ void GGJGame::PlayerSystem::Update(World* world)
 	}
 }
 
-void GGJGame::PlayerSystem::SpawnMuzzleFlash(Poly::World * world, Poly::EntityTransform & gunTransform, const Poly::Vector &cameraGlobFwd)
+void GGJGame::PlayerSystem::SpawnMuzzleFlash(Poly::Scene* world, Poly::EntityTransform & gunTransform, const Poly::Vector &cameraGlobFwd)
 {
 	Entity* ParticlesEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
 	// EntityTransform& ParticlesEnt1Trans = ParticlesEnt->GetTransform();
@@ -179,7 +182,7 @@ void GGJGame::PlayerSystem::SpawnMuzzleFlash(Poly::World * world, Poly::EntityTr
 	settings.BurstSizeMax = 0;
 	settings.BurstTimeMin = 1.0f;
 	settings.BurstTimeMax = 2.0f;
-	settings.BaseColor = Color(2.0f, 1.0f, 0.5f, 0.1f);
+	settings.Albedo = Color(2.0f, 1.0f, 0.5f, 0.1f);
 	settings.ParticleInitFunc = [&](ParticleEmitter::Particle* p) {
 		// p->Position = Vector(0.0f, 0.0f, 0.0f) + GameManagerSystem::RandomVector(0.2f, 0.2f);
 		p->Position = gunTransform.GetGlobalTranslation() + cameraGlobFwd * 2.0f + Vector(0.0f, -0.2f, 0.0f);
@@ -194,8 +197,8 @@ void GGJGame::PlayerSystem::SpawnMuzzleFlash(Poly::World * world, Poly::EntityTr
 		// p->Scale = Vector(1.0f, 1.0f, 1.0f) * (1.0f - life * life);
 	};
 
-    settings.SprsheetSettings.SpritePath = "Textures/muzzleflash_512.png";
-    settings.SprsheetSettings.Source = eResourceSource::GAME;
+    settings.Spritesheet.SpritePath = "Textures/muzzleflash_512.png";
+    settings.Spritesheet.Source = eResourceSource::GAME;
 	DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, ParticlesEnt, settings);
 	//ParticleComponent* ParticleComp = world->GetComponent<ParticleComponent>(ParticlesEnt);
 }

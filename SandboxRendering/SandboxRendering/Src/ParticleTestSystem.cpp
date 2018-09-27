@@ -2,7 +2,6 @@
 
 #include "GameManagerWorldComponent.hpp"
 
-#include <Core.hpp>
 #include <Debugging/DebugDrawComponents.hpp>
 #include <Debugging/DebugDrawSystem.hpp>
 #include <ECS/DeferredTaskSystem.hpp>
@@ -27,7 +26,7 @@ void ParticleTestSystem::Init(Scene* scene)
 	// gameMgrCmp->particleDefault = SpawnEmitterDefault(scene, particlesPosition);
 	// gameMgrCmp->particleWorldSpace = SpawnEmitterWorldSpace(scene, particlesPosition);
 	// gameMgrCmp->particleLocalSpace = SpawnEmitterLocalSpace(scene, particlesPosition);
-	gameMgrCmp->particleAmbient = SpawnEmitterAmbient(scene, particlesPosition);
+	// gameMgrCmp->particleAmbient = SpawnEmitterAmbient(scene, particlesPosition);
 	// gameMgrCmp->particleAmbientWind = SpawnEmitterAmbientWind(scene, particlesPosition);
 
 	// SpawnHeartSystem(scene);

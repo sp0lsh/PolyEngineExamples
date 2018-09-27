@@ -10,8 +10,9 @@ using namespace Poly;
 
 namespace GGJGame
 {
-	class GAME_DLLEXPORT LevelComponent : public ComponentBase
+	class LevelComponent : public ComponentBase
 	{
+		RTTI_DECLARE_COMPONENT(LevelComponent) { NO_RTTI_PROPERTY(); }
 	public:
 		LevelComponent() = default;
 

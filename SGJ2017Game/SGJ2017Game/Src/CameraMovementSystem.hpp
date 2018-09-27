@@ -1,6 +1,9 @@
 #pragma once
 
-namespace Poly { class World; }
+#include <Defines.hpp>
+#include <ECS/Scene.hpp>
+
+namespace Poly { class Scene; }
 
 namespace SGJ
 {

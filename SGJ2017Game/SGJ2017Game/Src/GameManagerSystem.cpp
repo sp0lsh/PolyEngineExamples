@@ -131,7 +131,7 @@ Entity* GameManagerSystem::CreateTileObject(Poly::Scene* world, const Poly::Vect
 	DeferredTaskSystem::AddComponentImmediate<DebugDrawableComponent>(world, mesh, ddrawPreset);
 	DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(world, mesh, meshSource, eResourceSource::GAME);
 	world->GetComponent<MeshRenderingComponent>(mesh)->SetMaterial(0, Material(Color::BLACK, color, 1.0f, 1.0f, 0.5f));
-	world->GetComponent<MeshRenderingComponent>(mesh)->SetShadingModel(eShadingModel::PBR);
+	world->GetComponent<MeshRenderingComponent>(mesh)->SetShadingModel(eShadingMode::PBR);
 	
 	EntityTransform& meshTrans = mesh->GetTransform();
 	mesh->SetParent(tile);
@@ -186,7 +186,7 @@ Entity* GameManagerSystem::SpawnPlayer(Poly::Scene* world, const Poly::Vector& p
 	Color bodyColor = Color(0.0f, 1.0f, 0.0f, 1.0f);
 	DeferredTaskSystem::AddComponentImmediate<Poly::MeshRenderingComponent>(world, body, "Models/player.obj", eResourceSource::GAME);
 	world->GetComponent<MeshRenderingComponent>(body)->SetMaterial(0, Material(Color::BLACK, bodyColor, 1.0f, 1.0f, 0.5f));
-	world->GetComponent<MeshRenderingComponent>(body)->SetShadingModel(eShadingModel::PBR);
+	world->GetComponent<MeshRenderingComponent>(body)->SetShadingModel(eShadingMode::PBR);
 
 	playerTrans.SetLocalTranslation(position);
 	return player;

@@ -10,7 +10,7 @@
 
 using namespace GGJGame;
 
-void HandlePlayerEnemyCollision(World* world, Entity* player, Entity* enemy, const Vector& normal)
+void HandlePlayerEnemyCollision(Scene* world, Entity* player, Entity* enemy, const Vector& normal)
 {
 	if (enemy->GetComponent<ActorComponent>())
 	{
@@ -22,7 +22,7 @@ void HandlePlayerEnemyCollision(World* world, Entity* player, Entity* enemy, con
 	}
 }
 
-void Kaboom(Poly::World * &world)
+void Kaboom(Poly::Scene* &world)
 {
 	Entity* ParticlesEnt = DeferredTaskSystem::SpawnEntityImmediate(world);
 	EntityTransform& ParticlesEnt0Trans = ParticlesEnt->GetTransform();
@@ -35,7 +35,7 @@ void Kaboom(Poly::World * &world)
 	settings.BurstSizeMax = 200;
 	settings.BurstTimeMin = 0.1f;
 	settings.BurstTimeMax = 0.2f;
-	settings.BaseColor = Color(1.0f, 1.0f, 1.0f, 0.1f);
+	settings.Albedo = Color(1.0f, 1.0f, 1.0f, 0.1f);
 	settings.ParticleInitFunc = [](ParticleEmitter::Particle* p) {
 		Vector rndPos = (GameManagerSystem::RandomVector(-1.0f, 1.0f) * 50.0f);
 		p->Position = Vector(1.0f * rndPos.X, 0.01f * Abs(rndPos.Y), 1.0f * rndPos.Z);
@@ -48,12 +48,12 @@ void Kaboom(Poly::World * &world)
 		p->Position += p->Acceleration;
 	};
 
-    settings.SprsheetSettings.SpritePath = "Textures/puff_512.png";
-    settings.SprsheetSettings.Source = eResourceSource::GAME;
+    settings.Spritesheet.SpritePath = "Textures/puff_512.png";
+    settings.Spritesheet.Source = eResourceSource::GAME;
 	DeferredTaskSystem::AddComponentImmediate<ParticleComponent>(world, ParticlesEnt, settings);
 }
 
-void HandlePlayerGenericCollision(World* world, Entity* player, Entity* collider, const Vector& normal)
+void HandlePlayerGenericCollision(Scene* world, Entity* player, Entity* collider, const Vector& normal)
 {
 	GameManagerWorldComponent* managerCmp = world->GetWorldComponent<GameManagerWorldComponent>();
 	if (managerCmp->Level->GetComponent<LevelComponent>()->Ground == collider)
@@ -65,7 +65,7 @@ void HandlePlayerGenericCollision(World* world, Entity* player, Entity* collider
 	}
 }
 
-void GGJGame::CollisionSystem::Update(World* world)
+void GGJGame::CollisionSystem::Update(Scene* world)
 {
 	Poly::ContactPairResults results = Poly::Physics3DSystem::GetAllContactPairs(world);
 	for (const auto& res : results.ContactPairs)

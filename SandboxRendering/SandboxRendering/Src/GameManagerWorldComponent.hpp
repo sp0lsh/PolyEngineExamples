@@ -1,6 +1,7 @@
 #pragma once
 
 #include <UniqueID.hpp>
+#include <Memory/SafePtr.hpp>
 #include <Collections/Dynarray.hpp>
 #include <ECS/ComponentBase.hpp>
 #include <Rendering/MeshRenderingComponent.hpp>
@@ -11,6 +12,10 @@ using namespace Poly;
 
 class GameManagerWorldComponent : public ComponentBase
 {
+	RTTI_DECLARE_COMPONENT(GameManagerWorldComponent)
+	{
+		NO_RTTI_PROPERTY();
+	}
 public:
 	SafePtr<Entity> Camera;
 	SafePtr<Entity> KeyDirLight;
