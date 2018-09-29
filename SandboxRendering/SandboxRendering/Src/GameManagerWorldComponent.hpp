@@ -16,7 +16,9 @@ class GameManagerWorldComponent : public ComponentBase
 	{
 		NO_RTTI_PROPERTY();
 	}
+
 public:
+	
 	SafePtr<Entity> Camera;
 	SafePtr<Entity> KeyDirLight;
 	SafePtr<Entity> PointLight;

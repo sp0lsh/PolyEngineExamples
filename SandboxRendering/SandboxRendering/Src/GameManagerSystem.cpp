@@ -18,8 +18,6 @@
 #include <Time/TimeWorldComponent.hpp>
 #include <UI/ScreenSpaceTextComponent.hpp>
 
-#include <Imgui/imgui.h>
-
 using namespace Poly;
 
 void GameManagerSystem::Init(Scene* scene)
@@ -28,9 +26,9 @@ void GameManagerSystem::Init(Scene* scene)
 	
 	srand(42);
 
-	// CreateShadowsTestScene(scene);
+	CreateShadowsTestScene(scene);
 
-	CreateShadingTestScene(scene);
+	// CreateShadingTestScene(scene);
 	
 	// CreateSponza(scene);
 }
@@ -85,6 +83,9 @@ void GameManagerSystem::CreateShadowsTestScene(Scene* scene)
 	CameraComponent* cameraCmp = DeferredTaskSystem::AddComponentImmediate<CameraComponent>(scene, camera, 35_deg, 1.0f, 5000.f);
 	DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(scene, camera, 100.0f, 0.003f, 10.0f);
 	gameMgrCmp->PostCmp = DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(scene, camera);
+
+	cameraCmp->SetRenderingMode(eRenderingModeType::IMMEDIATE_DEBUG);
+
 	// PostProcessFancy(gameMgrCmp->PostCmp);
 	PostProcessNone(gameMgrCmp->PostCmp);
 
@@ -97,42 +98,21 @@ void GameManagerSystem::CreateShadowsTestScene(Scene* scene)
 	ViewportWorldComponent* viewportCmp = scene->GetWorldComponent<ViewportWorldComponent>();
 	viewportCmp->SetCamera(0, cameraCmp);
 
-	// gameMgrCmp->KeyDirLight = DeferredTaskSystem::SpawnEntityImmediate(scene);
-	// // DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(scene, gameMgrCmp->KeyDirLight.Get(), Color(1.0f, 0.8f, 0.8f), 15.0f);
-	// DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(scene, gameMgrCmp->KeyDirLight.Get(), Color(1.0f, 0.8f, 0.8f), 10.0f);
-	// // keyDirLight->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_Y, -45_deg) * Quaternion(Vector::UNIT_X, -65_deg));
-	// gameMgrCmp->KeyDirLight->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_X, 60_deg) * Quaternion(Vector::UNIT_Y, -20_deg));
-	// gameMgrCmp->GameEntities.PushBack(gameMgrCmp->KeyDirLight);
+	gameMgrCmp->KeyDirLight = DeferredTaskSystem::SpawnEntityImmediate(scene);
+	// DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(scene, gameMgrCmp->KeyDirLight.Get(), Color(1.0f, 0.8f, 0.8f), 15.0f);
+	DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(scene, gameMgrCmp->KeyDirLight.Get(), Color(1.0f, 0.8f, 0.8f), 2.0f);
+	// keyDirLight->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_Y, -45_deg) * Quaternion(Vector::UNIT_X, -65_deg));
+	gameMgrCmp->KeyDirLight->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_X, 60_deg) * Quaternion(Vector::UNIT_Y, -20_deg));
+	gameMgrCmp->GameEntities.PushBack(gameMgrCmp->KeyDirLight);
 
-	gameMgrCmp->PointLight = CreatePointLight(scene, Vector(0.0f, 100.0f, 0.0f), 2000.0f);
-
-	
+		
 	DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(scene, "HDR/HDR.hdr", eResourceSource::GAME);
 
+	// Entity* entityPlane = CreateModel(scene, "Models/Primitives/Cube.obj");
+	// entityPlane->GetTransform().SetGlobalScale(Vector(5000.0f, 0.1f, 5000.0f));
+	// entityPlane->GetTransform().SetGlobalTranslation(Vector::UNIT_Y * -100.0f);
 
-	gameMgrCmp->Model = CreateModel(scene, "Models/leather_shoes/Leather_Shoes.obj");
-	gameMgrCmp->Model->GetTransform().SetGlobalTranslation(Vector(300.0f, 0.0f, 0.0f));
-
-
-	Entity* entityCube0 = CreateModel(scene, "Models/Primitives/Cube.obj");
-	entityCube0->GetTransform().SetGlobalTranslation(Vector::UNIT_Y * 50.0f);
-	entityCube0->GetTransform().SetGlobalScale(Vector::ONE * 100.0f);
-
-	Entity* entityCube1 = CreateModel(scene, "Models/Primitives/Cube.obj");
-	entityCube1->GetTransform().SetGlobalTranslation(Vector(40.0, 170.0f, 240.0f));
-	entityCube1->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_X, 60_deg));
-	entityCube1->GetTransform().SetGlobalScale(Vector::ONE * 100.0f);
-
-	Entity* entityPlane = CreateModel(scene, "Models/Primitives/Cube.obj");
-	entityPlane->GetTransform().SetGlobalScale(Vector(5000.0f, 1.0f, 5000.0f));
-
-	Entity* entitySphere = CreateModel(scene, "Models/Primitives/Sphere_HighPoly.obj");
-	entitySphere->GetTransform().SetGlobalTranslation(Vector(-100.0, 200.0f, 100.0f));
-	entitySphere->GetTransform().SetGlobalScale(Vector::ONE * 50.0f);
-
-	// Entity* sponza = DeferredTaskSystem::SpawnEntityImmediate(scene);
-	// DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(scene, sponza, "Models/Sponza/sponza.obj", eResourceSource::GAME);
-	// gameMgrCmp->GameEntities.PushBack(sponza);
+	CreateRandomCubes(scene);
 }
 
 void GameManagerSystem::PostProcessFancyCold(PostprocessSettingsComponent* postCmp)
@@ -242,36 +222,6 @@ void GameManagerSystem::CreatePBRShpereGrid(Scene* scene, Vector pos, Color albe
 {
 	GameManagerWorldComponent* gameMgrCmp = scene->GetWorldComponent<GameManagerWorldComponent>();
 
-	// Entity* camera = DeferredTaskSystem::SpawnEntityImmediate(scene);
-	// DeferredTaskSystem::AddComponentImmediate<CameraComponent>(scene, camera, 50_deg, 1.0f, 5000.f);
-	// DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(scene, camera, 10.0f, 0.003f);
-	// DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(scene, camera);
-	// EntityTransform& cameraTrans = camera->GetTransform();
-	// cameraTrans.SetGlobalTranslation(Vector(800.0f, 180.0f, 0.0f));
-	// cameraTrans.SetGlobalRotation(Quaternion(Vector::UNIT_Y, 90.0_deg));
-	// scene->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, scene->GetComponent<CameraComponent>(camera));
-
-	// Entity* keyDirLight = DeferredTaskSystem::SpawnEntityImmediate(scene);
-	// DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(scene, keyDirLight, Color(1.0f, 1.0f, 1.0f), 1.0f);
-	// keyDirLight->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_Y, -45_deg) * Quaternion(Vector::UNIT_X, 65_deg));
-	// gameMgrCmp->GameEntities.PushBack(keyDirLight);
-	// Entity* fillDirLight = DeferredTaskSystem::SpawnEntityImmediate(scene);
-	// DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(scene, fillDirLight, Color(0.75f, 0.95f, 1.0f), 0.1f);
-	// fillDirLight->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_Y, -45_deg + 180_deg) * Quaternion(Vector::UNIT_X, 65_deg + 180_deg));
-	// gameMgrCmp->GameEntities.PushBack(fillDirLight);
-
-	// Entity* ground = DeferredTaskSystem::SpawnEntityImmediate(scene);
-	// EntityTransform& groundTrans = ground->GetTransform();
-	// groundTrans.SetGlobalTranslation(Vector(0.0f, 0.0f, 0.0f));	
-	// MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(scene, ground, "Models/Ground/Ground.fbx", eResourceSource::GAME);
-	// meshCmp->SetShadingModel(eShadingModel::PBR);
-	// int materialsNum = meshCmp->GetMesh()->GetSubMeshes().GetSize();
-	// for (int i = 0; i < materialsNum; ++i)
-	// {
-	// 	meshCmp->SetPBRMaterial(i, material);
-	// }
-	// gameMgrCmp->GameEntities.PushBack(ground);
-
 	for (int z = 0; z < 5; ++z)
 	{
 		for (int y = 0; y < 5; ++y)
@@ -301,6 +251,34 @@ void GameManagerSystem::CreatePBRShpereGrid(Scene* scene, Vector pos, Color albe
 
 			gameMgrCmp->GameEntities.PushBack(sphere);
 		}
+	}
+}
+
+void GameManagerSystem::CreateRandomCubes(Scene* scene)
+{
+	GameManagerWorldComponent* gameMgrCmp = scene->GetWorldComponent<GameManagerWorldComponent>();
+
+	for (int i = 0; i < 100; ++i)
+	{
+		Entity* cube = DeferredTaskSystem::SpawnEntityImmediate(scene);
+		EntityTransform& cubeTrans = cube->GetTransform();
+		MeshRenderingComponent* meshCmp = DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(scene, cube, "Models/Primitives/Cube.obj", eResourceSource::GAME);
+		meshCmp->SetMaterial(0, Material(Color::BLACK, Color::WHITE * 0.5f, 0.5f, 0.5f, 0.5f));
+		
+		Vector rndPos = RandomVectorRange(-1.0f, 1.0f);
+		Vector rndRot = RandomVectorRange(-1.0f, 1.0f);
+		Vector rndScale = RandomVector();
+		Vector position = Vector(2000.0f * rndPos.X, 50.0f * rndPos.Y, 200.0f * rndPos.Z);
+
+		cubeTrans.SetLocalScale(Vector::ONE * 10.0f + rndScale * 200.0f);
+		cubeTrans.SetGlobalTranslation(position);
+		cubeTrans.SetLocalRotation(
+			  Quaternion(Vector::UNIT_X, 180.0_deg * rndRot.X)
+			* Quaternion(Vector::UNIT_Y, 180.0_deg * rndRot.Y)
+			* Quaternion(Vector::UNIT_Z, 180.0_deg * rndRot.Z)
+		);
+
+		gameMgrCmp->GameEntities.PushBack(cube);
 	}
 }
 
@@ -390,8 +368,6 @@ void GameManagerSystem::Update(Scene* scene)
 {
 	UpdateLights(scene);
 
-	UpdateImguiWindow();
-
 	// UpdateCameraAspect(scene);
 
 	// UpdateSkybox(scene);
@@ -403,6 +379,216 @@ void GameManagerSystem::Update(Scene* scene)
 	// DebugDrawSystem::DrawBox(scene, offset + Vector(-100.0f, 0.0f, -100.0f), offset + Vector(100.0f, 200.0f, 100.0f), Color::RED);
 
 	// UpdatePostProcess(scene);
+
+	GameManagerWorldComponent* gameMgrCmp = scene->GetWorldComponent<GameManagerWorldComponent>();
+	DirectionalLightComponent* dirLight = gameMgrCmp->KeyDirLight.Get()->GetComponent<DirectionalLightComponent>();
+	float time = (float)(scene->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
+
+	// DEBUG: Recreate camera matrices for test
+	Vector position = Vector::UNIT_Z * 100.0f + Vector::UNIT_X * 2000.0f * Cos(40_deg * time);
+	Quaternion rotationQuat = Quaternion(Vector::UNIT_X, 120_deg * Sin(  5_deg * time))
+							* Quaternion(Vector::UNIT_Y, 120_deg * Sin(-10_deg * time));
+	// Vector position = Vector::UNIT_Z * 100.0f;
+	// Quaternion rotationQuat;
+
+	Matrix translation;
+	Matrix rotation = rotationQuat.ToRotationMatrix();
+	translation.SetTranslation(position);
+
+	Matrix clipFromView;
+	clipFromView.SetPerspective(35.0_deg, 2.4f, 1.0f, 200.0f);
+	Matrix worldFromModel = translation * rotation;
+	Matrix viewFromWorld = worldFromModel.GetInversed();
+	Matrix clipFromWorld = clipFromView * viewFromWorld;
+
+
+	Frustum frustum(35.0_deg, 2.4f, 1.0f, 200.0f);
+	// DebugDrawSystem::DrawFrustum(scene, frustum, position, rotationQuat);
+
+	// Transform frustum corners to DirLightSpace
+	Dynarray<Vector> cornersInNDC {
+		Vector(-1.0f,  1.0f, -1.0f), // back  left	top
+		Vector( 1.0f,  1.0f, -1.0f), // back  right top
+		Vector(-1.0f, -1.0f, -1.0f), // back  left  bot
+		Vector( 1.0f, -1.0f, -1.0f), // back  right bot
+		Vector(-1.0f,  1.0f,  1.0f), // front left	top
+		Vector( 1.0f,  1.0f,  1.0f), // front right top
+		Vector(-1.0f, -1.0f,  1.0f), // front left  bot
+		Vector( 1.0f, -1.0f,  1.0f)	 // front right bot
+	};
+
+	// Transform frustum corners from NDC to World
+	// could be done in one iteration but we need to do perspective division by W
+	Matrix worldFromClip = clipFromWorld.GetInversed();
+	Dynarray<Vector> cornersInWorld;
+	for (Vector posInClip : cornersInNDC)
+	{
+		Vector world = worldFromClip * posInClip;
+		world.X /= world.W;
+		world.Y /= world.W;
+		world.Z /= world.W;
+		cornersInWorld.PushBack(world);
+	}
+
+	DrawFrustumPoints(scene, cornersInWorld, Color::RED);
+
+	// Transform frustum corners from World to DirLight
+	Matrix worldFromDirLight = dirLight->GetTransform().GetWorldFromModel();
+	Matrix dirLightFromWorld = worldFromDirLight.GetInversed();
+
+	// find min and max corners and create AABB in DirLightSpace
+	const float maxFloat = std::numeric_limits<float>::max();
+	Vector min(maxFloat, maxFloat, maxFloat);
+	Vector max(-maxFloat, -maxFloat, -maxFloat);
+
+	Dynarray<Vector> cornersInDirLight;
+	for (Vector posInWorld : cornersInWorld)
+	{
+		Vector posInDirLight = dirLightFromWorld * posInWorld;
+		min = Vector::Min(min, posInDirLight);
+		max = Vector::Max(max, posInDirLight);
+	}
+
+	AABox dirLightAABB(min, max - min);
+	DrawBox(scene, min, max, Color::BLUE, worldFromDirLight);
+
+	
+	Dynarray<const MeshRenderingComponent*> meshCmps;
+	for (const auto& componentsTuple : scene->IterateComponents<MeshRenderingComponent>())
+		meshCmps.PushBack(std::get<MeshRenderingComponent*>(componentsTuple));
+	
+	// transform meshes AABB to DirLightSpace
+	Dynarray<std::tuple<AABox, const MeshRenderingComponent*>> meshBoxes;
+	for (const auto& meshCmp : meshCmps)
+	{
+		const Matrix& dirLightFromModel = dirLightFromWorld * meshCmp->GetTransform().GetWorldFromModel();
+
+		Optional<AABox> boxInLightOptional = meshCmp->GetBoundingBox(eEntityBoundingChannel::RENDERING);
+		if (boxInLightOptional.HasValue())
+		{
+			AABox boxInLight = boxInLightOptional.Value();
+			boxInLight = boxInLight.GetTransformed(dirLightFromModel);
+			meshBoxes.PushBack(std::tuple(boxInLight, meshCmp));
+			DrawBox(scene, boxInLight.GetMin(), boxInLight.GetMax(), Color::WHITE, worldFromDirLight);
+		}
+	}
+
+	// find min Z for near clipping plane and max Z for far clipping plane
+	float minZ = maxFloat;
+	float maxZ = -maxFloat;
+	for (const auto& kv : meshBoxes)
+	{
+		AABox box = std::get<0>(kv);
+		if (!AABBOverlapXY(box, dirLightAABB))
+			continue;
+
+		minZ = std::min(minZ, box.GetMin().Z);
+		maxZ = std::max(maxZ, box.GetMax().Z);
+	}
+	
+	Vector center = dirLightAABB.GetCenter(); // X and Y should be neutral so AABB expanded only on Z axis
+	dirLightAABB.Expand(Vector(center.X, center.Y, minZ))
+				.Expand(Vector(center.X, center.Y, maxZ));
+	
+	DrawBox(scene, dirLightAABB.GetMin() + Vector::ONE, dirLightAABB.GetMax() + Vector::ONE, Color(1.0f, 1.0f, 0.0f), worldFromDirLight);
+
+	// find all meshes that are inside extended DirLights AABB box
+	int shadowCastersCounter = 0;
+	for (auto kv : meshBoxes)
+	{
+		AABox box = std::get<0>(kv);
+		const MeshRenderingComponent* meshCmp = std::get<1>(kv);
+
+		if (AABBOverlap(box, dirLightAABB))
+		{
+			// sceneView.DirShadowOpaqueQueue.PushBack(meshCmp);
+
+			DrawBox(scene, box.GetMin() + Vector::ONE * 0.1f, box.GetMax() + Vector::ONE * 0.1f, Color::GREEN, worldFromDirLight);
+			shadowCastersCounter++;
+		}
+	}
+}
+
+bool GameManagerSystem::AABBOverlapXY(const AABox& a, const AABox& b)
+{
+	if (a.GetMin().X >= b.GetMax().X) return false;
+	if (a.GetMax().X <= b.GetMin().X) return false;
+
+	if (a.GetMin().Y >= b.GetMax().Y) return false;
+	if (a.GetMax().Y <= b.GetMin().Y) return false;
+
+	return true;
+}
+
+bool GameManagerSystem::AABBOverlap(const AABox& a, const AABox& b)
+{
+	if (a.GetMin().X >= b.GetMax().X) return false;
+	if (a.GetMax().X <= b.GetMin().X) return false;
+
+	if (a.GetMin().Y >= b.GetMax().Y) return false;
+	if (a.GetMax().Y <= b.GetMin().Y) return false;
+
+	if (a.GetMin().Z >= b.GetMax().Z) return false;
+	if (a.GetMax().Z <= b.GetMin().Z) return false;
+
+	return true;
+}
+
+void GameManagerSystem::DrawFrustumPoints(Scene* scene, Dynarray<Vector> &cornersInWorld, Color color)
+{
+	for (size_t i = 0; i < 4; ++i)
+		DebugDrawSystem::DrawLine(scene, cornersInWorld[i], cornersInWorld[i + 4], color);
+
+	for (size_t i = 0; i < 2; ++i)
+	{
+		DebugDrawSystem::DrawLine(scene, cornersInWorld[0 + i * 4], cornersInWorld[1 + i * 4], color);
+		DebugDrawSystem::DrawLine(scene, cornersInWorld[2 + i * 4], cornersInWorld[3 + i * 4], color);
+		DebugDrawSystem::DrawLine(scene, cornersInWorld[0 + i * 4], cornersInWorld[2 + i * 4], color);
+		DebugDrawSystem::DrawLine(scene, cornersInWorld[1 + i * 4], cornersInWorld[3 + i * 4], color);
+	}
+}
+
+void GameManagerSystem::DrawBox(Scene* world, const Vector& mins, const Vector& maxs, const Color& color, Matrix& worldFromSpace)
+{
+	if (!gDebugConfig.DebugRender)
+		return;
+
+	std::array<Vector, 8> points;
+	std::array<Vector, 2> minmaxVector = { { mins, maxs } };
+
+	for (unsigned int i = 0; i < points.size(); ++i)
+	{
+		points[i].X = minmaxVector[(i ^ (i >> 1)) & 1].X;
+		points[i].Y = minmaxVector[(i >> 1) & 1].Y;
+		points[i].Z = minmaxVector[(i >> 2) & 1].Z;
+	}
+	// i: X Y Z
+	// 0: 0 0 0
+	// 1: 1 0 0
+	// 2: 1 1 0
+	// 3: 0 1 0
+	// 4: 0 0 1
+	// 5: 1 0 1
+	// 6: 1 1 1
+	// 7: 0 1 1
+
+	// bottom
+	DebugDrawSystem::DrawLine(world, worldFromSpace * points[0], worldFromSpace * points[4], color);
+	DebugDrawSystem::DrawLine(world, worldFromSpace * points[0], worldFromSpace * points[1], color);
+	DebugDrawSystem::DrawLine(world, worldFromSpace * points[5], worldFromSpace * points[4], color);
+	DebugDrawSystem::DrawLine(world, worldFromSpace * points[5], worldFromSpace * points[1], color);
+
+	// top
+	DebugDrawSystem::DrawLine(world, worldFromSpace * points[3], worldFromSpace * points[7], color);
+	DebugDrawSystem::DrawLine(world, worldFromSpace * points[3], worldFromSpace * points[2], color);
+	DebugDrawSystem::DrawLine(world, worldFromSpace * points[6], worldFromSpace * points[7], color);
+	DebugDrawSystem::DrawLine(world, worldFromSpace * points[6], worldFromSpace * points[2], color);
+
+	// top-bottom lines
+	DebugDrawSystem::DrawLine(world, worldFromSpace * points[0], worldFromSpace * points[3], color);
+	DebugDrawSystem::DrawLine(world, worldFromSpace * points[1], worldFromSpace * points[2], color);
+	DebugDrawSystem::DrawLine(world, worldFromSpace * points[4], worldFromSpace * points[7], color);
+	DebugDrawSystem::DrawLine(world, worldFromSpace * points[5], worldFromSpace * points[6], color);
 }
 
 // void GameManagerSystem::UpdateSkybox(Poly::Scene * scene)
@@ -471,7 +657,7 @@ void GameManagerSystem::UpdateLights(Scene* scene)
 	{
 		float anim = Sin(0.5_rad * time) * 0.5f + 0.5f;
 		anim = SmoothStep(0.1f, 0.9f, anim);
-		gameMgrCmp->KeyDirLight->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_X, Lerp(60.0_deg, 90.0_deg, anim)) * Quaternion(Vector::UNIT_Y, -20_deg));
+		gameMgrCmp->KeyDirLight->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_X, Lerp(0.0_deg, 90.0_deg, anim)) * Quaternion(Vector::UNIT_Y, -20_deg));
 	}
 
 	for (size_t i = 0; i < gameMgrCmp->LightsStartPositions.GetSize(); ++i)
@@ -504,21 +690,6 @@ void GameManagerSystem::UpdateCameraAspect(Poly::Scene * scene)
 	float aspect = Lerp(2.5f, 0.5f, anim);
 	cameraCmp->SetAspect(aspect);
 	gConsole.LogInfo("GameManagerSystem::Update aspect: {}", aspect);
-}
-
-void GameManagerSystem::UpdateImguiWindow()
-{
-	if (!ImGui::GetIO().Fonts->IsBuilt())
-		return;
-
-	gConsole.LogInfo("GameManagerSystem::UpdateImguiWindow()");
-
-	ImGui::Begin("Another Window");
-	ImGui::Text("Hello from another window!");
-	if (ImGui::Button("Click"))
-		gConsole.LogInfo("Another Window: Click");
-
-	ImGui::End();
 }
 
 Entity* GameManagerSystem::CreatePointLight(Scene* scene, Vector& position, float Range)

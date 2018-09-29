@@ -11,8 +11,6 @@ namespace GameManagerSystem
 {
 	void Init(Scene* world);
 
-	void UpdateImguiWindow();
-
 	void CreateShadowsTestScene(Scene* scene);
 	void CreateShadingTestScene(Scene* scene);
 
@@ -25,6 +23,7 @@ namespace GameManagerSystem
 	void CreateTextUI(Scene* world);
 	void CreateCamera(Scene* world);
 	void CreatePBRShpereGrid(Scene* world, Vector pos, Color albedo);
+	void CreateRandomCubes(Scene* world);
 	void CreateTranslucent(Scene* world);
 	void CreateSponza(Scene* world);
 	void CreateSponzaSample(Scene* world);
@@ -34,9 +33,13 @@ namespace GameManagerSystem
 
 	void SpawnShaderball(Scene* world);
 
-	void Update(Scene* world);
+	void Update(Scene* world);	
+	void DrawFrustumPoints(Scene* scene, Dynarray<Vector>& cornersInWorld, Color color);
+	bool AABBOverlap(const AABox& a, const AABox& b);
+	bool AABBOverlapXY(const AABox& a, const AABox& b);
+	void DrawBox(Scene* world, const Vector& mins, const Vector& maxs, const Color& color, Matrix& space);
 	void UpdateCameraAspect(Poly::Scene * scene);
-	void UpdateSkybox(Poly::Scene * scene);
+	// void UpdateSkybox(Poly::Scene * scene);
 	void UpdateLights(Scene* world);
 	void UpdateModel(Scene* world);
 	void UpdatePostProcess(Scene* world);
