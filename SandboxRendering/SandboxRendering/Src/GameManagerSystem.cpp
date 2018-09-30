@@ -80,7 +80,7 @@ void GameManagerSystem::CreateShadowsTestScene(Scene* scene)
 	GameManagerWorldComponent* gameMgrCmp = scene->GetWorldComponent<GameManagerWorldComponent>();
 
 	Entity* camera = DeferredTaskSystem::SpawnEntityImmediate(scene);
-	CameraComponent* cameraCmp = DeferredTaskSystem::AddComponentImmediate<CameraComponent>(scene, camera, 35_deg, 1.0f, 5000.f);
+	CameraComponent* cameraCmp = DeferredTaskSystem::AddComponentImmediate<CameraComponent>(scene, camera, 35_deg, 1.0f, 4000.f);
 	DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(scene, camera, 100.0f, 0.003f, 10.0f);
 	gameMgrCmp->PostCmp = DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(scene, camera);
 
@@ -102,14 +102,14 @@ void GameManagerSystem::CreateShadowsTestScene(Scene* scene)
 	// DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(scene, gameMgrCmp->KeyDirLight.Get(), Color(1.0f, 0.8f, 0.8f), 15.0f);
 	DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(scene, gameMgrCmp->KeyDirLight.Get(), Color(1.0f, 0.8f, 0.8f), 2.0f);
 	// keyDirLight->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_Y, -45_deg) * Quaternion(Vector::UNIT_X, -65_deg));
-	gameMgrCmp->KeyDirLight->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_X, 60_deg) * Quaternion(Vector::UNIT_Y, -20_deg));
+	gameMgrCmp->KeyDirLight->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_X, 85_deg) * Quaternion(Vector::UNIT_Y, -20_deg));
 	gameMgrCmp->GameEntities.PushBack(gameMgrCmp->KeyDirLight);
 
 		
 	DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(scene, "HDR/HDR.hdr", eResourceSource::GAME);
 
 	Entity* entityPlane = CreateModel(scene, "Models/Primitives/Cube.obj");
-	entityPlane->GetTransform().SetGlobalScale(Vector(4000.0f, 0.1f, 1000.0f));
+	entityPlane->GetTransform().SetGlobalScale(Vector(4000.0f, 0.1f, 2000.0f));
 	entityPlane->GetTransform().SetGlobalTranslation(Vector::UNIT_Y * -100.0f);
 
 	CreateRandomCubes(scene);
@@ -399,8 +399,8 @@ void GameManagerSystem::Update(Scene* scene)
 	Matrix rotation = rotationQuat.ToRotationMatrix();
 	translation.SetTranslation(position);
 
-	dirLight->DebugFrustum = Frustum(35.0_deg, 2.4f, 1.0f, 500.0f);
-	dirLight->DebugFrustumWorldFromModel = translation * rotation;
+	// dirLight->DebugFrustum = Frustum(35.0_deg, 2.4f, 1.0f, 500.0f);
+	// dirLight->DebugFrustumWorldFromModel = translation * rotation;
 
 	/*
 	// Transform frustum corners to DirLightSpace
@@ -585,12 +585,12 @@ void GameManagerSystem::UpdateLights(Scene* scene)
 		gameMgrCmp->PointLight->GetTransform().SetGlobalTranslation(Vector(c, 0.0f, s) * r + Vector::UNIT_Y * 200.0f);
 	}
 
-	if (gameMgrCmp->KeyDirLight)
-	{
-		float anim = Sin(0.5_rad * time) * 0.5f + 0.5f;
-		anim = SmoothStep(0.1f, 0.9f, anim);
-		gameMgrCmp->KeyDirLight->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_X, Lerp(30.0_deg, 90.0_deg, anim)) * Quaternion(Vector::UNIT_Y, -20_deg));
-	}
+	// if (gameMgrCmp->KeyDirLight)
+	// {
+	// 	float anim = Sin(0.5_rad * time) * 0.5f + 0.5f;
+	// 	anim = SmoothStep(0.1f, 0.9f, anim);
+	// 	gameMgrCmp->KeyDirLight->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_X, Lerp(30.0_deg, 90.0_deg, anim)) * Quaternion(Vector::UNIT_Y, -20_deg));
+	// }
 
 	for (size_t i = 0; i < gameMgrCmp->LightsStartPositions.GetSize(); ++i)
 	{
