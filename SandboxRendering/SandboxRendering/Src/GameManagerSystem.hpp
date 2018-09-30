@@ -35,9 +35,6 @@ namespace GameManagerSystem
 
 	void Update(Scene* world);	
 	void DrawFrustumPoints(Scene* scene, Dynarray<Vector>& cornersInWorld, Color color);
-	bool AABBOverlap(const AABox& a, const AABox& b);
-	bool AABBOverlapXY(const AABox& a, const AABox& b);
-	void DrawBox(Scene* world, const Vector& mins, const Vector& maxs, const Color& color, Matrix& space);
 	void UpdateCameraAspect(Poly::Scene * scene);
 	// void UpdateSkybox(Poly::Scene * scene);
 	void UpdateLights(Scene* world);
