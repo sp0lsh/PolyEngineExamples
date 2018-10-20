@@ -25,6 +25,7 @@ public:
 	PostprocessSettingsComponent* PostCmp;
 	SafePtr<Entity> Model;
 	bool IsDrawingDebugMeshes = true;
+	bool IsPaused = false;
 	Dynarray<SafePtr<Entity>> GameEntities;
 
 	ParticleComponent* particleDefault;
