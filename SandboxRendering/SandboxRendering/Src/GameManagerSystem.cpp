@@ -114,11 +114,11 @@ void GameManagerSystem::CreateShadowsTestScene(Scene* scene)
 
 	CreateRandomCubes(scene);
 
-	Entity* sponza = DeferredTaskSystem::SpawnEntityImmediate(scene);
-	DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(scene, sponza, "Models/Sponza/sponza.obj", eResourceSource::GAME);
-	// sponza->GetTransform().SetGlobalScale(Vector::ONE * 0.5f);
-	sponza->GetTransform().SetGlobalTranslation(Vector::UNIT_X * 1000.0f);
-	gameMgrCmp->GameEntities.PushBack(sponza);
+	// Entity* sponza = DeferredTaskSystem::SpawnEntityImmediate(scene);
+	// DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(scene, sponza, "Models/Sponza/sponza.obj", eResourceSource::GAME);
+	// // sponza->GetTransform().SetGlobalScale(Vector::ONE * 0.5f);
+	// sponza->GetTransform().SetGlobalTranslation(Vector::UNIT_X * 1000.0f);
+	// gameMgrCmp->GameEntities.PushBack(sponza);
 }
 
 void GameManagerSystem::PostProcessFancyCold(PostprocessSettingsComponent* postCmp)
@@ -388,18 +388,26 @@ void GameManagerSystem::Update(Scene* scene)
 {
 	UpdateLights(scene);
 
+	float time = (float)(scene->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
+	GameManagerWorldComponent* gameMgrCmp = scene->GetWorldComponent<GameManagerWorldComponent>();
+	DirectionalLightComponent* dirLight = gameMgrCmp->KeyDirLight.Get()->GetComponent<DirectionalLightComponent>();
+
+	float arrowLength = 50.0f;
+	Vector axesPivot = Vector::UNIT_Y * 500.0f;
+	DebugDrawSystem::DrawLine(scene, axesPivot, axesPivot + MovementSystem::GetGlobalForward(dirLight->GetTransform()) * arrowLength,  Color(1.0f, 1.0f, 0.0f));
+	DebugDrawSystem::DrawLine(scene, axesPivot, axesPivot + Vector::UNIT_X * arrowLength, Color::RED);
+	DebugDrawSystem::DrawLine(scene, axesPivot, axesPivot + Vector::UNIT_Y * arrowLength, Color::GREEN);
+	DebugDrawSystem::DrawLine(scene, axesPivot, axesPivot + Vector::UNIT_Z * arrowLength, Color::BLUE);
+
 	// UpdateCameraAspect(scene);
 
 	// UpdateSkybox(scene);
 
 	// UpdateModel(scene);
 	
-	float time = (float)(scene->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
-	GameManagerWorldComponent* gameMgrCmp = scene->GetWorldComponent<GameManagerWorldComponent>();
-	DirectionalLightComponent* dirLight = gameMgrCmp->KeyDirLight.Get()->GetComponent<DirectionalLightComponent>();
 
 	// DEBUG: Recreate camera matrices for test
-	Vector frustumPosition = Vector::UNIT_Y * -300.0f + Vector::UNIT_Z * 100.0f + Vector::UNIT_X * 2000.0f * Cos(10_deg * time);
+	Vector frustumPosition = Vector::UNIT_Z * 100.0f + Vector::UNIT_X * 2000.0f * Cos(10_deg * time);
 	Quaternion frustumRotationQuat = Quaternion(Vector::UNIT_X, 120_deg * Sin(5_deg * time))
 		* Quaternion(Vector::UNIT_Y, 120_deg * Sin(-10_deg * time));
 
@@ -438,10 +446,6 @@ void GameManagerSystem::Update(Scene* scene)
 
 	DrawFrustumPoints(scene, cornersInWS, Color::RED);
 
-	// Transform frustum corners from World to DirLight
-	Matrix worldFromDirLight = dirLight->GetTransform().GetWorldFromModel();
-	Matrix dirLightFromWorld = worldFromDirLight.GetInversed();
-
 	// based on https://mynameismjp.wordpress.com/2013/09/10/shadow-maps/
 	// Stabilize shadow map: calculate sphere bounds around frustum to minimize AABB changes on frustum rotation 
 	// Calculate the centroid of the view frustum slice
@@ -466,20 +470,23 @@ void GameManagerSystem::Update(Scene* scene)
 	AABox frustumAABBInWS(frustumMinInWS, frustumMaxInWS - frustumMinInWS);
 	DebugDrawSystem::DrawBox(scene, frustumMinInWS, frustumMaxInWS, Color::BLUE);
 
-	AABox frustumAABBinLS = frustumAABBInWS.GetTransformed(dirLightFromWorld);
-	FindShadowCasters(scene, dirLightFromWorld, worldFromDirLight, frustumAABBinLS);
-	DebugDrawSystem::DrawBox(scene, frustumAABBinLS.GetMin(), frustumAABBinLS.GetMax(), worldFromDirLight, Color::BLUE * 0.5f);
+	// Transform frustum corners from World to DirLight
+	// Matrix worldFromDirLight = dirLight->GetTransform().GetWorldFromModel();
+	// Matrix dirLightFromWorld = worldFromDirLight.GetInversed();
+
+	// AABox frustumAABBinLS = frustumAABBInWS.GetTransformed(dirLightFromWorld);
+	// FindShadowCasters(scene, dirLightFromWorld, worldFromDirLight, frustumAABBinLS);
 
 	// convert height of frustumAABBinLS extended by shadow casters to world space
-	Vector minTmp = worldFromDirLight * frustumAABBinLS.GetMin();
-	Vector maxTmp = worldFromDirLight * frustumAABBinLS.GetMax();
-	DebugDrawSystem::DrawBox(scene, minTmp, maxTmp, Color(0.0f, 1.0f, 1.0f));
+	// Vector minTmp = worldFromDirLight * frustumAABBinLS.GetMin();
+	// Vector maxTmp = worldFromDirLight * frustumAABBinLS.GetMax();
+	// DebugDrawSystem::DrawBox(scene, minTmp, maxTmp, Color(0.0f, 1.0f, 1.0f));
 
 	// extend world space frustum AABB by height from frustumAABBinLS
-	Vector center = frustumAABBInWS.GetCenter();
-	frustumAABBInWS.Expand(Vector(center.X, center.Y, std::min(frustumAABBInWS.GetMin().Z, minTmp.Z)));
-	frustumAABBInWS.Expand(Vector(center.X, center.Y, std::max(frustumAABBInWS.GetMax().Z, maxTmp.Z)));
-	DebugDrawSystem::DrawBox(scene, frustumAABBInWS, Color(1.0f, 0.0f, 1.0f));
+	// Vector center = frustumAABBInWS.GetCenter();
+	// frustumAABBInWS.Expand(Vector(center.X, center.Y, std::min(frustumAABBInWS.GetMin().Z, minTmp.Z)));
+	// frustumAABBInWS.Expand(Vector(center.X, center.Y, std::max(frustumAABBInWS.GetMax().Z, maxTmp.Z)));
+	// DebugDrawSystem::DrawBox(scene, frustumAABBInWS, Color(1.0f, 0.0f, 1.0f));
 	dirLight->DebugShadowAABBInWS = frustumAABBInWS;
 }
 
@@ -522,7 +529,7 @@ void GameManagerSystem::FindShadowCasters(Scene* scene, const Matrix &dirLightFr
 
 	Vector center = frustumAABBInLS.GetCenter(); // X and Y should be neutral so AABB expanded only on Z axis
 	frustumAABBInLS.Expand(Vector(center.X, center.Y, minZ))
-				.Expand(Vector(center.X, center.Y, maxZ));
+					.Expand(Vector(center.X, center.Y, maxZ));
 
 	DebugDrawSystem::DrawBox(scene, frustumAABBInLS.GetMin(), frustumAABBInLS.GetMax(), worldFromDirLight, Color(1.0f, 1.0f, 0.0f));
 
@@ -549,7 +556,6 @@ void GameManagerSystem::FindShadowCasters(Scene* scene, const Matrix &dirLightFr
 	}
 
 	gConsole.LogInfo("GameManagerSystem::FillDirLightQueue casters: {}/{}", shadowCastersCounter, meshCmps.GetSize());
-
 }
 
 void GameManagerSystem::UpdatePostProcess(Scene* scene)
@@ -607,14 +613,14 @@ void GameManagerSystem::UpdateLights(Scene* scene)
 		gameMgrCmp->PointLight->GetTransform().SetGlobalTranslation(Vector(c, 0.0f, s) * r + Vector::UNIT_Y * 200.0f);
 	}
 
-	// if (gameMgrCmp->KeyDirLight)
-	// {
-	// 	float anim = Sin(0.1_rad * time) * 0.5f + 0.5f;
-	// 	anim = SmoothStep(0.1f, 0.9f, anim);
-	// 	gameMgrCmp->KeyDirLight->GetTransform().SetGlobalRotation(
-	// 		Quaternion(Vector::UNIT_X, Lerp(70.0_deg, 110.0_deg, anim))
-	// 		* Quaternion(Vector::UNIT_Y, -20_deg));
-	// }
+	if (gameMgrCmp->KeyDirLight)
+	{
+		float anim = Sin(0.5_rad * time) * 0.5f + 0.5f;
+		// float smooth = SmoothStep(0.1f, 0.9f, anim);
+		gameMgrCmp->KeyDirLight->GetTransform().SetGlobalRotation(
+			  Quaternion(Vector::UNIT_X, Lerp(0.0_deg, -180.0_deg, anim))
+		);
+	}
 
 	for (size_t i = 0; i < gameMgrCmp->LightsStartPositions.GetSize(); ++i)
 	{
