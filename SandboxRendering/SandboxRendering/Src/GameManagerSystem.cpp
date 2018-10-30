@@ -18,7 +18,7 @@
 #include <Time/TimeWorldComponent.hpp>
 #include <UI/ScreenSpaceTextComponent.hpp>
 
-#include <Imgui/imgui.h>
+#include <imgui.h>
 
 using namespace Poly;
 
