@@ -17,6 +17,7 @@
 #include <Resources/ResourceManager.hpp>
 #include <Time/TimeWorldComponent.hpp>
 #include <UI/ScreenSpaceTextComponent.hpp>
+#include <imgui.h>
 
 using namespace Poly;
 
@@ -100,13 +101,10 @@ void GameManagerSystem::CreateShadowsTestScene(Scene* scene)
 
 	gameMgrCmp->KeyDirLight = DeferredTaskSystem::SpawnEntityImmediate(scene);
 	DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(scene, gameMgrCmp->KeyDirLight.Get(), Color(1.0f, 0.8f, 0.8f), 10.0f);
-	// keyDirLight->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_Y, -45_deg) * Quaternion(Vector::UNIT_X, -65_deg));
-	// gameMgrCmp->KeyDirLight->GetTransform().SetGlobalRotation(Quaternion(Vector::UNIT_X, 85_deg) * Quaternion(Vector::UNIT_Y, -20_deg));
-	gameMgrCmp->KeyDirLight->GetTransform().SetGlobalRotation(Quaternion(EulerAngles(85.0_deg, 0.0_deg, 0.0_deg)));
+	//gameMgrCmp->KeyDirLight->GetTransform().SetGlobalRotation(Quaternion(EulerAngles(-85.0_deg, 0.0_deg, 0.0_deg)));
 	gameMgrCmp->GameEntities.PushBack(gameMgrCmp->KeyDirLight);
-
 		
-	DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(scene, "HDR/Path.hdr", eResourceSource::GAME);
+	DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(scene, "HDR/HDR.hdr", eResourceSource::GAME);
 
 	Entity* entityPlane = CreateModel(scene, "Models/Primitives/Cube.obj");
 	entityPlane->GetTransform().SetGlobalScale(Vector(4000.0f, 0.1f, 2000.0f));
@@ -386,49 +384,89 @@ void GameManagerSystem::DrawFrustumPoints(Scene* scene, Dynarray<Vector> &corner
 
 void GameManagerSystem::Update(Scene* scene)
 {
-	UpdateLights(scene);
-
+	UpdateLights(scene);	
+	
 	float time = (float)(scene->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
 	GameManagerWorldComponent* gameMgrCmp = scene->GetWorldComponent<GameManagerWorldComponent>();
 	DirectionalLightComponent* dirLight = gameMgrCmp->KeyDirLight.Get()->GetComponent<DirectionalLightComponent>();
 
-	float arrowLength = 50.0f;
-	Vector axesPivot = Vector::UNIT_Y * 500.0f;
-	DebugDrawSystem::DrawLine(scene, axesPivot, axesPivot + MovementSystem::GetGlobalForward(dirLight->GetTransform()) * arrowLength,  Color(1.0f, 1.0f, 0.0f));
-	DebugDrawSystem::DrawLine(scene, axesPivot, axesPivot + Vector::UNIT_X * arrowLength, Color::RED);
-	DebugDrawSystem::DrawLine(scene, axesPivot, axesPivot + Vector::UNIT_Y * arrowLength, Color::GREEN);
-	DebugDrawSystem::DrawLine(scene, axesPivot, axesPivot + Vector::UNIT_Z * arrowLength, Color::BLUE);
-
-	// UpdateCameraAspect(scene);
-
-	// UpdateSkybox(scene);
-
-	// UpdateModel(scene);
+	if (ImGui::GetCurrentContext() == nullptr || !ImGui::GetIO().Fonts->IsBuilt())
+		return;
 	
+	ImGui::Begin("Shadows debug panel");
+	{
+		static float vec3f[3] = { -90.0f, 0.0f, 0.0f };
+		if (ImGui::Button("Reset Sun Direction")) { vec3f[0] = -90.0f; vec3f[1] = vec3f[2] = 0.0f; }
+		ImGui::DragFloat3("Sun Global Rotation", vec3f, 0.1f, -1000.0f, 1000.0f);
+		dirLight->GetTransform().SetGlobalRotation(Quaternion(EulerAngles(1.0_deg * vec3f[0], 1.0_deg * vec3f[1], 1.0_deg * vec3f[2])));
+	}
 
-	// DEBUG: Recreate camera matrices for test
-	Vector frustumPosition = Vector::UNIT_Z * 100.0f + Vector::UNIT_X * 2000.0f * Cos(10_deg * time);
-	Quaternion frustumRotationQuat = Quaternion(Vector::UNIT_X, 120_deg * Sin(5_deg * time))
-		* Quaternion(Vector::UNIT_Y, 120_deg * Sin(-10_deg * time));
+	static EulerAngles frustumRotationEuler(0.0_deg, 0.0_deg, 0.0_deg);
+	static Vector frustumPosition = Vector::UNIT_Z * 100.0f;
+	static float frustumFov		= 45.0f;
+	static float frustumAspect	= 2.30f;
+	static float frustumNear	= 1.0f;
+	static float frustumFar		= 200.0f;
+	{
+		float vec3f[3] = { frustumRotationEuler.X.AsDegrees(), frustumRotationEuler.Y.AsDegrees(), frustumRotationEuler.Z.AsDegrees() };
+		ImGui::DragFloat3("Frustum Global Rotation", vec3f, 0.1f, 1000.0f, 1000.0f);
+		frustumRotationEuler = EulerAngles(1.0_deg * vec3f[0], 1.0_deg * vec3f[1], 1.0_deg * vec3f[2]);
+		ImGui::DragFloat3("Frustum Global Position", frustumPosition.Data.data(), 0.5f, 2000.0f, 2000.0f, "%.2f", 2.0f);
+		static const float f32_zero	= 0.0f;
+		static const float f32_half = 0.5f;
+		static const float f32_one	= 1.0f;
+		static const float f32_3	= 3.0f;
+		static const float f32_180	= 180.0f;
+		static const float f32_max	= 10000.0f;
+		ImGui::SliderScalar("Frustum Fov",		ImGuiDataType_Float, &frustumFov,		&f32_one,		&f32_180);
+		ImGui::SliderScalar("Frustum Aspect",	ImGuiDataType_Float, &frustumAspect,	&f32_half,		&f32_3);
+		ImGui::SliderScalar("Frustum Near",		ImGuiDataType_Float, &frustumNear,		&f32_one,		&frustumFar);
+		static float minFrustumFar = frustumNear + 1.0f;
+		ImGui::SliderScalar("Frustum Far",		ImGuiDataType_Float, &frustumFar,		&minFrustumFar,	&f32_max);
+	}
+	static bool sunShowAxes = true;
+	static bool frustumShowBounds = true;
+	static bool meshesShowBounds = true;
+	ImGui::Checkbox("Sun show axes", &sunShowAxes);
+	ImGui::Checkbox("Frustum show bounds", &frustumShowBounds);
+	ImGui::Checkbox("Meshes show bounds", &meshesShowBounds);
+	ImGui::End();
 
+	{
+		Vector axesPivot = Vector::UNIT_Y * 400.0f;
+		DebugDrawSystem::DrawLine(scene, axesPivot, axesPivot + Vector::UNIT_X * 25.0f, Color::RED);
+		DebugDrawSystem::DrawLine(scene, axesPivot, axesPivot + Vector::UNIT_Y * 25.0f, Color::GREEN);
+		DebugDrawSystem::DrawLine(scene, axesPivot, axesPivot + Vector::UNIT_Z * 25.0f, Color::BLUE);
+	}
+
+	if (sunShowAxes)
+	{
+		Vector axesPivot = Vector::UNIT_Y * 450.0f;
+		DebugDrawSystem::DrawLine(scene, axesPivot, axesPivot + dirLight->GetTransform().GetGlobalForward() * 50.0f, Color::BLACK);
+		DebugDrawSystem::DrawLine(scene, axesPivot, axesPivot + (dirLight->GetTransform().GetParentFromModel() * Vector::UNIT_X) * 25.0f, Color::RED);
+		DebugDrawSystem::DrawLine(scene, axesPivot, axesPivot + (dirLight->GetTransform().GetParentFromModel() * Vector::UNIT_Y) * 25.0f, Color::GREEN);
+		DebugDrawSystem::DrawLine(scene, axesPivot, axesPivot + (dirLight->GetTransform().GetParentFromModel() * Vector::UNIT_Z) * 25.0f, Color::BLUE);
+	}
+	
 	Matrix frustumTranslationMat;
 	frustumTranslationMat.SetTranslation(frustumPosition);
 
 	Matrix clipFromView;
-	clipFromView.SetPerspective(45_deg, 2.30f, 1.0f, 500.0f);
-	Matrix viewFromWorld = frustumRotationQuat.ToRotationMatrix() * frustumTranslationMat;
+	clipFromView.SetPerspective(1_deg * frustumFov, frustumAspect, frustumNear, frustumFar);
+	Matrix viewFromWorld = Quaternion(frustumRotationEuler).ToRotationMatrix() * frustumTranslationMat;
 	Matrix clipFromWorld = clipFromView * viewFromWorld;
 
 	// Transform frustum corners to DirLightSpace
-	Dynarray<Vector> cornersInNDC {
-		Vector(-1.0f,  1.0f, -1.0f), // back  left	top
-		Vector( 1.0f,  1.0f, -1.0f), // back  right top
-		Vector(-1.0f, -1.0f, -1.0f), // back  left  bot
-		Vector( 1.0f, -1.0f, -1.0f), // back  right bot
-		Vector(-1.0f,  1.0f,  1.0f), // front left	top
-		Vector( 1.0f,  1.0f,  1.0f), // front right top
-		Vector(-1.0f, -1.0f,  1.0f), // front left  bot
-		Vector( 1.0f, -1.0f,  1.0f)	 // front right bot
+	Dynarray<Vector> cornersInNDC
+	{
+        Vector(-1.0f,  1.0f, -1.0f), // back  left  top
+        Vector( 1.0f,  1.0f, -1.0f), // back  right top
+        Vector(-1.0f, -1.0f, -1.0f), // back  left  bot
+        Vector( 1.0f, -1.0f, -1.0f), // back  right bot
+        Vector(-1.0f,  1.0f,  1.0f), // front left  top
+        Vector( 1.0f,  1.0f,  1.0f), // front right top
+        Vector(-1.0f, -1.0f,  1.0f), // front left  bot
+        Vector( 1.0f, -1.0f,  1.0f)	 // front right bot
 	};
 
 	// Transform frustum corners from NDC to World
@@ -443,16 +481,15 @@ void GameManagerSystem::Update(Scene* scene)
 		posInWS.Z /= posInWS.W;
 		cornersInWS.PushBack(posInWS);
 	}
-
 	DrawFrustumPoints(scene, cornersInWS, Color::RED);
 
 	// based on https://mynameismjp.wordpress.com/2013/09/10/shadow-maps/
 	// Stabilize shadow map: calculate sphere bounds around frustum to minimize AABB changes on frustum rotation 
 	// Calculate the centroid of the view frustum slice
-	Vector frustumCenterInWS = Vector::ZERO;
+	Vector frustumCenterInWS;
 	for (Vector posInWS : cornersInWS)
 	{
-		frustumCenterInWS = frustumCenterInWS + posInWS;
+		frustumCenterInWS += posInWS;
 	}
 	frustumCenterInWS *= 1.0f / 8.0f;
 
@@ -462,13 +499,28 @@ void GameManagerSystem::Update(Scene* scene)
 		float radius = (cornersInWS[0] - posInWS).Length();
 		maxRadius = std::max(maxRadius, radius);
 	}
-	maxRadius = std::ceilf(maxRadius * 16.0f) / 16.0f;
-	DebugDrawSystem::DrawSphere(scene, frustumCenterInWS, maxRadius);
-
+	// maxRadius = std::ceilf(maxRadius * 16.0f) / 16.0f;
+	maxRadius = std::ceilf(maxRadius);
+	
 	Vector frustumMinInWS = frustumCenterInWS - Vector::ONE * maxRadius;
 	Vector frustumMaxInWS = frustumCenterInWS + Vector::ONE * maxRadius;
 	AABox frustumAABBInWS(frustumMinInWS, frustumMaxInWS - frustumMinInWS);
-	DebugDrawSystem::DrawBox(scene, frustumMinInWS, frustumMaxInWS, Color::BLUE);
+
+	Vector lightForward = dirLight->GetTransform().GetGlobalForward();
+	Vector lightUp = dirLight->GetTransform().GetGlobalUp();
+	Matrix lightFromWorld = Matrix(Vector::ZERO, lightForward, lightUp);
+	Matrix worldFromLight = lightFromWorld.GetInversed();
+	Vector frustumMinInLS = lightFromWorld * (frustumCenterInWS - Vector::ONE * maxRadius);
+	Vector frustumMaxInLS = lightFromWorld * (frustumCenterInWS + Vector::ONE * maxRadius);
+	// AABox frustumAABBInLS(frustumMinInLS, frustumMaxInLS - frustumMinInLS);
+	
+	if (frustumShowBounds)
+	{
+		DebugDrawSystem::DrawSphere(scene, frustumCenterInWS, maxRadius, Color::RED);
+		DebugDrawSystem::DrawBox(scene, frustumMinInWS, frustumMaxInWS, Color::RED*0.5f);
+		DebugDrawSystem::DrawSphere(scene, frustumCenterInWS, 5.0f, Color::RED*0.25f);
+		// DebugDrawSystem::DrawBox(scene, frustumMinInLS, frustumMaxInLS, worldFromLight, Color(1.0f, 1.0f, 0.0f));
+	}
 
 	// Transform frustum corners from World to DirLight
 	// Matrix worldFromDirLight = dirLight->GetTransform().GetWorldFromModel();
@@ -611,15 +663,6 @@ void GameManagerSystem::UpdateLights(Scene* scene)
 		float s = Sin(a);
 		float c = Cos(a);
 		gameMgrCmp->PointLight->GetTransform().SetGlobalTranslation(Vector(c, 0.0f, s) * r + Vector::UNIT_Y * 200.0f);
-	}
-
-	if (gameMgrCmp->KeyDirLight)
-	{
-		float anim = Sin(0.5_rad * time) * 0.5f + 0.5f;
-		// float smooth = SmoothStep(0.1f, 0.9f, anim);
-		gameMgrCmp->KeyDirLight->GetTransform().SetGlobalRotation(
-			  Quaternion(Vector::UNIT_X, Lerp(0.0_deg, -180.0_deg, anim))
-		);
 	}
 
 	for (size_t i = 0; i < gameMgrCmp->LightsStartPositions.GetSize(); ++i)
