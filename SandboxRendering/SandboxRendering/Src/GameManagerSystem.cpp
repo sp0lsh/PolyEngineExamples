@@ -67,10 +67,6 @@ void GameManagerSystem::CreateShadingTestScene(Scene* scene)
 
 	CreatePointLights(scene, 100);
 
-	// Entity* entityPlane = CreateModel(scene, "Models/Primitives/Cube.obj");
-	// entityPlane->GetTransform().SetGlobalScale(Vector(5000.0f, 1.0f, 5000.0f));
-
-
 	// Entity* sponza = DeferredTaskSystem::SpawnEntityImmediate(scene);
 	// DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(scene, sponza, "Models/Sponza/sponza.obj", eResourceSource::GAME);
 	// gameMgrCmp->GameEntities.PushBack(sponza);
@@ -100,7 +96,7 @@ void GameManagerSystem::CreateShadowsTestScene(Scene* scene)
 	viewportCmp->SetCamera(0, cameraCmp);
 
 	gameMgrCmp->KeyDirLight = DeferredTaskSystem::SpawnEntityImmediate(scene);
-	DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(scene, gameMgrCmp->KeyDirLight.Get(), Color(1.0f, 0.8f, 0.8f), 10.0f);
+	DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(scene, gameMgrCmp->KeyDirLight.Get(), Color(1.0f, 0.8f, 0.8f), 5.0f);
 	//gameMgrCmp->KeyDirLight->GetTransform().SetGlobalRotation(Quaternion(EulerAngles(-85.0_deg, 0.0_deg, 0.0_deg)));
 	gameMgrCmp->GameEntities.PushBack(gameMgrCmp->KeyDirLight);
 		
@@ -112,10 +108,13 @@ void GameManagerSystem::CreateShadowsTestScene(Scene* scene)
 
 	CreateRandomCubes(scene);
 
+	Entity* entityShadow = CreateModel(scene, "Models/ShadowTest.fbx");
+	entityShadow->GetTransform().SetGlobalRotation(Quaternion(EulerAngles(-90.0_deg, 0.0_deg, 0.0_deg)));
+	gameMgrCmp->GameEntities.PushBack(entityShadow);
+
 	// Entity* sponza = DeferredTaskSystem::SpawnEntityImmediate(scene);
 	// DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(scene, sponza, "Models/Sponza/sponza.obj", eResourceSource::GAME);
-	// // sponza->GetTransform().SetGlobalScale(Vector::ONE * 0.5f);
-	// sponza->GetTransform().SetGlobalTranslation(Vector::UNIT_X * 1000.0f);
+	// sponza->GetTransform().SetGlobalTranslation(Vector::UNIT_X * 5000.0f);
 	// gameMgrCmp->GameEntities.PushBack(sponza);
 }
 
@@ -510,16 +509,13 @@ void GameManagerSystem::Update(Scene* scene)
 	Vector lightUp = dirLight->GetTransform().GetGlobalUp();
 	Matrix lightFromWorld = Matrix(Vector::ZERO, lightForward, lightUp);
 	Matrix worldFromLight = lightFromWorld.GetInversed();
-	Vector frustumMinInLS = lightFromWorld * (frustumCenterInWS - Vector::ONE * maxRadius);
-	Vector frustumMaxInLS = lightFromWorld * (frustumCenterInWS + Vector::ONE * maxRadius);
-	// AABox frustumAABBInLS(frustumMinInLS, frustumMaxInLS - frustumMinInLS);
-	
+
 	if (frustumShowBounds)
 	{
 		DebugDrawSystem::DrawSphere(scene, frustumCenterInWS, maxRadius, Color::RED);
 		DebugDrawSystem::DrawBox(scene, frustumMinInWS, frustumMaxInWS, Color::RED*0.5f);
 		DebugDrawSystem::DrawSphere(scene, frustumCenterInWS, 5.0f, Color::RED*0.25f);
-		// DebugDrawSystem::DrawBox(scene, frustumMinInLS, frustumMaxInLS, worldFromLight, Color(1.0f, 1.0f, 0.0f));
+		// DebugDrawSystem::DrawBox(scene, halfFrustumAABBInWS, Color::RED*0.1f);
 	}
 
 	// Transform frustum corners from World to DirLight
