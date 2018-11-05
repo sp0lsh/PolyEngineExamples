@@ -34,7 +34,7 @@ namespace GameManagerSystem
 	void SpawnShaderball(Scene* world);
 
 	void Update(Scene* world);
-	void FindShadowCasters(Scene* scene, const Matrix &dirLightFromWorld, const Matrix &worldFromDirLight, AABox &dirLightAABB);
+	void FindShadowCasters(Scene* scene, const Matrix &dirLightFromWorld, const Matrix &worldFromDirLight, AABox &dirLightAABB, bool drawBounds);
 	void DrawFrustumPoints(Scene* scene, Dynarray<Vector> &cornersInWorld, Color color);
 	void UpdateCameraAspect(Scene* scene);
 	void UpdateLights(Scene* world);
