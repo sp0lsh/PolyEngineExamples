@@ -77,7 +77,8 @@ void GameManagerSystem::CreateShadowsTestScene(Scene* scene)
 	GameManagerWorldComponent* gameMgrCmp = scene->GetWorldComponent<GameManagerWorldComponent>();
 
 	Entity* camera = DeferredTaskSystem::SpawnEntityImmediate(scene);
-	CameraComponent* cameraCmp = DeferredTaskSystem::AddComponentImmediate<CameraComponent>(scene, camera, 35_deg, 1.0f, 10000.f);
+	// CameraComponent* cameraCmp = DeferredTaskSystem::AddComponentImmediate<CameraComponent>(scene, camera, 35_deg, 1.0f, 10000.f);
+	CameraComponent* cameraCmp = DeferredTaskSystem::AddComponentImmediate<CameraComponent>(scene, camera, 35_deg, 1.0f, 200.f);
 	DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(scene, camera, 100.0f, 0.003f, 10.0f);
 	gameMgrCmp->PostCmp = DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(scene, camera);
 
@@ -112,10 +113,10 @@ void GameManagerSystem::CreateShadowsTestScene(Scene* scene)
 	entityShadow->GetTransform().SetGlobalRotation(Quaternion(EulerAngles(-90.0_deg, 0.0_deg, 0.0_deg)));
 	gameMgrCmp->GameEntities.PushBack(entityShadow);
 
-	Entity* sponza = DeferredTaskSystem::SpawnEntityImmediate(scene);
-	DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(scene, sponza, "Models/Sponza/sponza.obj", eResourceSource::GAME);
-	sponza->GetTransform().SetGlobalTranslation(Vector::UNIT_X * 5000.0f);
-	gameMgrCmp->GameEntities.PushBack(sponza);
+	// Entity* sponza = DeferredTaskSystem::SpawnEntityImmediate(scene);
+	// DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(scene, sponza, "Models/Sponza/sponza.obj", eResourceSource::GAME);
+	// sponza->GetTransform().SetGlobalTranslation(Vector::UNIT_X * 5000.0f);
+	// gameMgrCmp->GameEntities.PushBack(sponza);
 }
 
 void GameManagerSystem::PostProcessFancyCold(PostprocessSettingsComponent* postCmp)
@@ -465,107 +466,113 @@ void GameManagerSystem::Update(Scene* scene)
 		DebugDrawSystem::DrawLine(scene, axesPivot, axesPivot + Vector::UNIT_Z * 25.0f, Color::BLUE);
 	}
 
-	Matrix frustumTranslationMat;
-	frustumTranslationMat.SetTranslation(frustumPosition);
-
-	Matrix clipFromView;
-	clipFromView.SetPerspective(1_deg * frustumFov, frustumAspect, frustumNear, frustumFar);
-	Matrix viewFromWorld = Quaternion(frustumRotationEuler).ToRotationMatrix() * frustumTranslationMat;
-	Matrix clipFromWorld = clipFromView * viewFromWorld;
-
-	// Transform frustum corners to DirLightSpace
-	Dynarray<Vector> cornersInNDC
-	{
-        Vector(-1.0f,  1.0f, -1.0f), // back  left  top
-        Vector( 1.0f,  1.0f, -1.0f), // back  right top
-        Vector(-1.0f, -1.0f, -1.0f), // back  left  bot
-        Vector( 1.0f, -1.0f, -1.0f), // back  right bot
-        Vector(-1.0f,  1.0f,  1.0f), // front left  top
-        Vector( 1.0f,  1.0f,  1.0f), // front right top
-        Vector(-1.0f, -1.0f,  1.0f), // front left  bot
-        Vector( 1.0f, -1.0f,  1.0f)	 // front right bot
-	};
-
-	// Transform frustum corners from NDC to World
+// 	Matrix frustumTranslationMat;
+// 	frustumTranslationMat.SetTranslation(frustumPosition);
+// 
+// 	Matrix clipFromView;
+// 	clipFromView.SetPerspective(1_deg * frustumFov, frustumAspect, frustumNear, frustumFar);
+// 	Matrix viewFromWorld = Quaternion(frustumRotationEuler).ToRotationMatrix() * frustumTranslationMat;
+// 	Matrix clipFromWorld = clipFromView * viewFromWorld;
+// 
+// 	// Transform frustum corners to DirLightSpace
+// 	Dynarray<Vector> cornersInNDC
+// 	{
+//         Vector(-1.0f,  1.0f, -1.0f), // back  left  top
+//         Vector( 1.0f,  1.0f, -1.0f), // back  right top
+//         Vector(-1.0f, -1.0f, -1.0f), // back  left  bot
+//         Vector( 1.0f, -1.0f, -1.0f), // back  right bot
+//         Vector(-1.0f,  1.0f,  1.0f), // front left  top
+//         Vector( 1.0f,  1.0f,  1.0f), // front right top
+//         Vector(-1.0f, -1.0f,  1.0f), // front left  bot
+//         Vector( 1.0f, -1.0f,  1.0f)	 // front right bot
+// 	};
+// 
+// 	// Transform frustum corners from NDC to World
 	// could be done in one iteration but we need to do perspective division by W
-	Matrix worldFromClip = clipFromWorld.GetInversed();
-	Dynarray<Vector> cornersInWS;
-	for (Vector posInClip : cornersInNDC)
-	{
-		Vector posInWS = worldFromClip * posInClip;
-		posInWS.X /= posInWS.W;
-		posInWS.Y /= posInWS.W;
-		posInWS.Z /= posInWS.W;
-		cornersInWS.PushBack(posInWS);
-	}
-	DrawFrustumPoints(scene, cornersInWS, Color::RED);
-
-	// based on https://mynameismjp.wordpress.com/2013/09/10/shadow-maps/
+// 	Matrix worldFromClip = clipFromWorld.GetInversed();
+// 	Dynarray<Vector> cornersInWS;
+// 	for (Vector posInClip : cornersInNDC)
+// 	{
+// 		Vector posInWS = worldFromClip * posInClip;
+// 		posInWS.X /= posInWS.W;
+// 		posInWS.Y /= posInWS.W;
+// 		posInWS.Z /= posInWS.W;
+// 		cornersInWS.PushBack(posInWS);
+// 	}
+// 	DrawFrustumPoints(scene, cornersInWS, Color::RED);
+// 
+// 	// based on https://mynameismjp.wordpress.com/2013/09/10/shadow-maps/
 	// Stabilize shadow map: calculate sphere bounds around frustum to minimize AABB changes on frustum rotation 
 	// Calculate the centroid of the view frustum slice
-	Vector frustumCenterInWS;
-	for (Vector posInWS : cornersInWS)
-	{
-		frustumCenterInWS += posInWS;
-	}
-	frustumCenterInWS *= 1.0f / 8.0f;
-
-	float maxRadiusInWS = 0.0f;
-	for (Vector posInWS : cornersInWS)
-	{
-		float radius = (cornersInWS[0] - posInWS).Length();
-		maxRadiusInWS = std::max(maxRadiusInWS, radius);
-	}
-	maxRadiusInWS = std::ceilf(maxRadiusInWS * 16.0f) / 16.0f; // MJP version
-	
-	Vector frustumMinInWS = frustumCenterInWS - Vector::ONE * maxRadiusInWS;
-	Vector frustumMaxInWS = frustumCenterInWS + Vector::ONE * maxRadiusInWS;
-	AABox frustumAABBInWS(frustumMinInWS, frustumMaxInWS - frustumMinInWS);
-
-	Vector lightForward = dirLight->GetTransform().GetGlobalForward();
-	Vector lightUp = dirLight->GetTransform().GetGlobalUp();
-	Matrix lightFromWorld = Matrix(Vector::ZERO, lightForward, lightUp);
-	Matrix worldFromLight = lightFromWorld.GetInversed();
-
-	Vector frustumCenterInLS;
-	for (Vector posInWS : cornersInWS)
-	{
-		frustumCenterInLS += lightFromWorld * posInWS;
-	}
-	frustumCenterInLS *= 1.0f / 8.0f;
-
-	float maxRadiusInLS = 0.0f;
-	for (Vector posInWS : cornersInWS)
-	{
-		float radius = (lightFromWorld * cornersInWS[0] - lightFromWorld * posInWS).Length();
-		maxRadiusInLS = std::max(maxRadiusInLS, radius);
-	}
-	maxRadiusInLS = std::ceilf(maxRadiusInLS * 16.0f) / 16.0f; // MJP version
-
-	Vector frustumMinInLS = frustumCenterInLS - Vector::ONE * maxRadiusInLS;
-	Vector frustumMaxInLS = frustumCenterInLS + Vector::ONE * maxRadiusInLS;
-	AABox frustumAABBInLS(frustumMinInLS, frustumMaxInLS - frustumMinInLS);
-
-	if (frustumShowBounds)
-	{
-		DebugDrawSystem::DrawSphere(scene, frustumCenterInWS, maxRadiusInLS, Color::RED);
-		DebugDrawSystem::DrawBox(scene, frustumMinInWS, frustumMaxInWS, Color::RED*0.5f);
-		DebugDrawSystem::DrawSphere(scene, frustumCenterInWS, 5.0f, Color::RED*0.25f);
-		DebugDrawSystem::DrawBox(scene, frustumAABBInLS.GetMin(), frustumAABBInLS.GetMax(), worldFromLight, Color(1.0f, 1.0f, 0.0f));
-	}
-
-	if (sunShowAxes)
-	{
-		DebugDrawSystem::DrawLine(scene, frustumCenterInWS, frustumCenterInWS +  dirLight->GetTransform().GetGlobalForward() * 50.0f, Color::BLACK);
-		DebugDrawSystem::DrawLine(scene, frustumCenterInWS, frustumCenterInWS + (dirLight->GetTransform().GetWorldFromModel() * Vector::UNIT_X) * 25.0f, Color::RED);
-		DebugDrawSystem::DrawLine(scene, frustumCenterInWS, frustumCenterInWS + (dirLight->GetTransform().GetWorldFromModel() * Vector::UNIT_Y) * 25.0f, Color::GREEN);
-		DebugDrawSystem::DrawLine(scene, frustumCenterInWS, frustumCenterInWS + (dirLight->GetTransform().GetWorldFromModel() * Vector::UNIT_Z) * 25.0f, Color::BLUE);
-	}
-	
-	FindShadowCasters(scene, lightFromWorld, worldFromLight, frustumAABBInLS, meshesShowBounds);
-
-	dirLight->DebugShadowCenter = frustumCenterInWS;
-	dirLight->DebugShadowAABBInLS = frustumAABBInWS;
+// 	Vector frustumCenterInWS;
+// 	for (Vector posInWS : cornersInWS)
+// 	{
+// 		frustumCenterInWS += posInWS;
+// 	}
+// 	frustumCenterInWS *= 1.0f / 8.0f;
+// 
+// 	float maxRadiusInWS = 0.0f;
+// 	for (Vector posInWS : cornersInWS)
+// 	{
+// 		float radius = (cornersInWS[0] - posInWS).Length();
+// 		maxRadiusInWS = std::max(maxRadiusInWS, radius);
+// 	}
+// 	maxRadiusInWS = std::ceilf(maxRadiusInWS * 16.0f) / 16.0f; // MJP version
+// 	
+// 	Vector frustumMinInWS = frustumCenterInWS - Vector::ONE * maxRadiusInWS;
+// 	Vector frustumMaxInWS = frustumCenterInWS + Vector::ONE * maxRadiusInWS;
+// 	AABox frustumAABBInWS(frustumMinInWS, frustumMaxInWS - frustumMinInWS);
+// 
+// 	Vector lightForward = dirLight->GetTransform().GetGlobalForward();
+// 	Vector lightUp = dirLight->GetTransform().GetGlobalUp();
+// 	Matrix lightFromWorld = Matrix(Vector::ZERO, lightForward, lightUp);
+// 	Matrix worldFromLight = lightFromWorld.GetInversed();
+// 
+// 	Vector frustumCenterInLS;
+// 	for (Vector posInWS : cornersInWS)
+// 	{
+// 		frustumCenterInLS += lightFromWorld * posInWS;
+// 	}
+// 	frustumCenterInLS *= 1.0f / 8.0f;
+// 
+// 	float maxRadiusInLS = 0.0f;
+// 	for (Vector posInWS : cornersInWS)
+// 	{
+// 		float radius = (lightFromWorld * cornersInWS[0] - lightFromWorld * posInWS).Length();
+// 		maxRadiusInLS = std::max(maxRadiusInLS, radius);
+// 	}
+// 	maxRadiusInLS = std::ceilf(maxRadiusInLS * 16.0f) / 16.0f; // MJP version
+// 
+// 	Vector frustumMinInLS = frustumCenterInLS - Vector::ONE * maxRadiusInLS;
+// 	Vector frustumMaxInLS = frustumCenterInLS + Vector::ONE * maxRadiusInLS;
+// 	AABox frustumAABBInLS(frustumMinInLS, frustumMaxInLS - frustumMinInLS);
+// 
+// 	if (frustumShowBounds)
+// 	{
+// 		DebugDrawSystem::DrawSphere(scene, frustumCenterInWS, maxRadiusInLS, Color::RED);
+// 		DebugDrawSystem::DrawBox(scene, frustumMinInWS, frustumMaxInWS, Color::RED*0.5f);
+// 		DebugDrawSystem::DrawSphere(scene, frustumCenterInWS, 5.0f, Color::RED*0.25f);
+// 		DebugDrawSystem::DrawBox(scene, frustumAABBInLS.GetMin(), frustumAABBInLS.GetMax(), worldFromLight, Color(1.0f, 1.0f, 0.0f));
+// 	}
+// 
+// 	if (sunShowAxes)
+// 	{
+// 		DebugDrawSystem::DrawLine(scene, frustumCenterInWS, frustumCenterInWS +  dirLight->GetTransform().GetGlobalForward() * 50.0f, Color::BLACK);
+// 		DebugDrawSystem::DrawLine(scene, frustumCenterInWS, frustumCenterInWS + (dirLight->GetTransform().GetWorldFromModel() * Vector::UNIT_X) * 25.0f, Color::RED);
+// 		DebugDrawSystem::DrawLine(scene, frustumCenterInWS, frustumCenterInWS + (dirLight->GetTransform().GetWorldFromModel() * Vector::UNIT_Y) * 25.0f, Color::GREEN);
+// 		DebugDrawSystem::DrawLine(scene, frustumCenterInWS, frustumCenterInWS + (dirLight->GetTransform().GetWorldFromModel() * Vector::UNIT_Z) * 25.0f, Color::BLUE);
+// 	}
+// 	
+// 	FindShadowCasters(scene, lightFromWorld, worldFromLight, frustumAABBInLS, meshesShowBounds);
+// 
+// 	if (frustumShowBounds)
+// 	{
+// 		DebugDrawSystem::DrawBox(scene, frustumAABBInLS.GetMin(), frustumAABBInLS.GetMax(), lightFromWorld.GetInversed(), Color(1.0f, 1.0f, 0.0f));
+// 	}
+// 
+// 	dirLight->DebugShadowCenterInWS = frustumCenterInWS;
+// 	dirLight->ShadowAABBInWS = frustumAABBInWS;
+// 	dirLight->ShadowAABBInLS = frustumAABBInLS;
 }
 
 void GameManagerSystem::FindShadowCasters(Scene* scene, const Matrix& dirLightFromWorld, const Matrix& worldFromDirLight, AABox& frustumAABBInLS, bool drawBounds)
