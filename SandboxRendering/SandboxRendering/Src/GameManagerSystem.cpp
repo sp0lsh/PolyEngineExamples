@@ -10,6 +10,7 @@
 #include <Movement/FreeFloatMovementComponent.hpp>
 #include <Rendering/MeshRenderingComponent.hpp>
 #include <Rendering/PostprocessSettingsComponent.hpp>
+#include <Rendering/RenderingSettingsComponent.hpp>
 #include <Rendering/SkyboxWorldComponent.hpp>
 #include <Rendering/ViewportWorldComponent.hpp>
 #include <Rendering/Camera/CameraComponent.hpp>
@@ -50,7 +51,7 @@ void GameManagerSystem::CreateShadingTestScene(Scene* scene)
 	cameraTrans.SetGlobalTranslation(Vector(-550.0f, 180.0f, 0.0f));
 	cameraTrans.SetGlobalRotation(Quaternion(Vector::UNIT_Y, -90.0_deg) * Quaternion(Vector::UNIT_X, -10.0_deg));
 	// cameraTrans.SetGlobalRotation(Quaternion(Matrix(cameraTrans.GetGlobalTranslation(), Vector(0.0f, 0.0f, 0.0f))));
-	gameMgrCmp->Camera = camera;
+	gameMgrCmp->CameraEnt = camera;
 	
 	ViewportWorldComponent* viewport = scene->GetWorldComponent<ViewportWorldComponent>();
 	viewport->SetCamera(0, cameraCmp);
@@ -78,9 +79,12 @@ void GameManagerSystem::CreateShadowsTestScene(Scene* scene)
 
 	Entity* camera = DeferredTaskSystem::SpawnEntityImmediate(scene);
 	// CameraComponent* cameraCmp = DeferredTaskSystem::AddComponentImmediate<CameraComponent>(scene, camera, 35_deg, 1.0f, 10000.f);
-	CameraComponent* cameraCmp = DeferredTaskSystem::AddComponentImmediate<CameraComponent>(scene, camera, 35_deg, 1.0f, 200.f);
+	CameraComponent* cameraCmp = DeferredTaskSystem::AddComponentImmediate<CameraComponent>(scene, camera, 35_deg, 1.0f, 2000.f);
 	DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(scene, camera, 100.0f, 0.003f, 10.0f);
 	gameMgrCmp->PostCmp = DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(scene, camera);
+	RenderingSettingsComponent* SettingsCmp = DeferredTaskSystem::AddComponentImmediate<RenderingSettingsComponent>(scene, camera);
+	SettingsCmp->ShadowType = eShadowType::EVSM4;
+	SettingsCmp->ShadowMapSize = eShadowMapSize::SIZE_4096;
 
 	cameraCmp->SetRenderingMode(eRenderingModeType::IMMEDIATE_DEBUG);
 
@@ -90,7 +94,7 @@ void GameManagerSystem::CreateShadowsTestScene(Scene* scene)
 	EntityTransform& cameraTrans = camera->GetTransform();
 	cameraTrans.SetGlobalTranslation(Vector(-550.0f, 180.0f, 0.0f));
 	cameraTrans.SetGlobalRotation(Quaternion(Vector::UNIT_Y, -90.0_deg) * Quaternion(Vector::UNIT_X, -10.0_deg));
-	gameMgrCmp->Camera = camera;
+	gameMgrCmp->CameraEnt = camera;
 	// cameraTrans.SetGlobalRotation(Quaternion(Matrix(cameraTrans.GetGlobalTranslation(), Vector(0.0f, 0.0f, 0.0f))));
 
 	ViewportWorldComponent* viewportCmp = scene->GetWorldComponent<ViewportWorldComponent>();
@@ -103,20 +107,24 @@ void GameManagerSystem::CreateShadowsTestScene(Scene* scene)
 		
 	DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(scene, "HDR/HDR.hdr", eResourceSource::GAME);
 
-	Entity* entityPlane = CreateModel(scene, "Models/Primitives/Cube.obj");
-	entityPlane->GetTransform().SetGlobalScale(Vector(2000.0f, 0.1f, 2000.0f));
-	entityPlane->GetTransform().SetGlobalTranslation(Vector::UNIT_Y * -100.0f);
+	// Entity* entityPlane = CreateModel(scene, "Models/Primitives/Cube.obj");
+	// entityPlane->GetTransform().SetGlobalScale(Vector(2000.0f, 0.1f, 2000.0f));
+	// entityPlane->GetTransform().SetGlobalTranslation(Vector::UNIT_Y * -100.0f);
 
-	CreateRandomCubes(scene);
+	// CreateRandomCubes(scene);
 
-	Entity* entityShadow = CreateModel(scene, "Models/ShadowTest.fbx");
-	entityShadow->GetTransform().SetGlobalRotation(Quaternion(EulerAngles(-90.0_deg, 0.0_deg, 0.0_deg)));
-	gameMgrCmp->GameEntities.PushBack(entityShadow);
+	// Entity* entityShadow = CreateModel(scene, "Models/ShadowTest.fbx");
+	// entityShadow->GetTransform().SetGlobalRotation(Quaternion(EulerAngles(-90.0_deg, 0.0_deg, 0.0_deg)));
+	// gameMgrCmp->GameEntities.PushBack(entityShadow);
 
-	// Entity* sponza = DeferredTaskSystem::SpawnEntityImmediate(scene);
-	// DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(scene, sponza, "Models/Sponza/sponza.obj", eResourceSource::GAME);
+	Entity* sponza = DeferredTaskSystem::SpawnEntityImmediate(scene);
+	DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(scene, sponza, "Models/Sponza/sponza.obj", eResourceSource::GAME);
 	// sponza->GetTransform().SetGlobalTranslation(Vector::UNIT_X * 5000.0f);
-	// gameMgrCmp->GameEntities.PushBack(sponza);
+	gameMgrCmp->GameEntities.PushBack(sponza);
+
+	CreatePBRShpereGrid(scene, Vector::UNIT_X * -200.0f, Color::BLACK);
+
+	CreatePointLights(scene, 100);
 }
 
 void GameManagerSystem::PostProcessFancyCold(PostprocessSettingsComponent* postCmp)
@@ -213,7 +221,7 @@ void GameManagerSystem::CreateCamera(Scene* scene)
 	cameraTrans.SetGlobalRotation(Quaternion(Vector::UNIT_Y, -90.0_deg) * Quaternion(Vector::UNIT_X, -10.0_deg));
 	// cameraTrans.SetGlobalRotation(Quaternion(Matrix(cameraTrans.GetGlobalTranslation(), Vector(0.0f, 0.0f, 0.0f))));
 	scene->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, scene->GetComponent<CameraComponent>(camera));
-	gameMgrCmp->Camera = camera;
+	gameMgrCmp->CameraEnt = camera;
 
 	Entity* keyDirLight = DeferredTaskSystem::SpawnEntityImmediate(scene);
 	DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(scene, keyDirLight, Color(1.0f, 1.0f, 1.0f), 15.0f);
@@ -333,7 +341,7 @@ void GameManagerSystem::CreateSponza(Scene* scene)
 	cameraTrans.SetGlobalRotation(Quaternion(Vector::UNIT_Y, -90.0_deg) * Quaternion(Vector::UNIT_X, -10.0_deg));
 	// cameraTrans.SetGlobalRotation(Quaternion(Matrix(cameraTrans.GetGlobalTranslation(), Vector(0.0f, 0.0f, 0.0f))));
 	scene->GetWorldComponent<ViewportWorldComponent>()->SetCamera(0, scene->GetComponent<CameraComponent>(camera));
-	gameMgrCmp->Camera = camera;
+	gameMgrCmp->CameraEnt = camera;
 	
 	DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(scene, "HDR/HDR.hdr", eResourceSource::GAME);
 
@@ -368,20 +376,6 @@ void GameManagerSystem::CreateSponzaSample(Scene* scene)
 	gameMgrCmp->PointLightEntities.PushBack(lightEntity);
 }
 
-void GameManagerSystem::DrawFrustumPoints(Scene* scene, Dynarray<Vector> &cornersInWorld, Color color)
-{
-	for (size_t i = 0; i < 4; ++i)
-		DebugDrawSystem::DrawLine(scene, cornersInWorld[i], cornersInWorld[i + 4], color);
-
-	for (size_t i = 0; i < 2; ++i)
-	{
-		DebugDrawSystem::DrawLine(scene, cornersInWorld[0 + i * 4], cornersInWorld[1 + i * 4], color);
-		DebugDrawSystem::DrawLine(scene, cornersInWorld[2 + i * 4], cornersInWorld[3 + i * 4], color);
-		DebugDrawSystem::DrawLine(scene, cornersInWorld[0 + i * 4], cornersInWorld[2 + i * 4], color);
-		DebugDrawSystem::DrawLine(scene, cornersInWorld[1 + i * 4], cornersInWorld[3 + i * 4], color);
-	}
-}
-
 void GameManagerSystem::Update(Scene* scene)
 {
 	UpdateLights(scene);
@@ -389,7 +383,8 @@ void GameManagerSystem::Update(Scene* scene)
 	float time = (float)(scene->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
 	GameManagerWorldComponent* gameMgrCmp = scene->GetWorldComponent<GameManagerWorldComponent>();
 	DirectionalLightComponent* dirLight = gameMgrCmp->KeyDirLight.Get()->GetComponent<DirectionalLightComponent>();
-	CameraComponent* cameraCmp = gameMgrCmp->Camera->GetComponent<CameraComponent>();
+	CameraComponent* cameraCmp = gameMgrCmp->CameraEnt->GetComponent<CameraComponent>();
+	RenderingSettingsComponent* settingsCmp = gameMgrCmp->CameraEnt->GetComponent<RenderingSettingsComponent>();
 
 	if (ImGui::GetCurrentContext() == nullptr || !ImGui::GetIO().Fonts->IsBuilt())
 		return;
@@ -431,8 +426,6 @@ void GameManagerSystem::Update(Scene* scene)
 	static float cameraPolygonUnits = 1.0f;
 	ImGui::DragFloat("Bias Min", &cameraBiasMin, 0.001f, -10.0f, 10.0f);
 	ImGui::DragFloat("Bias Max", &cameraBiasMax, 0.001f, -10.0f, 10.0f);
-	// ImGui::DragFloat("Polygon Offset", &cameraPolygonOffset, 0.001f, -10.0f, 10.0f);
-	// ImGui::DragFloat("Polygon Units", &cameraPolygonUnits, 0.001f, -10.0f, 10.0f);
 	cameraCmp->BiasMin = cameraBiasMin;
 	cameraCmp->BiasMax = cameraBiasMax;
 	cameraCmp->PolygonOffset = cameraPolygonOffset;
@@ -446,8 +439,8 @@ void GameManagerSystem::Update(Scene* scene)
 	ImGui::DragFloat("Exponent Negative", &cameraExponentNegative, 0.5f, 0.0f, 100.0f);
 	ImGui::DragFloat("VSM Bias x 0.01", &cameraVSMBias, 0.1f, 100.0f, 100.0f);
 	ImGui::DragFloat("Light Bleeding Reduction", &lightBleedingReduction, 0.01f, 10.0f, 10.0f);
-	cameraCmp->EVSMExponentPositive = cameraExponentPositive;
-	cameraCmp->EVSMExponentNegative = cameraExponentNegative;
+	settingsCmp->EVSM.PositiveExponent = cameraExponentPositive;
+	settingsCmp->EVSM.NegativeExponent = cameraExponentNegative;
 	cameraCmp->VSMBias = cameraVSMBias;
 	cameraCmp->LightBleedingReduction = lightBleedingReduction;
 
@@ -465,171 +458,6 @@ void GameManagerSystem::Update(Scene* scene)
 		DebugDrawSystem::DrawLine(scene, axesPivot, axesPivot + Vector::UNIT_Y * 25.0f, Color::GREEN);
 		DebugDrawSystem::DrawLine(scene, axesPivot, axesPivot + Vector::UNIT_Z * 25.0f, Color::BLUE);
 	}
-
-// 	Matrix frustumTranslationMat;
-// 	frustumTranslationMat.SetTranslation(frustumPosition);
-// 
-// 	Matrix clipFromView;
-// 	clipFromView.SetPerspective(1_deg * frustumFov, frustumAspect, frustumNear, frustumFar);
-// 	Matrix viewFromWorld = Quaternion(frustumRotationEuler).ToRotationMatrix() * frustumTranslationMat;
-// 	Matrix clipFromWorld = clipFromView * viewFromWorld;
-// 
-// 	// Transform frustum corners to DirLightSpace
-// 	Dynarray<Vector> cornersInNDC
-// 	{
-//         Vector(-1.0f,  1.0f, -1.0f), // back  left  top
-//         Vector( 1.0f,  1.0f, -1.0f), // back  right top
-//         Vector(-1.0f, -1.0f, -1.0f), // back  left  bot
-//         Vector( 1.0f, -1.0f, -1.0f), // back  right bot
-//         Vector(-1.0f,  1.0f,  1.0f), // front left  top
-//         Vector( 1.0f,  1.0f,  1.0f), // front right top
-//         Vector(-1.0f, -1.0f,  1.0f), // front left  bot
-//         Vector( 1.0f, -1.0f,  1.0f)	 // front right bot
-// 	};
-// 
-// 	// Transform frustum corners from NDC to World
-	// could be done in one iteration but we need to do perspective division by W
-// 	Matrix worldFromClip = clipFromWorld.GetInversed();
-// 	Dynarray<Vector> cornersInWS;
-// 	for (Vector posInClip : cornersInNDC)
-// 	{
-// 		Vector posInWS = worldFromClip * posInClip;
-// 		posInWS.X /= posInWS.W;
-// 		posInWS.Y /= posInWS.W;
-// 		posInWS.Z /= posInWS.W;
-// 		cornersInWS.PushBack(posInWS);
-// 	}
-// 	DrawFrustumPoints(scene, cornersInWS, Color::RED);
-// 
-// 	// based on https://mynameismjp.wordpress.com/2013/09/10/shadow-maps/
-	// Stabilize shadow map: calculate sphere bounds around frustum to minimize AABB changes on frustum rotation 
-	// Calculate the centroid of the view frustum slice
-// 	Vector frustumCenterInWS;
-// 	for (Vector posInWS : cornersInWS)
-// 	{
-// 		frustumCenterInWS += posInWS;
-// 	}
-// 	frustumCenterInWS *= 1.0f / 8.0f;
-// 
-// 	float maxRadiusInWS = 0.0f;
-// 	for (Vector posInWS : cornersInWS)
-// 	{
-// 		float radius = (cornersInWS[0] - posInWS).Length();
-// 		maxRadiusInWS = std::max(maxRadiusInWS, radius);
-// 	}
-// 	maxRadiusInWS = std::ceilf(maxRadiusInWS * 16.0f) / 16.0f; // MJP version
-// 	
-// 	Vector frustumMinInWS = frustumCenterInWS - Vector::ONE * maxRadiusInWS;
-// 	Vector frustumMaxInWS = frustumCenterInWS + Vector::ONE * maxRadiusInWS;
-// 	AABox frustumAABBInWS(frustumMinInWS, frustumMaxInWS - frustumMinInWS);
-// 
-// 	Vector lightForward = dirLight->GetTransform().GetGlobalForward();
-// 	Vector lightUp = dirLight->GetTransform().GetGlobalUp();
-// 	Matrix lightFromWorld = Matrix(Vector::ZERO, lightForward, lightUp);
-// 	Matrix worldFromLight = lightFromWorld.GetInversed();
-// 
-// 	Vector frustumCenterInLS;
-// 	for (Vector posInWS : cornersInWS)
-// 	{
-// 		frustumCenterInLS += lightFromWorld * posInWS;
-// 	}
-// 	frustumCenterInLS *= 1.0f / 8.0f;
-// 
-// 	float maxRadiusInLS = 0.0f;
-// 	for (Vector posInWS : cornersInWS)
-// 	{
-// 		float radius = (lightFromWorld * cornersInWS[0] - lightFromWorld * posInWS).Length();
-// 		maxRadiusInLS = std::max(maxRadiusInLS, radius);
-// 	}
-// 	maxRadiusInLS = std::ceilf(maxRadiusInLS * 16.0f) / 16.0f; // MJP version
-// 
-// 	Vector frustumMinInLS = frustumCenterInLS - Vector::ONE * maxRadiusInLS;
-// 	Vector frustumMaxInLS = frustumCenterInLS + Vector::ONE * maxRadiusInLS;
-// 	AABox frustumAABBInLS(frustumMinInLS, frustumMaxInLS - frustumMinInLS);
-// 
-// 	if (frustumShowBounds)
-// 	{
-// 		DebugDrawSystem::DrawSphere(scene, frustumCenterInWS, maxRadiusInLS, Color::RED);
-// 		DebugDrawSystem::DrawBox(scene, frustumMinInWS, frustumMaxInWS, Color::RED*0.5f);
-// 		DebugDrawSystem::DrawSphere(scene, frustumCenterInWS, 5.0f, Color::RED*0.25f);
-// 		DebugDrawSystem::DrawBox(scene, frustumAABBInLS.GetMin(), frustumAABBInLS.GetMax(), worldFromLight, Color(1.0f, 1.0f, 0.0f));
-// 	}
-// 
-// 	if (sunShowAxes)
-// 	{
-// 		DebugDrawSystem::DrawLine(scene, frustumCenterInWS, frustumCenterInWS +  dirLight->GetTransform().GetGlobalForward() * 50.0f, Color::BLACK);
-// 		DebugDrawSystem::DrawLine(scene, frustumCenterInWS, frustumCenterInWS + (dirLight->GetTransform().GetWorldFromModel() * Vector::UNIT_X) * 25.0f, Color::RED);
-// 		DebugDrawSystem::DrawLine(scene, frustumCenterInWS, frustumCenterInWS + (dirLight->GetTransform().GetWorldFromModel() * Vector::UNIT_Y) * 25.0f, Color::GREEN);
-// 		DebugDrawSystem::DrawLine(scene, frustumCenterInWS, frustumCenterInWS + (dirLight->GetTransform().GetWorldFromModel() * Vector::UNIT_Z) * 25.0f, Color::BLUE);
-// 	}
-// 	
-// 	FindShadowCasters(scene, lightFromWorld, worldFromLight, frustumAABBInLS, meshesShowBounds);
-// 
-// 	if (frustumShowBounds)
-// 	{
-// 		DebugDrawSystem::DrawBox(scene, frustumAABBInLS.GetMin(), frustumAABBInLS.GetMax(), lightFromWorld.GetInversed(), Color(1.0f, 1.0f, 0.0f));
-// 	}
-// 
-// 	dirLight->DebugShadowCenterInWS = frustumCenterInWS;
-// 	dirLight->ShadowAABBInWS = frustumAABBInWS;
-// 	dirLight->ShadowAABBInLS = frustumAABBInLS;
-}
-
-void GameManagerSystem::FindShadowCasters(Scene* scene, const Matrix& dirLightFromWorld, const Matrix& worldFromDirLight, AABox& frustumAABBInLS, bool drawBounds)
-{
-	const float maxFloat = std::numeric_limits<float>::max();
-
-	Dynarray<MeshRenderingComponent*> meshCmps;
-	for (auto& [meshCmp] : scene->IterateComponents<MeshRenderingComponent>())
-	{
-		meshCmp->IsShadowCaster = false;
-		meshCmps.PushBack(meshCmp);
-	}
-	// transform meshes AABB to DirLightSpace
-	Dynarray<std::tuple<AABox, MeshRenderingComponent*>> boxMeshes;
-	for (const auto& meshCmp : meshCmps)
-	{
-		const Matrix& dirLightFromModel = dirLightFromWorld * meshCmp->GetTransform().GetWorldFromModel();
-		Optional<AABox> boxWSOptional = meshCmp->GetBoundingBox(eEntityBoundingChannel::RENDERING);
-		if (boxWSOptional.HasValue())
-		{
-			AABox boxWS = boxWSOptional.Value();
-			AABox boxLS = boxWS.GetTransformed(dirLightFromModel);
-			boxMeshes.PushBack(std::tuple(boxLS, meshCmp));
-			if (drawBounds) DebugDrawSystem::DrawBox(scene, boxLS.GetMin(), boxLS.GetMax(), worldFromDirLight, Color::WHITE);
-		}
-	}
-
-	// find min Y for near clipping plane and max Y for far clipping plane
-	float maxZ = -maxFloat;
-	for (const auto& [boxLS, mesh] : boxMeshes)
-	{
-		// extend dir light AAbox only in Z based on objects in rect defined on dir light AABob XY plane
-		if (boxLS.OverlapsXY(frustumAABBInLS))
-			maxZ = std::max(maxZ, boxLS.GetMax().Z);
-	}
-	
-	if (maxZ > frustumAABBInLS.GetMax().Z)
-	{
-		Vector center = frustumAABBInLS.GetCenter(); // X and Z should be neutral so AABB expanded only on Y axis
-		frustumAABBInLS.Expand(Vector(center.X, center.Y, maxZ));
-	}
-	 
-	if (drawBounds) DebugDrawSystem::DrawBox(scene, frustumAABBInLS.GetMin(), frustumAABBInLS.GetMax(), worldFromDirLight, Color(0.5f, 0.5f, 0.0f));
-
-	// find all meshes that are inside extended DirLights AABB box
-	int shadowCastersCounter = 0;
-	for (auto& [box, meshCmp] : boxMeshes)
-	{
-		if (frustumAABBInLS.Overlaps(box))
-		{
-			meshCmp->IsShadowCaster = true;
-			shadowCastersCounter++;
-			if (drawBounds) DebugDrawSystem::DrawBox(scene, box.GetMin(), box.GetMax(), worldFromDirLight, Color::GREEN);
-		}
-	}
-
-	gConsole.LogInfo("GameManagerSystem::FillDirLightQueue casters: {}/{}", shadowCastersCounter, meshCmps.GetSize());
 }
 
 void GameManagerSystem::UpdatePostProcess(Scene* scene)
@@ -711,7 +539,7 @@ void GameManagerSystem::UpdateModel(Scene* scene)
 void GameManagerSystem::UpdateCameraAspect(Poly::Scene * scene)
 {
 	GameManagerWorldComponent* gameMgrCmp = scene->GetWorldComponent<GameManagerWorldComponent>();
-	CameraComponent* cameraCmp = gameMgrCmp->Camera->GetComponent<CameraComponent>();
+	CameraComponent* cameraCmp = gameMgrCmp->CameraEnt->GetComponent<CameraComponent>();
 	float time = (float)(scene->GetWorldComponent<TimeWorldComponent>()->GetGameplayTime());
 	float anim = SmoothStep(-0.8f, 0.8f, Sin(5.0_rad * time));
 	float aspect = Lerp(2.5f, 0.5f, anim);
