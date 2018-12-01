@@ -28,11 +28,11 @@ void GameManagerSystem::Init(Scene* scene)
 	
 	srand(42);
 
-	CreateShadowsTestScene(scene);
+	// CreateShadowsTestScene(scene);
 
 	// CreateShadingTestScene(scene);
 	
-	// CreateSponza(scene);
+	CreateSponza(scene);
 }
 
 void GameManagerSystem::CreateShadingTestScene(Scene* scene)
@@ -62,15 +62,20 @@ void GameManagerSystem::CreateShadingTestScene(Scene* scene)
 	// DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(scene, hdrs, eResourceSource::GAME);
 	DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(scene, "HDR/HDR.hdr", eResourceSource::GAME);
 
+	gameMgrCmp->KeyDirLight = DeferredTaskSystem::SpawnEntityImmediate(scene);
+	DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(scene, gameMgrCmp->KeyDirLight.Get(), Color(1.0f, 0.8f, 0.8f), 5.0f);
+	gameMgrCmp->KeyDirLight->GetTransform().SetGlobalRotation(Quaternion(EulerAngles(-85.0_deg, 0.0_deg, 0.0_deg)));
+	gameMgrCmp->GameEntities.PushBack(gameMgrCmp->KeyDirLight);
+
 	CreatePBRShpereGrid(scene, Vector::UNIT_X *  200.0f,	Color::WHITE		);
 	CreatePBRShpereGrid(scene, Vector::ZERO,				Color::WHITE * 0.5f	);
 	CreatePBRShpereGrid(scene, Vector::UNIT_X * -200.0f,	Color::BLACK		);
 
 	CreatePointLights(scene, 100);
 
-	// Entity* sponza = DeferredTaskSystem::SpawnEntityImmediate(scene);
-	// DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(scene, sponza, "Models/Sponza/sponza.obj", eResourceSource::GAME);
-	// gameMgrCmp->GameEntities.PushBack(sponza);
+	Entity* sponza = DeferredTaskSystem::SpawnEntityImmediate(scene);
+	DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(scene, sponza, "Models/Sponza/sponza.obj", eResourceSource::GAME);
+	gameMgrCmp->GameEntities.PushBack(sponza);
 }
 
 void GameManagerSystem::CreateShadowsTestScene(Scene* scene)
@@ -79,11 +84,11 @@ void GameManagerSystem::CreateShadowsTestScene(Scene* scene)
 
 	Entity* camera = DeferredTaskSystem::SpawnEntityImmediate(scene);
 	// CameraComponent* cameraCmp = DeferredTaskSystem::AddComponentImmediate<CameraComponent>(scene, camera, 35_deg, 1.0f, 10000.f);
-	CameraComponent* cameraCmp = DeferredTaskSystem::AddComponentImmediate<CameraComponent>(scene, camera, 35_deg, 1.0f, 2000.f);
+	CameraComponent* cameraCmp = DeferredTaskSystem::AddComponentImmediate<CameraComponent>(scene, camera, 35_deg, 1.0f, 4000.f);
 	DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(scene, camera, 100.0f, 0.003f, 10.0f);
 	gameMgrCmp->PostCmp = DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(scene, camera);
 	RenderingSettingsComponent* SettingsCmp = DeferredTaskSystem::AddComponentImmediate<RenderingSettingsComponent>(scene, camera);
-	SettingsCmp->ShadowType = eShadowType::EVSM4;
+	SettingsCmp->ShadowType = eShadowType::PCF;
 	SettingsCmp->ShadowMapSize = eShadowMapSize::SIZE_4096;
 
 	cameraCmp->SetRenderingMode(eRenderingModeType::IMMEDIATE_DEBUG);
@@ -113,18 +118,18 @@ void GameManagerSystem::CreateShadowsTestScene(Scene* scene)
 
 	// CreateRandomCubes(scene);
 
-	// Entity* entityShadow = CreateModel(scene, "Models/ShadowTest.fbx");
-	// entityShadow->GetTransform().SetGlobalRotation(Quaternion(EulerAngles(-90.0_deg, 0.0_deg, 0.0_deg)));
-	// gameMgrCmp->GameEntities.PushBack(entityShadow);
+	Entity* entityShadow = CreateModel(scene, "Models/ShadowTest.fbx");	
+	entityShadow->GetTransform().SetGlobalRotation(Quaternion(EulerAngles(-90.0_deg, 0.0_deg, 0.0_deg)));
+	gameMgrCmp->GameEntities.PushBack(entityShadow);
 
-	Entity* sponza = DeferredTaskSystem::SpawnEntityImmediate(scene);
-	DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(scene, sponza, "Models/Sponza/sponza.obj", eResourceSource::GAME);
+	// Entity* sponza = DeferredTaskSystem::SpawnEntityImmediate(scene);
+	// DeferredTaskSystem::AddComponentImmediate<MeshRenderingComponent>(scene, sponza, "Models/Sponza/sponza.obj", eResourceSource::GAME);
 	// sponza->GetTransform().SetGlobalTranslation(Vector::UNIT_X * 5000.0f);
-	gameMgrCmp->GameEntities.PushBack(sponza);
+	// gameMgrCmp->GameEntities.PushBack(sponza);
 
-	CreatePBRShpereGrid(scene, Vector::UNIT_X * -200.0f, Color::BLACK);
-
-	CreatePointLights(scene, 100);
+	// CreatePBRShpereGrid(scene, Vector::UNIT_X * -200.0f, Color::BLACK);
+	 
+	// CreatePointLights(scene, 100);
 }
 
 void GameManagerSystem::PostProcessFancyCold(PostprocessSettingsComponent* postCmp)
@@ -385,7 +390,7 @@ void GameManagerSystem::Update(Scene* scene)
 	DirectionalLightComponent* dirLight = gameMgrCmp->KeyDirLight.Get()->GetComponent<DirectionalLightComponent>();
 	CameraComponent* cameraCmp = gameMgrCmp->CameraEnt->GetComponent<CameraComponent>();
 	RenderingSettingsComponent* settingsCmp = gameMgrCmp->CameraEnt->GetComponent<RenderingSettingsComponent>();
-
+	
 	if (ImGui::GetCurrentContext() == nullptr || !ImGui::GetIO().Fonts->IsBuilt())
 		return;
 	
@@ -396,68 +401,45 @@ void GameManagerSystem::Update(Scene* scene)
 		ImGui::DragFloat3("Sun Global Rotation", vec3f, 0.1f, -1000.0f, 1000.0f);
 		dirLight->GetTransform().SetGlobalRotation(Quaternion(EulerAngles(1.0_deg * vec3f[0], 1.0_deg * vec3f[1], 1.0_deg * vec3f[2])));
 	}
-
-	static EulerAngles frustumRotationEuler(0.0_deg, 0.0_deg, 0.0_deg);
-	static Vector frustumPosition = Vector::UNIT_Z * 100.0f;
-	static float frustumFov		= 45.0f;
-	static float frustumAspect	= 2.30f;
-	static float frustumNear	= 1.0f;
-	static float frustumFar		= 200.0f;
-	{
-		float vec3f[3] = { frustumRotationEuler.X.AsDegrees(), frustumRotationEuler.Y.AsDegrees(), frustumRotationEuler.Z.AsDegrees() };
-		ImGui::DragFloat3("Frustum Global Rotation", vec3f, 0.1f, 1000.0f, 1000.0f);
-		frustumRotationEuler = EulerAngles(1.0_deg * vec3f[0], 1.0_deg * vec3f[1], 1.0_deg * vec3f[2]);
-		ImGui::DragFloat3("Frustum Global Position", frustumPosition.Data.data(), 0.5f, 2000.0f, 2000.0f, "%.2f", 2.0f);
-		static const float f32_zero	= 0.0f;
-		static const float f32_half = 0.5f;
-		static const float f32_one	= 1.0f;
-		static const float f32_3	= 3.0f;
-		static const float f32_180	= 180.0f;
-		static const float f32_max	= 10000.0f;
-		ImGui::SliderScalar("Frustum Fov",		ImGuiDataType_Float, &frustumFov,		&f32_one,		&f32_180);
-		ImGui::SliderScalar("Frustum Aspect",	ImGuiDataType_Float, &frustumAspect,	&f32_half,		&f32_3);
-		ImGui::SliderScalar("Frustum Near",		ImGuiDataType_Float, &frustumNear,		&f32_one,		&frustumFar);
-		static float minFrustumFar = frustumNear + 1.0f;
-		ImGui::SliderScalar("Frustum Far",		ImGuiDataType_Float, &frustumFar,		&minFrustumFar,	&f32_max);
-	}
-	static float cameraBiasMin = 0.0f;
-	static float cameraBiasMax = 0.0f;
-	static float cameraPolygonOffset = 0.0f;
-	static float cameraPolygonUnits = 1.0f;
-	ImGui::DragFloat("Bias Min", &cameraBiasMin, 0.001f, -10.0f, 10.0f);
-	ImGui::DragFloat("Bias Max", &cameraBiasMax, 0.001f, -10.0f, 10.0f);
-	cameraCmp->BiasMin = cameraBiasMin;
-	cameraCmp->BiasMax = cameraBiasMax;
-	cameraCmp->PolygonOffset = cameraPolygonOffset;
-	cameraCmp->PolygonUnits = cameraPolygonUnits;
 	
-	static float cameraExponentPositive = 40.0f;
-	static float cameraExponentNegative = 10.0f;
-	static float cameraVSMBias = 1.0f;
-	static float lightBleedingReduction = 0.0f;
-	ImGui::DragFloat("Exponent Positive", &cameraExponentPositive, 0.5f, 0.0f, 100.0f);
-	ImGui::DragFloat("Exponent Negative", &cameraExponentNegative, 0.5f, 0.0f, 100.0f);
-	ImGui::DragFloat("VSM Bias x 0.01", &cameraVSMBias, 0.1f, 100.0f, 100.0f);
-	ImGui::DragFloat("Light Bleeding Reduction", &lightBleedingReduction, 0.01f, 10.0f, 10.0f);
-	settingsCmp->EVSM.PositiveExponent = cameraExponentPositive;
-	settingsCmp->EVSM.NegativeExponent = cameraExponentNegative;
-	cameraCmp->VSMBias = cameraVSMBias;
-	cameraCmp->LightBleedingReduction = lightBleedingReduction;
-
-	static bool sunShowAxes = true;
-	static bool frustumShowBounds = true;
-	static bool meshesShowBounds = false;
-	ImGui::Checkbox("Sun show axes", &sunShowAxes);
-	ImGui::Checkbox("Frustum show bounds", &frustumShowBounds);
-	ImGui::Checkbox("Meshes show bounds", &meshesShowBounds);
+	static float settingsPCFBias = 0.0f;
+	ImGui::DragFloat("PCF Bias", &settingsPCFBias, 0.0001f, -1.0f, 1.0f);
+	settingsCmp->PCFBias = settingsPCFBias;
+	
+	static float settingsEVSMExponentPositive = 40.0f;
+	static float settingsEVSMExponentNegative = 10.0f;
+	static float settingsEVSMBias = 1.0f;
+	static float settingsEVSMLightBleedingReduction = 0.0f;
+	ImGui::DragFloat("EVSM Exponent Positive", &settingsEVSMExponentPositive, 0.5f, 0.0f, 100.0f);
+	ImGui::DragFloat("EVSM Exponent Negative", &settingsEVSMExponentNegative, 0.5f, 0.0f, 100.0f);
+	ImGui::DragFloat("EVSM Bias x 0.01", &settingsEVSMBias, 0.1f, 100.0f, 100.0f);
+	ImGui::DragFloat("EVSM Light Bleeding Reduction", &settingsEVSMLightBleedingReduction, 0.01f, 10.0f, 10.0f);
+	settingsCmp->EVSMPositiveExponent = settingsEVSMExponentPositive;
+	settingsCmp->EVSMNegativeExponent = settingsEVSMExponentNegative;
+	settingsCmp->EVSMBias = settingsEVSMBias;
+	settingsCmp->EVSMLghtBleedingReduction = settingsEVSMLightBleedingReduction;
+	
+	static bool settingsSunShowAxes = false;
+	static bool settingsDrawFrustumBounds = false;
+	static bool settingsDrawShadowCastersBounds = false;
+	ImGui::Checkbox("Sun show axes", &settingsSunShowAxes);
+	ImGui::Checkbox("Frustum show bounds", &settingsDrawFrustumBounds);
+	ImGui::Checkbox("Meshes show bounds", &settingsDrawShadowCastersBounds);
+	settingsCmp->DebugDrawFrustumBounds = settingsDrawFrustumBounds;
+	settingsCmp->DebugDrawShadowCastersBounds = settingsDrawShadowCastersBounds;
 	ImGui::End();
-
+	
+	if (settingsSunShowAxes)
 	{
 		Vector axesPivot = Vector::UNIT_Y * 400.0f;
 		DebugDrawSystem::DrawLine(scene, axesPivot, axesPivot + Vector::UNIT_X * 25.0f, Color::RED);
 		DebugDrawSystem::DrawLine(scene, axesPivot, axesPivot + Vector::UNIT_Y * 25.0f, Color::GREEN);
 		DebugDrawSystem::DrawLine(scene, axesPivot, axesPivot + Vector::UNIT_Z * 25.0f, Color::BLUE);
 	}
+
+	// SkyboxWorldComponent* skyboxCmp = scene->GetWorldComponent<SkyboxWorldComponent>();
+	// size_t id = ((int)time) % 4;
+	// skyboxCmp->SetCurrentPanorama(id);
 }
 
 void GameManagerSystem::UpdatePostProcess(Scene* scene)
