@@ -28,11 +28,11 @@ void GameManagerSystem::Init(Scene* scene)
 	
 	srand(42);
 
-	// CreateShadowsTestScene(scene);
+	CreateShadowsTestScene(scene);
 
 	// CreateShadingTestScene(scene);
 	
-	CreateSponza(scene);
+	// CreateSponza(scene);
 }
 
 void GameManagerSystem::CreateShadingTestScene(Scene* scene)
@@ -87,7 +87,8 @@ void GameManagerSystem::CreateShadowsTestScene(Scene* scene)
 	CameraComponent* cameraCmp = DeferredTaskSystem::AddComponentImmediate<CameraComponent>(scene, camera, 35_deg, 1.0f, 4000.f);
 	DeferredTaskSystem::AddComponentImmediate<FreeFloatMovementComponent>(scene, camera, 100.0f, 0.003f, 10.0f);
 	gameMgrCmp->PostCmp = DeferredTaskSystem::AddComponentImmediate<PostprocessSettingsComponent>(scene, camera);
-	RenderingSettingsComponent* SettingsCmp = DeferredTaskSystem::AddComponentImmediate<RenderingSettingsComponent>(scene, camera);
+	
+	RenderingSettingsComponent* SettingsCmp = DeferredTaskSystem::AddWorldComponentImmediate<RenderingSettingsComponent>(scene);
 	SettingsCmp->ShadowType = eShadowType::PCF;
 	SettingsCmp->ShadowMapSize = eShadowMapSize::SIZE_4096;
 
@@ -107,7 +108,7 @@ void GameManagerSystem::CreateShadowsTestScene(Scene* scene)
 
 	gameMgrCmp->KeyDirLight = DeferredTaskSystem::SpawnEntityImmediate(scene);
 	DeferredTaskSystem::AddComponentImmediate<DirectionalLightComponent>(scene, gameMgrCmp->KeyDirLight.Get(), Color(1.0f, 0.8f, 0.8f), 5.0f);
-	//gameMgrCmp->KeyDirLight->GetTransform().SetGlobalRotation(Quaternion(EulerAngles(-85.0_deg, 0.0_deg, 0.0_deg)));
+	gameMgrCmp->KeyDirLight->GetTransform().SetGlobalRotation(Quaternion(EulerAngles(-90.0_deg, 0.0_deg, 0.0_deg)));
 	gameMgrCmp->GameEntities.PushBack(gameMgrCmp->KeyDirLight);
 		
 	DeferredTaskSystem::AddWorldComponentImmediate<SkyboxWorldComponent>(scene, "HDR/HDR.hdr", eResourceSource::GAME);
@@ -116,7 +117,7 @@ void GameManagerSystem::CreateShadowsTestScene(Scene* scene)
 	// entityPlane->GetTransform().SetGlobalScale(Vector(2000.0f, 0.1f, 2000.0f));
 	// entityPlane->GetTransform().SetGlobalTranslation(Vector::UNIT_Y * -100.0f);
 
-	// CreateRandomCubes(scene);
+	CreateRandomCubes(scene);
 
 	Entity* entityShadow = CreateModel(scene, "Models/ShadowTest.fbx");	
 	entityShadow->GetTransform().SetGlobalRotation(Quaternion(EulerAngles(-90.0_deg, 0.0_deg, 0.0_deg)));
@@ -390,7 +391,8 @@ void GameManagerSystem::Update(Scene* scene)
 	DirectionalLightComponent* dirLight = gameMgrCmp->KeyDirLight.Get()->GetComponent<DirectionalLightComponent>();
 	CameraComponent* cameraCmp = gameMgrCmp->CameraEnt->GetComponent<CameraComponent>();
 	RenderingSettingsComponent* settingsCmp = gameMgrCmp->CameraEnt->GetComponent<RenderingSettingsComponent>();
-	
+
+	// Imgui shadows debug panel
 	if (ImGui::GetCurrentContext() == nullptr || !ImGui::GetIO().Fonts->IsBuilt())
 		return;
 	
